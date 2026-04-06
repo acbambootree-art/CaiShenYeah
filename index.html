@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CaiShenYeah | Singapore Pools 4D Prediction</title>
+  <meta name="description" content="CaiShenYeah — Advanced statistical prediction engine for Singapore Pools 4D lottery. Powered by the God of Fortune. Frequency analysis, pattern detection, and AI-powered number predictions.">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Analyzing 4D Data...</div>
+</div>
+
+<!-- Header -->
+<header class="header">
+  <div class="container">
+    <a href="#" class="logo">CaiShen<span>Yeah</span></a>
+    <nav class="nav" id="nav">
+      <a href="#predictions">Predictions</a>
+      <a href="#analysis">Analysis</a>
+      <a href="#history">History</a>
+      <a href="#statistics">Statistics</a>
+    </nav>
+    <button class="nav-mobile-toggle" id="navToggle" aria-label="Menu">&#9776;</button>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <video class="hero-video" autoplay muted loop playsinline>
+    <source src="hero-bg.mp4" type="video/mp4">
+  </video>
+  <div class="hero-overlay"></div>
+  <div class="container hero-content">
+    <div class="hero-label">A Singapore Pools 4D Oracle</div>
+    <h1>CaiShenYeah<br><span class="gold">财神爷 Make You Huat</span></h1>
+    <p>The God of Fortune meets data science. Advanced statistical analysis powered by historical data, frequency patterns, and ensemble prediction models.</p>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="value" id="totalDraws">--</div>
+        <div class="label">Draws Analyzed</div>
+      </div>
+      <div class="hero-stat">
+        <div class="value" id="totalNumbers">--</div>
+        <div class="label">Numbers Processed</div>
+      </div>
+      <div class="hero-stat">
+        <div class="value" id="modelCount">4</div>
+        <div class="label">Prediction Models</div>
+      </div>
+    </div>
+
+    <!-- Countdown -->
+    <div class="countdown-bar">
+      <span class="countdown-label">Next Draw</span>
+      <div class="countdown-timer" id="countdown">
+        <div class="countdown-unit"><div class="num" id="cd-days">--</div><div class="lbl">Days</div></div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-unit"><div class="num" id="cd-hours">--</div><div class="lbl">Hours</div></div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-unit"><div class="num" id="cd-mins">--</div><div class="lbl">Mins</div></div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-unit"><div class="num" id="cd-secs">--</div><div class="lbl">Secs</div></div>
+      </div>
+      <span class="countdown-label" id="nextDrawLabel">Draw #----</span>
+    </div>
+  </div>
+</section>
+
+<!-- Predictions -->
+<section class="section" id="predictions">
+  <div class="container">
+    <div class="section-title">Top Predictions</div>
+    <div class="section-subtitle">Numbers with the highest probability based on our ensemble prediction model</div>
+    <div class="predictions-grid" id="predictionsGrid"></div>
+    <p style="text-align:center;color:var(--white-muted);font-size:0.85rem;margin-top:16px;">
+      Predictions based on <span class="gold-text">Weighted Frequency</span>, <span class="gold-text">Position Analysis</span>, <span class="gold-text">Pattern Matching</span>, and <span class="gold-text">Due Number</span> models
+    </p>
+  </div>
+</section>
+
+<!-- Analysis -->
+<section class="section" id="analysis" style="background:var(--black-light);">
+  <div class="container">
+    <div class="section-title">Digit Analysis</div>
+    <div class="section-subtitle">Frequency distribution of digits 0-9 across all winning numbers</div>
+    <div class="card-grid">
+      <!-- Digit Frequency Chart -->
+      <div class="card">
+        <div class="card-title">Overall Digit Frequency</div>
+        <div class="card-desc">How often each digit appears across all positions</div>
+        <div class="chart-container"><canvas id="digitFreqChart"></canvas></div>
+      </div>
+      <!-- Position Heatmap -->
+      <div class="card">
+        <div class="card-title">Digit Frequency by Position</div>
+        <div class="card-desc">Heatmap showing digit frequency for each of the 4 positions</div>
+        <div class="chart-container"><canvas id="positionChart"></canvas></div>
+      </div>
+      <!-- Sum Distribution -->
+      <div class="card">
+        <div class="card-title">Digit Sum Distribution</div>
+        <div class="card-desc">Distribution of the sum of all 4 digits in winning numbers</div>
+        <div class="chart-container"><canvas id="sumChart"></canvas></div>
+      </div>
+      <!-- Odd/Even -->
+      <div class="card">
+        <div class="card-title">Odd/Even Ratio</div>
+        <div class="card-desc">Distribution of odd vs even digits in top 3 prizes</div>
+        <div class="chart-container"><canvas id="oddEvenChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Hot & Cold Numbers -->
+<section class="section" id="hotcold">
+  <div class="container">
+    <div class="section-title">Hot & Cold Numbers</div>
+    <div class="section-subtitle">Numbers that are trending or overdue based on recent draws</div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-title" style="color:var(--red);">Hot Numbers <span class="badge badge-hot">Frequent</span></div>
+        <div class="card-desc">Most frequently drawn in the last 30 draws</div>
+        <div class="number-pills" id="hotPills"></div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:var(--blue);">Cold Numbers <span class="badge badge-cold">Overdue</span></div>
+        <div class="card-desc">Historically frequent but not seen recently</div>
+        <div class="number-pills" id="coldPills"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Recent History -->
+<section class="section" id="history" style="background:var(--black-light);">
+  <div class="container">
+    <div class="section-title">Recent Results</div>
+    <div class="section-subtitle">Latest winning numbers from Singapore Pools 4D</div>
+    <div class="card" style="overflow-x:auto;">
+      <table class="results-table" id="resultsTable">
+        <thead>
+          <tr>
+            <th>Draw</th>
+            <th>Date</th>
+            <th>1st Prize</th>
+            <th>2nd Prize</th>
+            <th>3rd Prize</th>
+            <th>Starters</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- Statistics -->
+<section class="section" id="statistics">
+  <div class="container">
+    <div class="section-title">Pair Analysis</div>
+    <div class="section-subtitle">Most frequently occurring digit pairs in winning numbers</div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-title">Top Digit Pairs</div>
+        <div class="card-desc">Two-digit combinations that appear most often together</div>
+        <div class="stat-bar-list" id="pairBars"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Gap Analysis</div>
+        <div class="card-desc">Numbers with the shortest average gap between appearances</div>
+        <div class="stat-bar-list" id="gapBars"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Disclaimer -->
+<div class="disclaimer">
+  <div class="container">
+    <strong>Disclaimer:</strong> CaiShenYeah is a statistical analysis tool for entertainment purposes only.<br>
+    Lottery outcomes are random. Past results do not guarantee future outcomes.<br>
+    Please gamble responsibly. If you need help, call the National Council on Problem Gambling at 1800-6-668-668.
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <a href="#" class="logo">CaiShen<span>Yeah</span></a>
+    <p style="margin-top:8px;">&copy; 2026 CaiShenYeah. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/analysis.js"></script>
+<script src="js/predictor.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
