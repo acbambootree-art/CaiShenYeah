@@ -35,22 +35,43 @@
   --neon-glow-pink: 0 0 7px #ff2d95, 0 0 10px #ff2d95, 0 0 21px #ff2d95, 0 0 42px rgba(255,45,149,0.4);
 }
 
-/* --- Neon flicker animation --- */
-@keyframes neonFlicker {
-  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-  20%, 24%, 55% { opacity: 0.85; }
+/* --- Neon shimmer animations --- */
+@keyframes shimmerGold {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
 }
-@keyframes neonPulse {
-  0%, 100% { text-shadow: var(--neon-glow-gold); }
-  50% { text-shadow: 0 0 4px #d4af37, 0 0 8px #d4af37, 0 0 15px #d4af37, 0 0 30px #f0d060; }
+@keyframes shimmerCyan {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
 }
-@keyframes neonPulseCyan {
-  0%, 100% { text-shadow: var(--neon-glow-cyan); }
-  50% { text-shadow: 0 0 4px #00f0ff, 0 0 8px #00f0ff, 0 0 15px #00f0ff; }
+@keyframes shimmerBorder {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
 }
-@keyframes neonBorderPulse {
-  0%, 100% { box-shadow: 0 0 5px rgba(212,175,55,0.4), 0 0 10px rgba(212,175,55,0.2), inset 0 0 5px rgba(212,175,55,0.1); }
-  50% { box-shadow: 0 0 10px rgba(212,175,55,0.6), 0 0 20px rgba(212,175,55,0.3), 0 0 40px rgba(212,175,55,0.15), inset 0 0 10px rgba(212,175,55,0.1); }
+
+/* Shimmer text utility — gold */
+.shimmer-gold {
+  background: linear-gradient(
+    90deg,
+    #d4af37 0%, #f0d060 20%, #fffbe6 40%, #f0d060 60%, #d4af37 80%, #a88a2a 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerGold 3s linear infinite;
+}
+/* Shimmer text utility — cyan */
+.shimmer-cyan {
+  background: linear-gradient(
+    90deg,
+    #00f0ff 0%, #66ffff 20%, #e0ffff 40%, #66ffff 60%, #00f0ff 80%, #009daa 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerCyan 3s linear infinite;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -77,17 +98,29 @@ body {
   font-family: var(--font-display);
   font-size: 2rem;
   font-weight: 700;
-  color: var(--neon-gold);
   margin-bottom: 8px;
-  text-shadow: var(--neon-glow-gold);
-  animation: neonPulse 4s ease-in-out infinite;
+  background: linear-gradient(90deg, #d4af37 0%, #f0d060 20%, #fffbe6 40%, #f0d060 60%, #d4af37 80%, #a88a2a 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerGold 4s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(212,175,55,0.5));
 }
 .section-subtitle {
   color: var(--white-muted);
   font-size: 0.95rem;
   margin-bottom: 40px;
 }
-.gold-text { color: var(--neon-gold); text-shadow: 0 0 7px #d4af37, 0 0 15px rgba(212,175,55,0.5); }
+.gold-text {
+  background: linear-gradient(90deg, #d4af37, #f0d060, #fffbe6, #f0d060, #d4af37);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerGold 3s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(212,175,55,0.4));
+}
 .badge {
   display: inline-block;
   padding: 4px 12px;
@@ -123,17 +156,25 @@ body {
   font-family: var(--font-display);
   font-size: 1.5rem;
   font-weight: 800;
-  color: var(--neon-gold);
   text-decoration: none;
   letter-spacing: -0.5px;
-  text-shadow: var(--neon-glow-gold);
-  animation: neonPulse 3s ease-in-out infinite;
+  background: linear-gradient(90deg, #d4af37 0%, #f0d060 20%, #fffbe6 40%, #f0d060 60%, #d4af37 80%, #a88a2a 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerGold 3s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(212,175,55,0.6));
 }
 .logo span {
-  color: var(--neon-cyan);
   font-weight: 400;
-  text-shadow: var(--neon-glow-cyan);
-  animation: neonPulseCyan 3s ease-in-out infinite;
+  background: linear-gradient(90deg, #00f0ff 0%, #66ffff 20%, #e0ffff 40%, #66ffff 60%, #00f0ff 80%, #009daa 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerCyan 3s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(0,240,255,0.6));
 }
 .nav { display: flex; gap: 32px; align-items: center; }
 .nav a {
@@ -208,15 +249,22 @@ body {
   border-radius: 30px;
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--neon-cyan);
   text-transform: uppercase;
   letter-spacing: 2px;
   margin-bottom: 24px;
   background: rgba(10,10,10,0.6);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  text-shadow: var(--neon-glow-cyan);
   box-shadow: 0 0 7px rgba(0,240,255,0.3), 0 0 15px rgba(0,240,255,0.15), inset 0 0 7px rgba(0,240,255,0.1);
+  /* shimmer text */
+  color: transparent;
+  background-image: linear-gradient(90deg, #00f0ff 0%, #66ffff 20%, #e0ffff 40%, #66ffff 60%, #00f0ff 80%, #009daa 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerCyan 3s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(0,240,255,0.5));
 }
 .hero h1 {
   font-family: var(--font-display);
@@ -224,14 +272,22 @@ body {
   font-weight: 800;
   line-height: 1.15;
   margin-bottom: 20px;
-  color: #fff;
-  text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.4), 0 0 40px rgba(212,175,55,0.3), 0 0 80px rgba(212,175,55,0.15);
-  animation: neonFlicker 4s infinite;
+  background: linear-gradient(90deg, #eee 0%, #fff 15%, #fffbe6 30%, #fff 50%, #eee 65%, #fff 80%, #eee 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerGold 3.5s linear infinite;
+  filter: drop-shadow(0 0 12px rgba(255,255,255,0.4)) drop-shadow(0 0 30px rgba(212,175,55,0.2));
 }
 .hero h1 .gold {
-  color: var(--neon-gold);
-  text-shadow: var(--neon-glow-gold);
-  animation: neonPulse 2.5s ease-in-out infinite;
+  background: linear-gradient(90deg, #d4af37 0%, #f0d060 15%, #fffbe6 30%, #f0d060 50%, #d4af37 65%, #f0d060 80%, #d4af37 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerGold 2.5s linear infinite;
+  filter: drop-shadow(0 0 10px rgba(212,175,55,0.6)) drop-shadow(0 0 25px rgba(212,175,55,0.3));
 }
 .hero p {
   color: var(--white);
@@ -253,8 +309,13 @@ body {
   font-family: var(--font-display);
   font-size: 2rem;
   font-weight: 700;
-  color: var(--neon-gold);
-  text-shadow: var(--neon-glow-gold);
+  background: linear-gradient(90deg, #d4af37 0%, #f0d060 20%, #fffbe6 40%, #f0d060 60%, #d4af37 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerGold 3s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(212,175,55,0.5));
 }
 .hero-stat .label {
   font-size: 0.8rem;
@@ -269,12 +330,27 @@ body {
   align-items: center;
   gap: 24px;
   background: rgba(28,28,28,0.9);
-  border: 1px solid var(--neon-gold);
+  border: 1px solid transparent;
   border-radius: 60px;
   padding: 16px 40px;
   margin-bottom: 48px;
+  position: relative;
   box-shadow: 0 0 10px rgba(212,175,55,0.3), 0 0 20px rgba(212,175,55,0.15), inset 0 0 10px rgba(212,175,55,0.05);
-  animation: neonBorderPulse 3s ease-in-out infinite;
+}
+.countdown-bar::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 60px;
+  background: linear-gradient(90deg, #a88a2a, #ffd700, #fffbe6, #ffd700, #a88a2a);
+  background-size: 200% auto;
+  animation: shimmerBorder 3s linear infinite;
+  z-index: -1;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  padding: 1px;
 }
 .countdown-label {
   font-size: 0.85rem;
@@ -292,8 +368,13 @@ body {
   font-family: var(--font-mono);
   font-size: 1.5rem;
   font-weight: 500;
-  color: var(--neon-gold);
-  text-shadow: var(--neon-glow-gold);
+  background: linear-gradient(90deg, #d4af37 0%, #f0d060 20%, #fffbe6 40%, #f0d060 60%, #d4af37 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerGold 2.5s linear infinite;
+  filter: drop-shadow(0 0 5px rgba(212,175,55,0.5));
 }
 .countdown-unit .lbl {
   font-size: 0.65rem;
@@ -303,9 +384,14 @@ body {
 }
 .countdown-sep {
   font-size: 1.5rem;
-  color: var(--neon-cyan);
   line-height: 1;
-  text-shadow: var(--neon-glow-cyan);
+  background: linear-gradient(90deg, #00f0ff, #66ffff, #e0ffff, #66ffff, #00f0ff);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerCyan 2.5s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(0,240,255,0.5));
 }
 
 /* --- Prediction Cards --- */
@@ -358,24 +444,50 @@ body {
   font-family: var(--font-mono);
   font-size: 2rem;
   font-weight: 500;
-  color: var(--neon-gold);
   letter-spacing: 4px;
   margin-bottom: 8px;
-  text-shadow: var(--neon-glow-gold);
+  background: linear-gradient(90deg, #d4af37 0%, #f0d060 20%, #fffbe6 40%, #f0d060 60%, #d4af37 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerGold 2.5s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(212,175,55,0.5));
 }
 .prediction-card .confidence {
   font-size: 0.8rem;
   color: var(--white-muted);
 }
 .prediction-card .confidence strong {
-  color: var(--green);
-  text-shadow: var(--neon-glow-green);
+  background: linear-gradient(90deg, #44ff88, #88ffbb, #ccffe6, #88ffbb, #44ff88);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerGold 3s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(68,255,136,0.5));
 }
 .prediction-card.top-3 {
-  border-color: var(--neon-gold);
+  border-color: transparent;
   background: linear-gradient(135deg, rgba(212,175,55,0.12), rgba(212,175,55,0.02));
   box-shadow: 0 0 10px rgba(212,175,55,0.3), 0 0 20px rgba(212,175,55,0.15), 0 0 40px rgba(212,175,55,0.08);
-  animation: neonBorderPulse 3s ease-in-out infinite;
+  background-clip: padding-box;
+}
+.prediction-card.top-3::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, #a88a2a, #ffd700, #fffbe6, #ffd700, #a88a2a);
+  background-size: 200% auto;
+  animation: shimmerBorder 3s linear infinite;
+  z-index: -1;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  padding: 1px;
+  pointer-events: none;
 }
 .prediction-card.top-3 .number { font-size: 2.4rem; }
 
@@ -400,9 +512,14 @@ body {
   font-family: var(--font-display);
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--neon-gold);
   margin-bottom: 4px;
-  text-shadow: 0 0 7px rgba(212,175,55,0.5), 0 0 15px rgba(212,175,55,0.25);
+  background: linear-gradient(90deg, #d4af37 0%, #f0d060 20%, #fffbe6 40%, #f0d060 60%, #d4af37 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerGold 4s linear infinite;
+  filter: drop-shadow(0 0 5px rgba(212,175,55,0.4));
 }
 .card-desc {
   font-size: 0.85rem;
@@ -426,13 +543,18 @@ body {
 .results-table th {
   text-align: left;
   padding: 12px 16px;
-  color: var(--neon-cyan);
   font-weight: 600;
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border-bottom: 1px solid rgba(0,240,255,0.2);
-  text-shadow: 0 0 7px rgba(0,240,255,0.5), 0 0 15px rgba(0,240,255,0.25);
+  background: linear-gradient(90deg, #00f0ff, #66ffff, #e0ffff, #66ffff, #00f0ff);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerCyan 4s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(0,240,255,0.4));
 }
 .results-table td {
   padding: 12px 16px;
@@ -446,7 +568,16 @@ body {
   color: var(--white);
   letter-spacing: 2px;
 }
-.results-table .first-prize { color: var(--neon-gold); font-weight: 600; text-shadow: var(--neon-glow-gold); }
+.results-table .first-prize {
+  font-weight: 600;
+  background: linear-gradient(90deg, #d4af37, #f0d060, #fffbe6, #f0d060, #d4af37);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerGold 3s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(212,175,55,0.5));
+}
 .results-table .draw-date { color: var(--white); }
 
 /* --- Hot/Cold Heatmap --- */
@@ -553,7 +684,14 @@ body {
   font-size: 0.8rem;
   line-height: 1.8;
 }
-.disclaimer strong { color: var(--neon-gold); text-shadow: 0 0 5px rgba(212,175,55,0.5); }
+.disclaimer strong {
+  background: linear-gradient(90deg, #d4af37, #f0d060, #fffbe6, #f0d060, #d4af37);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerGold 3s linear infinite;
+}
 
 /* --- Footer --- */
 .footer {
@@ -589,11 +727,15 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-text {
   margin-top: 16px;
-  color: var(--neon-gold);
   font-family: var(--font-display);
   font-size: 1.1rem;
-  text-shadow: var(--neon-glow-gold);
-  animation: neonPulse 2s ease-in-out infinite;
+  background: linear-gradient(90deg, #d4af37 0%, #f0d060 20%, #fffbe6 40%, #f0d060 60%, #d4af37 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerGold 2s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(212,175,55,0.5));
 }
 
 /* --- Animations --- */
