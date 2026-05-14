@@ -854,6 +854,7 @@ body {
 
 /* --- Responsive --- */
 @media (max-width: 768px) {
+  .container { padding: 0 16px; }
   .nav { display: none; }
   .nav.open {
     display: flex;
@@ -870,16 +871,78 @@ body {
   .nav-mobile-toggle { display: block; }
   .hero { padding: 120px 0 60px; min-height: 80vh; }
   .hero h1 { font-size: 2rem; }
+  .hero p { font-size: 0.95rem; margin-bottom: 24px; }
   .hero-stats { gap: 24px; flex-wrap: wrap; }
-  .countdown-bar { flex-direction: column; gap: 12px; padding: 16px 24px; border-radius: 16px; }
-  .predictions-grid { grid-template-columns: repeat(2, 1fr); }
-  .card-grid { grid-template-columns: 1fr; }
+  .countdown-bar { flex-direction: column; gap: 10px; padding: 14px 20px; border-radius: 16px; }
+  .countdown-label { font-size: 0.75rem; }
+  .countdown-timer { gap: 12px; }
+  .countdown-unit .num { font-size: 1.2rem; }
+  .countdown-sep { font-size: 1.2rem; }
   .section { padding: 48px 0; }
   .section-title { font-size: 1.5rem; }
+  .section-subtitle { font-size: 0.85rem; margin-bottom: 24px; }
+
+  /* Winners grid — single column on mobile */
+  .winners-grid { grid-template-columns: 1fr; gap: 12px; }
+  .winner-card { padding: 20px 16px; }
+  .winner-number { font-size: 2rem; letter-spacing: 4px; }
+
+  /* Predictions — 2 columns */
+  .predictions-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .prediction-card { padding: 16px 10px; }
+  .prediction-card .number { font-size: 1.6rem; letter-spacing: 2px; }
+  .prediction-card.top-3 .number { font-size: 1.8rem; }
+  .prediction-card .confidence { font-size: 0.7rem; }
+  .prediction-card .rank { font-size: 0.65rem; }
+
+  /* Cards — single column */
+  .card-grid { grid-template-columns: 1fr; gap: 16px; }
+  .card { padding: 20px 16px; }
+
+  /* Results table — hide starters + 3rd prize on mobile */
+  .results-table { font-size: 0.8rem; }
+  .results-table th, .results-table td { padding: 10px 6px; }
+  .results-table .prize-num { letter-spacing: 1px; }
+  .results-table .draw-date { font-size: 0.75rem; }
+  .results-table th:nth-child(5),
+  .results-table td:nth-child(5),
+  .results-table th:nth-child(6),
+  .results-table td:nth-child(6) { display: none; }
+
+  /* Number pills */
+  .number-pills { gap: 6px; }
+  .number-pill { font-size: 0.8rem; padding: 5px 10px; }
+
+  /* Stat bars */
+  .stat-bar-label { width: 60px; font-size: 0.8rem; }
+  .stat-bar-fill { padding-left: 8px; }
+  .stat-bar-value { font-size: 0.7rem; }
+
   .heatmap-grid { gap: 4px; }
 }
 
 @media (max-width: 480px) {
-  .predictions-grid { grid-template-columns: repeat(2, 1fr); }
+  .hero { padding: 100px 0 48px; min-height: auto; }
+  .hero h1 { font-size: 1.75rem; }
+  .hero p { font-size: 0.85rem; }
   .hero-stats { flex-direction: column; gap: 16px; }
+  .hero-stat .value { font-size: 1.5rem; }
+  .hero-stat .label { font-size: 0.7rem; }
+  .countdown-bar { padding: 12px 16px; }
+  .countdown-unit .num { font-size: 1rem; }
+  .countdown-sep { font-size: 1rem; }
+
+  /* Predictions — still 2 columns but tighter */
+  .predictions-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .prediction-card { padding: 14px 8px; }
+  .prediction-card .number { font-size: 1.4rem; letter-spacing: 1px; }
+  .prediction-card.top-3 .number { font-size: 1.6rem; }
+
+  /* Winners */
+  .winner-number { font-size: 1.8rem; letter-spacing: 3px; }
+  .winner-card { padding: 16px 12px; }
+  .winner-prize { font-size: 0.85rem; }
+  .winner-meta { font-size: 0.75rem; }
+
+  .section-title { font-size: 1.3rem; }
 }

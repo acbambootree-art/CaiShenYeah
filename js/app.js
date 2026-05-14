@@ -396,8 +396,13 @@
   }
 
   // ── Helpers ──
+  const isMobile = window.innerWidth <= 768;
+
   function formatDate(dateStr) {
     const d = new Date(dateStr);
+    if (isMobile) {
+      return d.toLocaleDateString('en-SG', { day: 'numeric', month: 'short' });
+    }
     return d.toLocaleDateString('en-SG', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
   }
 
