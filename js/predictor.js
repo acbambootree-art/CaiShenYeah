@@ -215,12 +215,53 @@ const Predictor = (() => {
     };
   }
 
+  function validatePredictions(results, topN = 100, drawsToCheck = 20) {
+    const hits = [];
+
+    for (let idx = 0; idx < Math.min(drawsToCheck, results.length - 10); idx++) {
+      const draw = results[idx];
+      const priorData = results.slice(idx + 1);
+      const predictions = predict(priorData, topN);
+      const predictedNumbers = predictions.map(p => p.number);
+
+      const allWinning = [
+        draw.first, draw.second, draw.third,
+        ...(draw.starters || []),
+        ...(draw.consolation || [])
+      ];
+
+      predictedNumbers.forEach(pred => {
+        if (allWinning.includes(pred)) {
+          let prizeType = '';
+          if (pred === draw.first) prizeType = '1st Prize';
+          else if (pred === draw.second) prizeType = '2nd Prize';
+          else if (pred === draw.third) prizeType = '3rd Prize';
+          else if ((draw.starters || []).includes(pred)) prizeType = 'Starter';
+          else if ((draw.consolation || []).includes(pred)) prizeType = 'Consolation';
+
+          const predInfo = predictions.find(p => p.number === pred);
+          hits.push({
+            drawNo: draw.drawNo,
+            date: draw.date,
+            number: pred,
+            prizeType,
+            rank: predInfo.rank,
+            confidence: predInfo.confidence
+          });
+        }
+      });
+    }
+
+    return hits;
+  }
+
   return {
     weightedFrequencyModel,
     positionBasedModel,
     patternMatchModel,
     dueNumberModel,
     predict,
-    getNextDrawInfo
+    getNextDrawInfo,
+    validatePredictions
   };
 })();

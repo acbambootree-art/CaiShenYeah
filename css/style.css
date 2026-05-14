@@ -491,6 +491,101 @@ body {
 }
 .prediction-card.top-3 .number { font-size: 2.4rem; }
 
+/* --- Proven Winners --- */
+.winners-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+.winner-card {
+  background: rgba(28,28,28,0.9);
+  border: 1px solid rgba(68,255,136,0.3);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  box-shadow: 0 0 8px rgba(68,255,136,0.1), inset 0 0 8px rgba(68,255,136,0.03);
+}
+.winner-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #44ff88, #00f0ff, #44ff88, transparent);
+  box-shadow: 0 0 10px rgba(68,255,136,0.5), 0 0 20px rgba(0,240,255,0.3);
+}
+.winner-card:hover {
+  border-color: #44ff88;
+  transform: translateY(-4px);
+  box-shadow: 0 0 15px rgba(68,255,136,0.4), 0 0 30px rgba(68,255,136,0.2);
+}
+.winner-card.prize-1st,
+.winner-card.prize-2nd,
+.winner-card.prize-3rd {
+  border-color: rgba(212,175,55,0.5);
+  box-shadow: 0 0 10px rgba(212,175,55,0.3), 0 0 20px rgba(212,175,55,0.15);
+}
+.winner-card.prize-1st::before,
+.winner-card.prize-2nd::before,
+.winner-card.prize-3rd::before {
+  background: linear-gradient(90deg, transparent, #ffd700, #fffbe6, #ffd700, transparent);
+  box-shadow: 0 0 10px rgba(255,215,0,0.5), 0 0 20px rgba(255,215,0,0.3);
+}
+.winner-draw {
+  font-size: 0.75rem;
+  color: var(--white-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+.winner-number {
+  font-family: var(--font-mono);
+  font-size: 2.4rem;
+  font-weight: 500;
+  letter-spacing: 6px;
+  margin-bottom: 12px;
+  background: linear-gradient(90deg, #44ff88 0%, #88ffbb 20%, #ccffe6 40%, #88ffbb 60%, #44ff88 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerGold 2.5s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(68,255,136,0.6));
+}
+.prize-1st .winner-number,
+.prize-2nd .winner-number,
+.prize-3rd .winner-number {
+  background: linear-gradient(90deg, #d4af37 0%, #f0d060 20%, #fffbe6 40%, #f0d060 60%, #d4af37 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 8px rgba(212,175,55,0.6));
+}
+.winner-prize {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--green);
+  text-shadow: 0 0 5px rgba(68,255,136,0.5);
+}
+.prize-1st .winner-prize,
+.prize-2nd .winner-prize,
+.prize-3rd .winner-prize {
+  color: var(--neon-gold);
+  text-shadow: 0 0 5px rgba(212,175,55,0.5);
+}
+.winner-meta {
+  font-size: 0.8rem;
+  color: var(--white-muted);
+}
+.winner-meta strong {
+  color: var(--neon-cyan);
+  text-shadow: 0 0 4px rgba(0,240,255,0.4);
+}
+
 /* --- Card Grid --- */
 .card-grid {
   display: grid;

@@ -24,6 +24,7 @@
   window.addEventListener('DOMContentLoaded', () => {
     renderHeroStats();
     renderCountdown();
+    renderProvenWinners();
     renderPredictions();
     renderDigitFreqChart();
     renderPositionChart();
@@ -98,6 +99,50 @@
 
     update();
     setInterval(update, 1000);
+  }
+
+  // ── Proven Winners ──
+  function renderProvenWinners() {
+    const hits = Predictor.validatePredictions(results, 100, 20);
+    const container = document.getElementById('provenWinnersContent');
+
+    if (hits.length === 0) {
+      container.innerHTML = '<p style="text-align:center;color:var(--white-muted);">No matches found in recent draws. Check back after the next draw!</p>';
+      return;
+    }
+
+    const prizeClass = (type) => {
+      if (type === '1st Prize') return 'prize-1st';
+      if (type === '2nd Prize') return 'prize-2nd';
+      if (type === '3rd Prize') return 'prize-3rd';
+      if (type === 'Starter') return 'prize-starter';
+      return 'prize-consolation';
+    };
+
+    const prizeIcon = (type) => {
+      if (type === '1st Prize') return '🥇';
+      if (type === '2nd Prize') return '🥈';
+      if (type === '3rd Prize') return '🥉';
+      return '✅';
+    };
+
+    container.innerHTML = `
+      <div class="winners-grid">
+        ${hits.map(h => `
+          <div class="winner-card animate-in ${prizeClass(h.prizeType)}">
+            <div class="winner-draw">Draw #${h.drawNo} &middot; ${formatDate(h.date)}</div>
+            <div class="winner-number">${h.number}</div>
+            <div class="winner-prize">${prizeIcon(h.prizeType)} ${h.prizeType}</div>
+            <div class="winner-meta">
+              Predicted Rank <strong>#${h.rank}</strong> &middot; ${h.confidence}% confidence
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <p style="text-align:center;color:var(--white-muted);font-size:0.85rem;margin-top:16px;">
+        Showing matches from our <span class="gold-text">top 100 predictions</span> against the last 20 draws
+      </p>
+    `;
   }
 
   // ── Predictions ──
