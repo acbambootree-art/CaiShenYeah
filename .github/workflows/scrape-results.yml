@@ -1,0 +1,45 @@
+name: 4D scrape latest draw
+
+# Singapore Pools draws happen Sun / Wed / Sat at ~18:30 SGT.
+# Results stabilise on their site within minutes. This workflow runs at
+# 19:30 SGT (11:30 UTC) — 1 hour after draw — and the script no-ops
+# cleanly if no new draw is available, so even a delayed GH Actions
+# fire is fine.
+on:
+  schedule:
+    - cron: '30 11 * * 0,3,6'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Configure git identity
+        run: |
+          git config user.name  "4D Cron Bot"
+          git config user.email "bot@caishenyeah.local"
+
+      - name: Run scraper (commits + pushes new draws inside)
+        run: |
+          python3 update_results.py
+
+      - name: Confirm push worked
+        run: |
+          git fetch origin main
+          if git rev-parse HEAD@{upstream} >/dev/null 2>&1; then
+            echo "Local HEAD: $(git rev-parse HEAD)"
+            echo "Remote HEAD: $(git rev-parse origin/main)"
+          fi
