@@ -24,8 +24,8 @@
   window.addEventListener('DOMContentLoaded', () => {
     renderHeroStats();
     renderCountdown();
-    renderProvenWinners();
     renderPredictions();
+    renderDrawFairness();
     renderDigitFreqChart();
     renderPositionChart();
     renderSumChart();
@@ -36,6 +36,7 @@
     renderGapAnalysis();
     initNav();
     hideLoading();
+    runBacktest();
   });
 
   // ── Loading ──
@@ -101,9 +102,120 @@
     setInterval(update, 1000);
   }
 
+  // ── Walk-forward Backtest (feeds Proven Winners + Model Performance) ──
+  const BACKTEST_DRAWS = 50;   // draws measured for performance stats
+  const WINNERS_DRAWS = 20;    // draws displayed in Proven Winners
+  const BACKTEST_TOPN = 100;
+
+  function runBacktest() {
+    const total = Math.min(BACKTEST_DRAWS, Math.max(0, results.length - 60));
+    const winnersContainer = document.getElementById('provenWinnersContent');
+    if (!total) {
+      winnersContainer.innerHTML = '<p style="text-align:center;color:var(--white-muted);">Not enough historical data yet.</p>';
+      return;
+    }
+    winnersContainer.innerHTML = '<p style="text-align:center;color:var(--white-muted);">Verifying predictions against past draws&hellip;</p>';
+
+    const perDraw = [];
+    let idx = 0;
+
+    // Chunked so the multi-second computation never freezes the page
+    function step() {
+      const end = Math.min(idx + 2, total);
+      for (; idx < end; idx++) {
+        perDraw.push(Predictor.backtestDraw(results, idx, BACKTEST_TOPN));
+      }
+      const bar = document.getElementById('performanceProgressBar');
+      const txt = document.getElementById('performanceProgressText');
+      if (bar) bar.style.width = `${(idx / total) * 100}%`;
+      if (txt) txt.textContent = `Backtesting draw ${idx} of ${total}…`;
+
+      if (idx < total) {
+        setTimeout(step, 0);
+      } else {
+        renderProvenWinners(perDraw);
+        renderModelPerformance(perDraw);
+      }
+    }
+    step();
+  }
+
+  // ── Model Performance ──
+  function renderModelPerformance(perDraw) {
+    const container = document.getElementById('performanceContent');
+    const stats = [20, 100].map(n => Predictor.backtestStats(perDraw, n));
+
+    const verdict = (p) => {
+      if (p < 0.01) return { label: 'Beating chance', cls: 'badge-hot' };
+      if (p < 0.1) return { label: 'Above chance — not significant', cls: 'badge-model' };
+      return { label: 'Consistent with chance', cls: 'badge-cold' };
+    };
+
+    const row = (label, hits, expected, p) => {
+      const v = verdict(p);
+      return `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <div style="color:var(--white-muted);">${label}</div>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div><strong class="gold-text">${hits}</strong> hits vs <strong>${expected.toFixed(1)}</strong> expected by chance</div>
+            <div style="color:var(--white-muted);font-size:0.85rem;">p = ${p.toFixed(2)}</div>
+            <span class="badge ${v.cls}">${v.label}</span>
+          </div>
+        </div>`;
+    };
+
+    const [s20, s100] = stats;
+    container.innerHTML = `
+      ${row('Top 20 picks &middot; any prize', s20.anyHits, s20.anyExpected, s20.anyPValue)}
+      ${row('Top 20 picks &middot; 1st/2nd/3rd prize', s20.top3Hits, s20.top3Expected, s20.top3PValue)}
+      ${row('Top 100 picks &middot; any prize', s100.anyHits, s100.anyExpected, s100.anyPValue)}
+      ${row('Top 100 picks &middot; 1st/2nd/3rd prize', s100.top3Hits, s100.top3Expected, s100.top3PValue)}
+      <p style="color:var(--white-muted);font-size:0.85rem;margin-top:14px;">
+        Measured over the last <span class="gold-text">${s20.tested} draws</span>, each predicted using only draws that came before it.
+        The p-value is the probability of scoring at least this many hits by pure luck &mdash; only consistent p &lt; 0.01 would demonstrate real predictive skill.
+      </p>`;
+  }
+
+  // ── Draw Fairness ──
+  function renderDrawFairness() {
+    const f = Analysis.drawFairness(results);
+
+    const verdictEl = document.getElementById('fairnessVerdict');
+    verdictEl.textContent = f.fair ? 'UNIFORM ✓' : 'BIAS DETECTED';
+    verdictEl.className = `badge ${f.fair ? 'badge-cold' : 'badge-hot'}`;
+
+    document.getElementById('fairnessPositions').innerHTML = f.positions.map(p => `
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+        <div style="color:var(--white-muted);">Position ${p.position}</div>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <span>&chi;&sup2; = ${p.chi2.toFixed(1)}</span>
+          <span style="color:var(--white-muted);">p = ${p.pValue.toFixed(3)}</span>
+          <span class="badge ${p.pass ? 'badge-cold' : 'badge-hot'}">${p.pass ? 'PASS' : 'FAIL'}</span>
+        </div>
+      </div>`).join('');
+
+    const covDiff = ((f.distinct - f.expectedDistinct) / f.expectedDistinct * 100);
+    document.getElementById('fairnessCoverage').innerHTML = `
+      <div style="display:flex;gap:32px;flex-wrap:wrap;margin:14px 0;">
+        <div>
+          <div style="font-size:2rem;font-weight:700;" class="gold-text">${f.distinct.toLocaleString()}</div>
+          <div style="color:var(--white-muted);font-size:0.85rem;">distinct numbers drawn</div>
+        </div>
+        <div>
+          <div style="font-size:2rem;font-weight:700;">${Math.round(f.expectedDistinct).toLocaleString()}</div>
+          <div style="color:var(--white-muted);font-size:0.85rem;">expected if perfectly uniform</div>
+        </div>
+      </div>
+      <p style="color:var(--white-muted);font-size:0.85rem;">
+        Across ${f.totalNumbers.toLocaleString()} winning numbers, coverage is within
+        <span class="gold-text">${Math.abs(covDiff).toFixed(1)}%</span> of the uniform-draw expectation
+        &mdash; ${f.fair ? 'no detectable bias in the Singapore Pools draw.' : 'a deviation worth investigating.'}
+      </p>`;
+  }
+
   // ── Proven Winners ──
-  function renderProvenWinners() {
-    const hits = Predictor.validatePredictions(results, 100, 20);
+  function renderProvenWinners(perDraw) {
+    const hits = perDraw.slice(0, WINNERS_DRAWS).flatMap(d => d.hits);
     const container = document.getElementById('provenWinnersContent');
 
     if (hits.length === 0) {

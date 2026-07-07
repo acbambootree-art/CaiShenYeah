@@ -251,6 +251,58 @@ const Analysis = (() => {
     return results.slice(0, count);
   }
 
+  /**
+   * Complementary error function (Abramowitz & Stegun 7.1.26)
+   */
+  function erfc(x) {
+    const ax = Math.abs(x);
+    const t = 1 / (1 + 0.3275911 * ax);
+    const y = t * (0.254829592 + t * (-0.284496736 + t * (1.421413741 +
+              t * (-1.453152027 + t * 1.061405429)))) * Math.exp(-ax * ax);
+    return x >= 0 ? y : 2 - y;
+  }
+
+  /**
+   * Chi-square upper-tail probability (Wilson-Hilferty approximation)
+   */
+  function chiSquarePValue(chi2, df) {
+    if (chi2 <= 0) return 1;
+    const z = (Math.cbrt(chi2 / df) - (1 - 2 / (9 * df))) / Math.sqrt(2 / (9 * df));
+    return 0.5 * erfc(z / Math.SQRT2);
+  }
+
+  /**
+   * Draw Fairness Monitor
+   * Chi-square uniformity test of digit frequency in each position, plus a
+   * coverage check of distinct numbers drawn vs the uniform expectation.
+   * A fair draw machine should pass (p > 0.01) in every position; a real
+   * physical bias — the only thing that could make prediction possible —
+   * would show up here first.
+   */
+  function drawFairness(results) {
+    const freq = digitFrequencyByPosition(results);
+    const numbers = getAllWinningNumbers(results);
+    const total = numbers.length;
+
+    const positions = freq.map((counts, pos) => {
+      const expected = total / 10;
+      const chi2 = counts.reduce((acc, c) => acc + ((c - expected) ** 2) / expected, 0);
+      const pValue = chiSquarePValue(chi2, 9);
+      return { position: pos + 1, chi2, pValue, pass: pValue > 0.01 };
+    });
+
+    const distinct = new Set(numbers).size;
+    const expectedDistinct = 10000 * (1 - Math.pow(1 - 1 / 10000, total));
+
+    return {
+      positions,
+      totalNumbers: total,
+      distinct,
+      expectedDistinct,
+      fair: positions.every(p => p.pass)
+    };
+  }
+
   return {
     digitFrequencyByPosition,
     getAllWinningNumbers,
@@ -265,6 +317,8 @@ const Analysis = (() => {
     digitTrend,
     overallDigitFrequency,
     recentResults,
-    findLastSeen
+    findLastSeen,
+    drawFairness,
+    chiSquarePValue
   };
 })();

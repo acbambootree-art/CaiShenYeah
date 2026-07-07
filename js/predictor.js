@@ -197,14 +197,12 @@ const Predictor = (() => {
 
     const nextDrawNo = latestDraw.drawNo + 1;
 
-    // Next draw date: Wed, Sat, or Sun
+    // Next draw date: advance to the next Wed (3), Sat (6), or Sun (0)
     const lastDate = new Date(latestDraw.date);
-    const dayOfWeek = lastDate.getDay(); // 0=Sun, 3=Wed, 6=Sat
-
     let nextDate = new Date(lastDate);
-    if (dayOfWeek === 0) nextDate.setDate(nextDate.getDate() + 3); // Sun -> Wed
-    else if (dayOfWeek === 3) nextDate.setDate(nextDate.getDate() + 3); // Wed -> Sat
-    else if (dayOfWeek === 6) nextDate.setDate(nextDate.getDate() + 1); // Sat -> Sun
+    do {
+      nextDate.setDate(nextDate.getDate() + 1);
+    } while (![0, 3, 6].includes(nextDate.getDay()));
 
     return {
       drawNo: nextDrawNo,
@@ -215,43 +213,72 @@ const Predictor = (() => {
     };
   }
 
+  /**
+   * Walk-forward backtest of a single draw: predict topN using ONLY draws
+   * older than results[idx], then record which predictions actually won.
+   */
+  function backtestDraw(results, idx, topN = 100) {
+    const draw = results[idx];
+    const predictions = predict(results.slice(idx + 1), topN);
+
+    const prizeOf = {};
+    if (draw.first) prizeOf[draw.first] = '1st Prize';
+    if (draw.second) prizeOf[draw.second] = '2nd Prize';
+    if (draw.third) prizeOf[draw.third] = '3rd Prize';
+    (draw.starters || []).forEach(n => { if (!prizeOf[n]) prizeOf[n] = 'Starter'; });
+    (draw.consolation || []).forEach(n => { if (!prizeOf[n]) prizeOf[n] = 'Consolation'; });
+
+    const hits = predictions
+      .filter(p => prizeOf[p.number])
+      .map(p => ({
+        drawNo: draw.drawNo,
+        date: draw.date,
+        number: p.number,
+        prizeType: prizeOf[p.number],
+        rank: p.rank,
+        confidence: p.confidence
+      }));
+
+    return { drawNo: draw.drawNo, date: draw.date, topN, hits };
+  }
+
+  /**
+   * P(X >= k) for X ~ Poisson(lambda): the chance of seeing k or more hits
+   * from pure luck. Small values (< 0.01) would indicate real predictive skill.
+   */
+  function poissonTail(k, lambda) {
+    let p = Math.exp(-lambda), cum = 0;
+    for (let i = 0; i < k; i++) { cum += p; p *= lambda / (i + 1); }
+    return Math.max(0, Math.min(1, 1 - cum));
+  }
+
+  /**
+   * Summarize backtestDraw results at a given list size: hits vs the number
+   * expected by chance (23 winning numbers per draw out of 10,000).
+   */
+  function backtestStats(perDraw, listSize) {
+    const tested = perDraw.length;
+    let anyHits = 0, top3Hits = 0;
+    perDraw.forEach(d => d.hits.forEach(h => {
+      if (h.rank <= listSize) {
+        anyHits++;
+        if (h.prizeType === '1st Prize' || h.prizeType === '2nd Prize' || h.prizeType === '3rd Prize') top3Hits++;
+      }
+    }));
+    const anyExpected = tested * listSize * 23 / 10000;
+    const top3Expected = tested * listSize * 3 / 10000;
+    return {
+      tested, listSize,
+      anyHits, anyExpected, anyPValue: poissonTail(anyHits, anyExpected),
+      top3Hits, top3Expected, top3PValue: poissonTail(top3Hits, top3Expected)
+    };
+  }
+
   function validatePredictions(results, topN = 100, drawsToCheck = 20) {
     const hits = [];
-
     for (let idx = 0; idx < Math.min(drawsToCheck, results.length - 10); idx++) {
-      const draw = results[idx];
-      const priorData = results.slice(idx + 1);
-      const predictions = predict(priorData, topN);
-      const predictedNumbers = predictions.map(p => p.number);
-
-      const allWinning = [
-        draw.first, draw.second, draw.third,
-        ...(draw.starters || []),
-        ...(draw.consolation || [])
-      ];
-
-      predictedNumbers.forEach(pred => {
-        if (allWinning.includes(pred)) {
-          let prizeType = '';
-          if (pred === draw.first) prizeType = '1st Prize';
-          else if (pred === draw.second) prizeType = '2nd Prize';
-          else if (pred === draw.third) prizeType = '3rd Prize';
-          else if ((draw.starters || []).includes(pred)) prizeType = 'Starter';
-          else if ((draw.consolation || []).includes(pred)) prizeType = 'Consolation';
-
-          const predInfo = predictions.find(p => p.number === pred);
-          hits.push({
-            drawNo: draw.drawNo,
-            date: draw.date,
-            number: pred,
-            prizeType,
-            rank: predInfo.rank,
-            confidence: predInfo.confidence
-          });
-        }
-      });
+      hits.push(...backtestDraw(results, idx, topN).hits);
     }
-
     return hits;
   }
 
@@ -262,6 +289,9 @@ const Predictor = (() => {
     dueNumberModel,
     predict,
     getNextDrawInfo,
-    validatePredictions
+    validatePredictions,
+    backtestDraw,
+    backtestStats,
+    poissonTail
   };
 })();

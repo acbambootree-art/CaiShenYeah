@@ -23,9 +23,11 @@
     <nav class="nav" id="nav">
       <a href="#proven-winners">Winners</a>
       <a href="#predictions">Predictions</a>
+      <a href="#performance">Performance</a>
       <a href="#analysis">Analysis</a>
       <a href="#history">History</a>
       <a href="#statistics">Statistics</a>
+      <a href="#fairness">Fairness</a>
     </nav>
     <button class="nav-mobile-toggle" id="navToggle" aria-label="Menu">&#9776;</button>
   </div>
@@ -95,8 +97,28 @@
   </div>
 </section>
 
+<!-- Model Performance -->
+<section class="section" id="performance" style="background:var(--black-light);">
+  <div class="container">
+    <div class="section-title">Model Performance</div>
+    <div class="section-subtitle">Walk-forward backtest: for every past draw, the model is trained only on earlier draws, then its picks are checked against the real results — and compared with what pure luck would produce</div>
+    <div class="card" id="performanceCard">
+      <div class="card-title">Backtest vs Pure Chance</div>
+      <div class="card-desc">Each draw has 23 winning numbers out of 10,000 — so any list of picks scores some hits by luck alone. Real skill means beating that baseline consistently (p &lt; 0.01).</div>
+      <div id="performanceContent">
+        <div style="text-align:center;color:var(--white-muted);padding:24px 0;">
+          <div id="performanceProgressText">Backtesting recent draws&hellip;</div>
+          <div style="max-width:360px;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;margin:12px auto 0;overflow:hidden;">
+            <div id="performanceProgressBar" style="width:0%;height:100%;background:var(--gold);border-radius:3px;transition:width 0.2s;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Analysis -->
-<section class="section" id="analysis" style="background:var(--black-light);">
+<section class="section" id="analysis">
   <div class="container">
     <div class="section-title">Digit Analysis</div>
     <div class="section-subtitle">Frequency distribution of digits 0-9 across all winning numbers</div>
@@ -130,7 +152,7 @@
 </section>
 
 <!-- Hot & Cold Numbers -->
-<section class="section" id="hotcold">
+<section class="section" id="hotcold" style="background:var(--black-light);">
   <div class="container">
     <div class="section-title">Hot & Cold Numbers</div>
     <div class="section-subtitle">Numbers that are trending or overdue based on recent draws</div>
@@ -150,7 +172,7 @@
 </section>
 
 <!-- Recent History -->
-<section class="section" id="history" style="background:var(--black-light);">
+<section class="section" id="history">
   <div class="container">
     <div class="section-title">Recent Results</div>
     <div class="section-subtitle">Latest winning numbers from Singapore Pools 4D</div>
@@ -173,7 +195,7 @@
 </section>
 
 <!-- Statistics -->
-<section class="section" id="statistics">
+<section class="section" id="statistics" style="background:var(--black-light);">
   <div class="container">
     <div class="section-title">Pair Analysis</div>
     <div class="section-subtitle">Most frequently occurring digit pairs in winning numbers</div>
@@ -187,6 +209,26 @@
         <div class="card-title">Gap Analysis</div>
         <div class="card-desc">Numbers with the shortest average gap between appearances</div>
         <div class="stat-bar-list" id="gapBars"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Draw Fairness -->
+<section class="section" id="fairness">
+  <div class="container">
+    <div class="section-title">Draw Fairness Monitor</div>
+    <div class="section-subtitle">Chi-square uniformity tests on every digit position — if the draw machine ever developed a real physical bias, it would show up here first</div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-title">Digit Uniformity by Position <span class="badge badge-model" id="fairnessVerdict">--</span></div>
+        <div class="card-desc">A fair draw shows p &gt; 0.01 in every position, meaning digit frequencies match what a uniform random draw would produce</div>
+        <div id="fairnessPositions"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Number Coverage Check</div>
+        <div class="card-desc">How many distinct 4-digit numbers have ever been drawn, compared with the count a perfectly uniform draw would produce</div>
+        <div id="fairnessCoverage"></div>
       </div>
     </div>
   </div>
