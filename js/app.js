@@ -119,12 +119,12 @@
     const perDraw = [];
     let idx = 0;
 
-    // Chunked so the multi-second computation never freezes the page
+    // One draw per tick, yielding to the event loop between each. Each
+    // backtestDraw retrains over the full history (~0.25s on 5k+ draws),
+    // so a larger chunk would visibly stutter the page.
     function step() {
-      const end = Math.min(idx + 2, total);
-      for (; idx < end; idx++) {
-        perDraw.push(Predictor.backtestDraw(results, idx, BACKTEST_TOPN));
-      }
+      perDraw.push(Predictor.backtestDraw(results, idx, BACKTEST_TOPN));
+      idx++;
       const bar = document.getElementById('performanceProgressBar');
       const txt = document.getElementById('performanceProgressText');
       if (bar) bar.style.width = `${(idx / total) * 100}%`;
