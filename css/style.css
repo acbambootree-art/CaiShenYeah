@@ -1724,3 +1724,30 @@ body {
 /* Six-hall nav fits on one line at mid widths */
 .nav { gap: 20px; }
 .nav a { font-size: 0.85rem; white-space: nowrap; }
+
+/* ══════════════ Hall banners (Kling art) ══════════════ */
+.view[data-view="ask"] .section:first-of-type,
+.view[data-view="dreams"] .section:first-of-type,
+.view[data-view="check"] .section:first-of-type,
+.view[data-view="oracle"] .section:first-of-type,
+.view[data-view="patterns"] .section:first-of-type {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center 28%;
+}
+
+.view[data-view="ask"] .section:first-of-type {
+  background-image: linear-gradient(180deg, rgba(10,10,10,0.66) 0%, rgba(10,10,10,0.88) 40%, var(--black) 75%), url('../banners/ask.jpg');
+}
+.view[data-view="dreams"] .section:first-of-type {
+  background-image: linear-gradient(180deg, rgba(10,10,10,0.66) 0%, rgba(10,10,10,0.88) 40%, var(--black) 75%), url('../banners/dreams.jpg');
+}
+.view[data-view="check"] .section:first-of-type {
+  background-image: linear-gradient(180deg, rgba(10,10,10,0.66) 0%, rgba(10,10,10,0.88) 40%, var(--black) 75%), url('../banners/check.jpg');
+}
+.view[data-view="oracle"] .section:first-of-type {
+  background-image: linear-gradient(180deg, rgba(10,10,10,0.66) 0%, rgba(10,10,10,0.88) 40%, var(--black) 75%), url('../banners/oracle.jpg');
+}
+.view[data-view="patterns"] .section:first-of-type {
+  background-image: linear-gradient(180deg, rgba(10,10,10,0.66) 0%, rgba(10,10,10,0.88) 40%, var(--black) 75%), url('../banners/patterns.jpg');
+}

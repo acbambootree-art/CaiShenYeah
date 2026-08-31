@@ -154,9 +154,48 @@ const Sound = (() => {
     bellTimer = setTimeout(distantBell, 26000 + Math.random() * 24000);
   }
 
+  // ── Music track (royalty-free, Pixabay license) with synth fallback ──
+  let musicEl = null;
+  let musicFade = null;
+
+  function fadeMusic(target, ms, thenPause) {
+    clearInterval(musicFade);
+    const step = (target - musicEl.volume) / (ms / 60);
+    musicFade = setInterval(() => {
+      const v = musicEl.volume + step;
+      if ((step > 0 && v >= target) || (step < 0 && v <= target)) {
+        musicEl.volume = target;
+        clearInterval(musicFade);
+        if (thenPause) musicEl.pause();
+      } else {
+        musicEl.volume = v;
+      }
+    }, 60);
+  }
+
   function startAmbience() {
     if (!enabled() || !ensureCtx() || ambienceOn) return;
     ambienceOn = true;
+    if (!musicEl) {
+      musicEl = new Audio('ambience.mp3');
+      musicEl.loop = true;
+      musicEl.addEventListener('error', () => { musicEl = 'failed'; startSynthAmbience(); });
+    }
+    if (musicEl === 'failed') { startSynthAmbience(); return; }
+    musicEl.volume = 0;
+    const p = musicEl.play();
+    if (p) p.catch(() => {});
+    fadeMusic(0.32, 2500);
+  }
+
+  function stopAmbience() {
+    ambienceOn = false;
+    if (musicEl && musicEl !== 'failed') fadeMusic(0, 700, true);
+    stopSynthAmbience();
+  }
+
+  function startSynthAmbience() {
+    if (!ambienceOn) return;
     ambienceGain = ctx.createGain();
     ambienceGain.gain.setValueAtTime(0.0001, ctx.currentTime);
     ambienceGain.gain.exponentialRampToValueAtTime(1, ctx.currentTime + 3);
@@ -181,8 +220,7 @@ const Sound = (() => {
 
   const droneOscs = [];
 
-  function stopAmbience() {
-    ambienceOn = false;
+  function stopSynthAmbience() {
     clearTimeout(pluckTimer);
     clearTimeout(bellTimer);
     droneOscs.forEach(o => { try { o.stop(); } catch (e) {} });
