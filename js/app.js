@@ -21,23 +21,206 @@
   const GREEN = '#44ff88';
 
   // ── Init ──
+  // Courtyard + halls: only the cheap, always-visible work runs at load.
+  // Chart/backtest halls initialize on first entry (lazy, and Chart.js needs
+  // a visible container to size itself anyway).
   window.addEventListener('DOMContentLoaded', () => {
-    renderHeroStats();
+    renderDoorTeasers();
     renderCountdown();
-    renderPredictions();
-    renderDrawFairness();
-    renderDigitFreqChart();
-    renderPositionChart();
-    renderSumChart();
-    renderOddEvenChart();
-    renderHotCold();
     renderResultsTable();
-    renderPairAnalysis();
-    renderGapAnalysis();
-    initNav();
+    initRouter();
+    initGate();
+    initSoundUI();
+    initEmbers();
     hideLoading();
-    runBacktest();
   });
+
+  // ── Temple gate: the first visit's user gesture unlocks the soundscape ──
+  function initGate() {
+    const gate = document.getElementById('templeGate');
+    let entered = false;
+    try { entered = !!localStorage.getItem('temple_entered'); } catch (e) { entered = true; }
+
+    if (entered) {
+      // Returning visitor: quietly arm audio on the first interaction
+      const armOnce = () => { Sound.arm(); document.removeEventListener('pointerdown', armOnce); };
+      document.addEventListener('pointerdown', armOnce);
+      return;
+    }
+
+    gate.hidden = false;
+    // Swap in the generated door art when the asset exists
+    const art = new Image();
+    art.onload = () => gate.classList.add('gate-art');
+    art.src = 'gate.jpg';
+    document.getElementById('gateEnter').addEventListener('click', () => {
+      try { localStorage.setItem('temple_entered', '1'); } catch (e) {}
+      Sound.arm();
+      Sound.gong();
+      gate.classList.add('open');
+      setTimeout(() => gate.remove(), 2000);
+    }, { once: true });
+  }
+
+  // ── Sound toggle + ritual tap sounds ──
+  function initSoundUI() {
+    const btn = document.getElementById('soundToggle');
+    const paint = (on) => { btn.textContent = on ? '🔔' : '🔕'; };
+    paint(Sound.enabled());
+    btn.addEventListener('click', () => paint(Sound.toggle()));
+
+    // Wood-fish tok on temple taps (chips, doors, tabs)
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.dream-chip, .door, .tabbar a, .nav a')) Sound.tok();
+    });
+  }
+
+  // ── Courtyard embers ──
+  function initEmbers() {
+    const canvas = document.getElementById('embersCanvas');
+    if (!canvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const ctx2d = canvas.getContext('2d');
+    const N = 36;
+    let parts = [];
+    let running = false;
+
+    function resize() {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+
+    function spawn(y) {
+      return {
+        x: Math.random() * canvas.width,
+        y: y !== undefined ? y : Math.random() * canvas.height,
+        r: 0.8 + Math.random() * 2,
+        vy: 0.15 + Math.random() * 0.45,
+        sway: Math.random() * Math.PI * 2,
+        swayAmp: 0.2 + Math.random() * 0.5,
+        a: 0.15 + Math.random() * 0.5
+      };
+    }
+
+    function frame() {
+      if (!running) return;
+      ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+      for (const p of parts) {
+        p.y -= p.vy;
+        p.sway += 0.012;
+        p.x += Math.sin(p.sway) * p.swayAmp;
+        if (p.y < -6) Object.assign(p, spawn(canvas.height + 6));
+        const flicker = p.a * (0.75 + 0.25 * Math.sin(p.sway * 3));
+        ctx2d.beginPath();
+        ctx2d.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx2d.fillStyle = `rgba(240, 208, 96, ${flicker})`;
+        ctx2d.shadowColor = 'rgba(212, 175, 55, 0.8)';
+        ctx2d.shadowBlur = 6;
+        ctx2d.fill();
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function start() {
+      if (running) return;
+      running = true;
+      resize();
+      parts = Array.from({ length: N }, () => spawn());
+      requestAnimationFrame(frame);
+    }
+    function stop() { running = false; }
+
+    window.addEventListener('resize', () => { if (running) resize(); });
+    document.addEventListener('visibilitychange', () => {
+      document.hidden ? stop() : maybeRun();
+    });
+    embersControl = maybeRun;
+
+    function maybeRun() {
+      const home = document.querySelector('.view-home').classList.contains('active');
+      home && !document.hidden ? start() : stop();
+    }
+    maybeRun();
+  }
+
+  let embersControl = null;
+
+  // ── Hall router ──
+  const HALLS = ['home', 'ask', 'incense', 'dreams', 'check', 'oracle', 'patterns'];
+  // Old #anchor deep links land in the hall that now holds that section
+  const LEGACY = {
+    kauchim: 'ask', daily: 'ask', dreams: 'dreams', checker: 'check',
+    history: 'check', 'proven-winners': 'oracle', predictions: 'oracle',
+    performance: 'oracle', fairness: 'oracle', analysis: 'patterns',
+    hotcold: 'patterns', statistics: 'patterns'
+  };
+  const hallInited = {};
+
+  function initHall(hall) {
+    if (hallInited[hall]) return;
+    hallInited[hall] = true;
+    if (hall === 'oracle') {
+      renderPredictions();
+      renderDrawFairness();
+      runBacktest();
+    } else if (hall === 'patterns') {
+      renderDigitFreqChart();
+      renderPositionChart();
+      renderSumChart();
+      renderOddEvenChart();
+      renderHotCold();
+      renderPairAnalysis();
+      renderGapAnalysis();
+    }
+  }
+
+  function currentHall() {
+    const h = location.hash.replace(/^#\/?/, '');
+    if (HALLS.includes(h)) return h;
+    if (LEGACY[h]) return LEGACY[h];
+    return 'home';
+  }
+
+  let lastHall = null;
+
+  function showHall(hall) {
+    document.querySelectorAll('.view').forEach(v =>
+      v.classList.toggle('active', v.dataset.view === hall));
+    document.querySelectorAll('[data-nav]').forEach(a =>
+      a.classList.toggle('active', a.dataset.nav === hall));
+    document.body.classList.toggle('at-home', hall === 'home');
+    window.scrollTo(0, 0);
+    initHall(hall);
+    if (lastHall !== null && hall !== lastHall && hall !== 'home') Sound.gong();
+    lastHall = hall;
+    if (embersControl) embersControl();
+  }
+
+  function initRouter() {
+    window.addEventListener('hashchange', () => showHall(currentHall()));
+    showHall(currentHall());
+  }
+
+  // ── Courtyard door teasers ──
+  function renderDoorTeasers() {
+    document.getElementById('totalDraws').textContent = results.length.toLocaleString();
+
+    const latest = results[0];
+    document.getElementById('doorTeaseCheck').textContent =
+      `Latest: Draw #${latest.drawNo} · ${formatDate(latest.date)}`;
+
+    let askTease = 'The sticks await you';
+    try {
+      const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Singapore' });
+      const stick = JSON.parse(localStorage.getItem('temple_kauchim') || 'null');
+      const incense = JSON.parse(localStorage.getItem('temple_incense') || 'null');
+      if (stick && stick.date === today) askTease = `Today's stick: 第 ${stick.n} 签`;
+      if (incense && incense.date === today) {
+        document.getElementById('doorTeaseIncense').textContent =
+          `🔥 Lit today · ${incense.streak}-day streak of devotion`;
+      }
+    } catch (e) {}
+    document.getElementById('doorTeaseAsk').textContent = askTease;
+  }
 
   // ── Loading ──
   function hideLoading() {
@@ -46,24 +229,7 @@
     }, 800);
   }
 
-  // ── Mobile Nav ──
-  function initNav() {
-    document.getElementById('navToggle').addEventListener('click', () => {
-      document.getElementById('nav').classList.toggle('open');
-    });
-    document.querySelectorAll('.nav a').forEach(a => {
-      a.addEventListener('click', () => document.getElementById('nav').classList.remove('open'));
-    });
-  }
-
-  // ── Hero Stats ──
-  function renderHeroStats() {
-    document.getElementById('totalDraws').textContent = results.length;
-    const totalNums = results.length * 23; // 3 prizes + 10 starters + 10 consolation
-    document.getElementById('totalNumbers').textContent = totalNums.toLocaleString();
-  }
-
-  // ── Countdown ──
+  // ── Countdown chip (header, always visible) ──
   function renderCountdown() {
     const nextDraw = Predictor.getNextDrawInfo(results);
     if (!nextDraw) return;
@@ -92,10 +258,10 @@
       const mins = Math.floor((diff % 3600000) / 60000);
       const secs = Math.floor((diff % 60000) / 1000);
 
-      document.getElementById('cd-days').textContent = String(days).padStart(2, '0');
-      document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
-      document.getElementById('cd-mins').textContent = String(mins).padStart(2, '0');
-      document.getElementById('cd-secs').textContent = String(secs).padStart(2, '0');
+      const pad = (n) => String(n).padStart(2, '0');
+      document.getElementById('countdownCompact').textContent =
+        days > 0 ? `${days}d ${pad(hours)}:${pad(mins)}:${pad(secs)}`
+                 : `${pad(hours)}:${pad(mins)}:${pad(secs)}`;
     }
 
     update();

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CaiShenYeah | The Digital Temple of Fortune — Singapore 4D</title>
   <meta name="description" content="CaiShenYeah — The Digital Temple of Fortune. Shake the kau chim sticks, look up your dream numbers, and explore 20+ years of real Singapore Pools 4D history. Ritual, culture, and honest statistics.">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=5">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -13,72 +13,112 @@
 <!-- Loading -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-spinner"></div>
-  <div class="loading-text">Analyzing 4D Data...</div>
+  <div class="loading-text">Opening the temple gates&hellip;</div>
+</div>
+
+<!-- Temple gate (first visit) -->
+<div class="gate" id="templeGate" hidden>
+  <div class="gate-door gate-left"><span class="gate-char">財</span></div>
+  <div class="gate-door gate-right"><span class="gate-char">神</span></div>
+  <button class="gate-enter" id="gateEnter">
+    <span class="gate-enter-zh">推门入庙</span>
+    <span class="gate-enter-en">Push open the doors</span>
+  </button>
 </div>
 
 <!-- Header -->
 <header class="header">
   <div class="container">
-    <a href="#" class="logo">CaiShen<span>Yeah</span></a>
+    <a href="#/" class="logo">CaiShen<span>Yeah</span></a>
+    <div class="countdown-chip" title="Next draw">
+      <span class="countdown-chip-label" id="nextDrawLabel">Draw #----</span>
+      <span class="countdown-chip-time" id="countdownCompact">--:--:--</span>
+    </div>
+    <button class="sound-toggle" id="soundToggle" aria-label="Toggle temple sound">🔔</button>
     <nav class="nav" id="nav">
-      <a href="#kauchim">求签 Ask</a>
-      <a href="#dreams">Dreams</a>
-      <a href="#checker">Check</a>
-      <a href="#daily">Daily</a>
-      <a href="#proven-winners">Blessings</a>
-      <a href="#predictions">Oracle</a>
-      <a href="#history">Records</a>
-      <a href="#performance">Honesty</a>
+      <a href="#/ask" data-nav="ask">求签 Ask</a>
+      <a href="#/incense" data-nav="incense">上香 Incense</a>
+      <a href="#/dreams" data-nav="dreams">解梦 Dreams</a>
+      <a href="#/check" data-nav="check">查号 Check</a>
+      <a href="#/oracle" data-nav="oracle">神算 Oracle</a>
+      <a href="#/patterns" data-nav="patterns">万象 Patterns</a>
     </nav>
-    <button class="nav-mobile-toggle" id="navToggle" aria-label="Menu">&#9776;</button>
   </div>
 </header>
 
-<!-- Hero -->
-<section class="hero">
-  <video class="hero-video" autoplay muted loop playsinline>
-    <source src="hero-bg.mp4" type="video/mp4">
-  </video>
-  <div class="hero-overlay"></div>
-  <div class="container hero-content">
-    <div class="hero-label">The Digital Temple of Fortune 🏮</div>
-    <h1>CaiShenYeah<br><span class="gold">财神爷 Make You Huat</span></h1>
-    <p>A temple you can visit from anywhere. Shake the fortune sticks, look up your dream numbers, and consult 20+ years of real draw history — with the honesty of a temple that tells you luck is luck.</p>
+<main>
 
-    <div class="hero-stats">
-      <div class="hero-stat">
-        <div class="value" id="totalDraws">--</div>
-        <div class="label">Draws Analyzed</div>
-      </div>
-      <div class="hero-stat">
-        <div class="value" id="totalNumbers">--</div>
-        <div class="label">Numbers Processed</div>
-      </div>
-      <div class="hero-stat">
-        <div class="value" id="modelCount">4</div>
-        <div class="label">Prediction Models</div>
+<!-- ═══ Courtyard (home) ═══ -->
+<div class="view view-home" data-view="home">
+  <section class="hero">
+    <video class="hero-video" autoplay muted loop playsinline>
+      <source src="hero-bg.mp4" type="video/mp4">
+    </video>
+    <div class="hero-overlay"></div>
+    <canvas class="embers" id="embersCanvas" aria-hidden="true"></canvas>
+    <div class="container hero-content">
+      <div class="hero-label">The Digital Temple of Fortune 🏮</div>
+      <h1>CaiShenYeah<br><span class="gold">财神爷 Make You Huat</span></h1>
+      <p>A temple you can visit from anywhere. Six halls await — enter where your heart leads.</p>
+
+      <div class="courtyard">
+        <a class="door door-ask" href="#/ask">
+          <span class="door-char">签</span>
+          <span class="door-body">
+            <span class="door-name">求签 · Ask the Temple</span>
+            <span class="door-desc">Shake the fortune sticks, light incense, receive today's blessed number</span>
+            <span class="door-tease" id="doorTeaseAsk"></span>
+          </span>
+        </a>
+        <a class="door" href="#/dreams">
+          <span class="door-char">梦</span>
+          <span class="door-body">
+            <span class="door-name">解梦 · Dreams</span>
+            <span class="door-desc">Last night's dream, read as numbers</span>
+            <span class="door-tease">48 symbols in the temple book</span>
+          </span>
+        </a>
+        <a class="door" href="#/check">
+          <span class="door-char">查</span>
+          <span class="door-body">
+            <span class="door-name">查号 · Check</span>
+            <span class="door-desc">Did your numbers strike?</span>
+            <span class="door-tease" id="doorTeaseCheck"></span>
+          </span>
+        </a>
+        <a class="door" href="#/oracle">
+          <span class="door-char">算</span>
+          <span class="door-body">
+            <span class="door-name">神算 · Oracle</span>
+            <span class="door-desc">The oracle's picks, and its honest report card</span>
+            <span class="door-tease">Measured against pure chance</span>
+          </span>
+        </a>
+        <a class="door" href="#/patterns">
+          <span class="door-char">象</span>
+          <span class="door-body">
+            <span class="door-name">万象 · Patterns</span>
+            <span class="door-desc">Hot, cold, pairs and rhythms</span>
+            <span class="door-tease"><span id="totalDraws">--</span> draws mapped since 2003</span>
+          </span>
+        </a>
+        <a class="door door-incense" href="#/incense">
+          <span class="door-char">香</span>
+          <span class="door-body">
+            <span class="door-name">上香 · Light Incense</span>
+            <span class="door-desc">Offer three sticks before the God of Fortune — devotion before luck</span>
+            <span class="door-tease" id="doorTeaseIncense">The censer awaits today's offering</span>
+          </span>
+        </a>
       </div>
     </div>
+  </section>
+</div>
 
-    <!-- Countdown -->
-    <div class="countdown-bar">
-      <span class="countdown-label">Next Draw</span>
-      <div class="countdown-timer" id="countdown">
-        <div class="countdown-unit"><div class="num" id="cd-days">--</div><div class="lbl">Days</div></div>
-        <div class="countdown-sep">:</div>
-        <div class="countdown-unit"><div class="num" id="cd-hours">--</div><div class="lbl">Hours</div></div>
-        <div class="countdown-sep">:</div>
-        <div class="countdown-unit"><div class="num" id="cd-mins">--</div><div class="lbl">Mins</div></div>
-        <div class="countdown-sep">:</div>
-        <div class="countdown-unit"><div class="num" id="cd-secs">--</div><div class="lbl">Secs</div></div>
-      </div>
-      <span class="countdown-label" id="nextDrawLabel">Draw #----</span>
-    </div>
-  </div>
-</section>
+<!-- ═══ Hall: Ask 求签 ═══ -->
+<div class="view" data-view="ask">
 
-<!-- Kau Chim -->
-<section class="section" id="kauchim" style="background:var(--black-light);">
+<section class="section" id="kauchim">
   <div class="container">
     <div class="section-title">求签 Ask the Temple</div>
     <div class="section-subtitle">Shake the cylinder, receive your fortune stick, and carry today's blessed number — one sincere ask per day</div>
@@ -95,47 +135,9 @@
       <p class="kauchim-note" id="kauchimNote"></p>
     </div>
     <div id="kauchimResult"></div>
-
-    <!-- Incense ritual -->
-    <div class="incense-wrap">
-      <div class="incense-holder">
-        <div class="incense-stick" id="incenseStick">
-          <div class="incense-ember"></div>
-          <div class="incense-smoke"><span></span><span></span><span></span></div>
-        </div>
-        <div class="incense-pot">香</div>
-      </div>
-      <button class="temple-btn temple-btn-small" id="incenseLight">🕯️ Light Incense 上香</button>
-      <p class="kauchim-note" id="incenseNote"></p>
-    </div>
   </div>
 </section>
 
-<!-- Dream Dictionary -->
-<section class="section" id="dreams">
-  <div class="container">
-    <div class="section-title">解梦 Dream Numbers</div>
-    <div class="section-subtitle">Dreamt of something last night? Find its numbers in the temple book — with each number's real strike history</div>
-    <input type="search" class="dream-search" id="dreamSearch" placeholder="Search your dream… snake, fire, deceased relative, 蛇, 火…" aria-label="Search dream symbols">
-    <div class="dream-grid" id="dreamGrid"></div>
-    <div id="dreamResult"></div>
-  </div>
-</section>
-
-<!-- Number Checker -->
-<section class="section" id="checker" style="background:var(--black-light);">
-  <div class="container">
-    <div class="section-title">Check a Number 查号</div>
-    <div class="section-subtitle">Your car plate, phone, birthday, or the numbers you bought — see if they struck the latest draw and their full history across every draw since 2003</div>
-    <form class="checker-form" id="checkerForm">
-      <input type="text" class="dream-search checker-input" id="checkerInput" placeholder="e.g. 2843, SKV1234A, 9188 8888…" aria-label="Numbers to check" autocomplete="off">
-      <button type="submit" class="temple-btn temple-btn-small">🔍 Check</button>
-    </form>
-    <div id="checkerResult"></div>
-  </div>
-</section>
-
-<!-- Daily Blessings -->
 <section class="section" id="daily">
   <div class="container">
     <div class="section-title">Daily Blessings 今日运程</div>
@@ -161,102 +163,72 @@
   </div>
 </section>
 
-<!-- Proven Winners -->
-<section class="section" id="proven-winners" style="background:var(--black-light);">
-  <div class="container">
-    <div class="section-title">Answered Blessings 🏮</div>
-    <div class="section-subtitle">Temple numbers that matched actual Singapore Pools 4D results — luck we gratefully record</div>
-    <div id="provenWinnersContent"></div>
-  </div>
-</section>
+</div>
 
-<!-- Predictions -->
-<section class="section" id="predictions">
-  <div class="container">
-    <div class="section-title">The Oracle's Numbers</div>
-    <div class="section-subtitle">Numbers favoured by the temple's ensemble oracle — read the Temple Honesty section below for what this can and cannot do</div>
-    <div class="predictions-grid" id="predictionsGrid"></div>
-    <p style="text-align:center;color:var(--white-muted);font-size:0.85rem;margin-top:16px;">
-      Predictions based on <span class="gold-text">Weighted Frequency</span>, <span class="gold-text">Position Analysis</span>, <span class="gold-text">Pattern Matching</span>, and <span class="gold-text">Due Number</span> models
-    </p>
-  </div>
-</section>
+<!-- ═══ Hall: Incense 上香 ═══ -->
+<div class="view" data-view="incense">
 
-<!-- Model Performance -->
-<section class="section" id="performance" style="background:var(--black-light);">
+<section class="section" id="incense">
   <div class="container">
-    <div class="section-title">Temple Honesty</div>
-    <div class="section-subtitle">Walk-forward backtest: for every past draw, the model is trained only on earlier draws, then its picks are checked against the real results — and compared with what pure luck would produce</div>
-    <div class="card" id="performanceCard">
-      <div class="card-title">Backtest vs Pure Chance</div>
-      <div class="card-desc">Each draw has 23 winning numbers out of 10,000 — so any list of picks scores some hits by luck alone. Real skill means beating that baseline consistently (p &lt; 0.01).</div>
-      <div id="performanceContent">
-        <div style="text-align:center;color:var(--white-muted);padding:24px 0;">
-          <div id="performanceProgressText">Backtesting recent draws&hellip;</div>
-          <div style="max-width:360px;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;margin:12px auto 0;overflow:hidden;">
-            <div id="performanceProgressBar" style="width:0%;height:100%;background:var(--gold);border-radius:3px;transition:width 0.2s;"></div>
-          </div>
+    <div class="section-title">上香 Light Incense</div>
+    <div class="section-subtitle">Before asking for anything, offer something. Three sticks before the God of Fortune — one act of devotion each day</div>
+
+    <div class="shrine" id="shrine">
+      <div class="shrine-frame">
+        <video id="incenseVideo" src="incense.mp4" playsinline preload="metadata" muted></video>
+        <div class="shrine-veil" id="shrineVeil">
+          <span class="shrine-veil-char">香</span>
         </div>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- Analysis -->
-<section class="section" id="analysis">
-  <div class="container">
-    <div class="section-title">Hall of Patterns</div>
-    <div class="section-subtitle">Frequency distribution of digits 0-9 across all winning numbers</div>
-    <div class="card-grid">
-      <!-- Digit Frequency Chart -->
-      <div class="card">
-        <div class="card-title">Overall Digit Frequency</div>
-        <div class="card-desc">How often each digit appears across all positions</div>
-        <div class="chart-container"><canvas id="digitFreqChart"></canvas></div>
+    <div class="incense-wrap">
+      <div class="incense-holder">
+        <div class="incense-stick" id="incenseStick">
+          <div class="incense-ember"></div>
+          <div class="incense-smoke"><span></span><span></span><span></span></div>
+        </div>
+        <div class="incense-pot">香</div>
       </div>
-      <!-- Position Heatmap -->
-      <div class="card">
-        <div class="card-title">Digit Frequency by Position</div>
-        <div class="card-desc">Heatmap showing digit frequency for each of the 4 positions</div>
-        <div class="chart-container"><canvas id="positionChart"></canvas></div>
-      </div>
-      <!-- Sum Distribution -->
-      <div class="card">
-        <div class="card-title">Digit Sum Distribution</div>
-        <div class="card-desc">Distribution of the sum of all 4 digits in winning numbers</div>
-        <div class="chart-container"><canvas id="sumChart"></canvas></div>
-      </div>
-      <!-- Odd/Even -->
-      <div class="card">
-        <div class="card-title">Odd/Even Ratio</div>
-        <div class="card-desc">Distribution of odd vs even digits in top 3 prizes</div>
-        <div class="chart-container"><canvas id="oddEvenChart"></canvas></div>
-      </div>
+      <button class="temple-btn" id="incenseLight">🕯️ Light Incense 上香</button>
+      <p class="kauchim-note" id="incenseNote"></p>
+      <p class="temple-honesty" style="max-width:460px;border:none;">Incense asks for nothing and predicts nothing. It is the temple's oldest act: gratitude first, luck second.</p>
     </div>
   </div>
 </section>
 
-<!-- Hot & Cold Numbers -->
-<section class="section" id="hotcold" style="background:var(--black-light);">
+</div>
+
+<!-- ═══ Hall: Dreams 解梦 ═══ -->
+<div class="view" data-view="dreams">
+
+<section class="section" id="dreams">
   <div class="container">
-    <div class="section-title">Hot & Cold Numbers</div>
-    <div class="section-subtitle">Numbers that are trending or overdue based on recent draws</div>
-    <div class="card-grid">
-      <div class="card">
-        <div class="card-title" style="color:var(--red);">Hot Numbers <span class="badge badge-hot">Frequent</span></div>
-        <div class="card-desc">Most frequently drawn in the last 30 draws</div>
-        <div class="number-pills" id="hotPills"></div>
-      </div>
-      <div class="card">
-        <div class="card-title" style="color:var(--blue);">Cold Numbers <span class="badge badge-cold">Overdue</span></div>
-        <div class="card-desc">Historically frequent but not seen recently</div>
-        <div class="number-pills" id="coldPills"></div>
-      </div>
-    </div>
+    <div class="section-title">解梦 Dream Numbers</div>
+    <div class="section-subtitle">Dreamt of something last night? Find its numbers in the temple book — with each number's real strike history</div>
+    <input type="search" class="dream-search" id="dreamSearch" placeholder="Search your dream… snake, fire, deceased relative, 蛇, 火…" aria-label="Search dream symbols">
+    <div class="dream-grid" id="dreamGrid"></div>
+    <div id="dreamResult"></div>
   </div>
 </section>
 
-<!-- Recent History -->
+</div>
+
+<!-- ═══ Hall: Check 查号 ═══ -->
+<div class="view" data-view="check">
+
+<section class="section" id="checker">
+  <div class="container">
+    <div class="section-title">Check a Number 查号</div>
+    <div class="section-subtitle">Your car plate, phone, birthday, or the numbers you bought — see if they struck the latest draw and their full history across every draw since 2003</div>
+    <form class="checker-form" id="checkerForm">
+      <input type="text" class="dream-search checker-input" id="checkerInput" placeholder="e.g. 2843, SKV1234A, 9188 8888…" aria-label="Numbers to check" autocomplete="off">
+      <button type="submit" class="temple-btn temple-btn-small">🔍 Check</button>
+    </form>
+    <div id="checkerResult"></div>
+  </div>
+</section>
+
 <section class="section" id="history">
   <div class="container">
     <div class="section-title">Hall of Records</div>
@@ -279,27 +251,49 @@
   </div>
 </section>
 
-<!-- Statistics -->
-<section class="section" id="statistics" style="background:var(--black-light);">
+</div>
+
+<!-- ═══ Hall: Oracle 神算 ═══ -->
+<div class="view" data-view="oracle">
+
+<section class="section" id="predictions">
   <div class="container">
-    <div class="section-title">Pair Analysis</div>
-    <div class="section-subtitle">Most frequently occurring digit pairs in winning numbers</div>
-    <div class="card-grid">
-      <div class="card">
-        <div class="card-title">Top Digit Pairs</div>
-        <div class="card-desc">Two-digit combinations that appear most often together</div>
-        <div class="stat-bar-list" id="pairBars"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Gap Analysis</div>
-        <div class="card-desc">Numbers with the shortest average gap between appearances</div>
-        <div class="stat-bar-list" id="gapBars"></div>
+    <div class="section-title">The Oracle's Numbers</div>
+    <div class="section-subtitle">Numbers favoured by the temple's ensemble oracle — read the Temple Honesty section below for what this can and cannot do</div>
+    <div class="predictions-grid" id="predictionsGrid"></div>
+    <p style="text-align:center;color:var(--white-muted);font-size:0.85rem;margin-top:16px;">
+      Predictions based on <span class="gold-text">Weighted Frequency</span>, <span class="gold-text">Position Analysis</span>, <span class="gold-text">Pattern Matching</span>, and <span class="gold-text">Due Number</span> models
+    </p>
+  </div>
+</section>
+
+<section class="section" id="proven-winners">
+  <div class="container">
+    <div class="section-title">Answered Blessings 🏮</div>
+    <div class="section-subtitle">Temple numbers that matched actual Singapore Pools 4D results — luck we gratefully record</div>
+    <div id="provenWinnersContent"></div>
+  </div>
+</section>
+
+<section class="section" id="performance">
+  <div class="container">
+    <div class="section-title">Temple Honesty</div>
+    <div class="section-subtitle">Walk-forward backtest: for every past draw, the model is trained only on earlier draws, then its picks are checked against the real results — and compared with what pure luck would produce</div>
+    <div class="card" id="performanceCard">
+      <div class="card-title">Backtest vs Pure Chance</div>
+      <div class="card-desc">Each draw has 23 winning numbers out of 10,000 — so any list of picks scores some hits by luck alone. Real skill means beating that baseline consistently (p &lt; 0.01).</div>
+      <div id="performanceContent">
+        <div style="text-align:center;color:var(--white-muted);padding:24px 0;">
+          <div id="performanceProgressText">Backtesting recent draws&hellip;</div>
+          <div style="max-width:360px;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;margin:12px auto 0;overflow:hidden;">
+            <div id="performanceProgressBar" style="width:0%;height:100%;background:var(--gold);border-radius:3px;transition:width 0.2s;"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Draw Fairness -->
 <section class="section" id="fairness">
   <div class="container">
     <div class="section-title">Temple Integrity — Draw Fairness</div>
@@ -319,6 +313,92 @@
   </div>
 </section>
 
+</div>
+
+<!-- ═══ Hall: Patterns 万象 ═══ -->
+<div class="view" data-view="patterns">
+
+<section class="section" id="analysis">
+  <div class="container">
+    <div class="section-title">Hall of Patterns</div>
+    <div class="section-subtitle">Frequency distribution of digits 0-9 across all winning numbers</div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-title">Overall Digit Frequency</div>
+        <div class="card-desc">How often each digit appears across all positions</div>
+        <div class="chart-container"><canvas id="digitFreqChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Digit Frequency by Position</div>
+        <div class="card-desc">Heatmap showing digit frequency for each of the 4 positions</div>
+        <div class="chart-container"><canvas id="positionChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Digit Sum Distribution</div>
+        <div class="card-desc">Distribution of the sum of all 4 digits in winning numbers</div>
+        <div class="chart-container"><canvas id="sumChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Odd/Even Ratio</div>
+        <div class="card-desc">Distribution of odd vs even digits in top 3 prizes</div>
+        <div class="chart-container"><canvas id="oddEvenChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="hotcold">
+  <div class="container">
+    <div class="section-title">Hot &amp; Cold Numbers</div>
+    <div class="section-subtitle">Numbers that are trending or overdue based on recent draws</div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-title" style="color:var(--red);">Hot Numbers <span class="badge badge-hot">Frequent</span></div>
+        <div class="card-desc">Most frequently drawn in the last 30 draws</div>
+        <div class="number-pills" id="hotPills"></div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:var(--blue);">Cold Numbers <span class="badge badge-cold">Overdue</span></div>
+        <div class="card-desc">Historically frequent but not seen recently</div>
+        <div class="number-pills" id="coldPills"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="statistics">
+  <div class="container">
+    <div class="section-title">Pair Analysis</div>
+    <div class="section-subtitle">Most frequently occurring digit pairs in winning numbers</div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-title">Top Digit Pairs</div>
+        <div class="card-desc">Two-digit combinations that appear most often together</div>
+        <div class="stat-bar-list" id="pairBars"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Gap Analysis</div>
+        <div class="card-desc">Numbers with the shortest average gap between appearances</div>
+        <div class="stat-bar-list" id="gapBars"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+</main>
+
+<!-- Bottom tab bar (mobile) -->
+<nav class="tabbar" aria-label="Temple halls">
+  <a href="#/ask" data-nav="ask"><span class="tab-char">签</span><span class="tab-label">Ask</span></a>
+  <a href="#/incense" data-nav="incense"><span class="tab-char">香</span><span class="tab-label">Incense</span></a>
+  <a href="#/dreams" data-nav="dreams"><span class="tab-char">梦</span><span class="tab-label">Dreams</span></a>
+  <a href="#/check" data-nav="check"><span class="tab-char">查</span><span class="tab-label">Check</span></a>
+  <a href="#/oracle" data-nav="oracle"><span class="tab-char">算</span><span class="tab-label">Oracle</span></a>
+  <a href="#/patterns" data-nav="patterns"><span class="tab-char">象</span><span class="tab-label">Patterns</span></a>
+</nav>
+
 <!-- Disclaimer -->
 <div class="disclaimer">
   <div class="container">
@@ -331,15 +411,16 @@
 <!-- Footer -->
 <footer class="footer">
   <div class="container">
-    <a href="#" class="logo">CaiShen<span>Yeah</span></a>
+    <a href="#/" class="logo">CaiShen<span>Yeah</span></a>
     <p style="margin-top:8px;">&copy; 2026 CaiShenYeah. All rights reserved.</p>
   </div>
 </footer>
 
-<script src="js/data.js"></script>
-<script src="js/analysis.js"></script>
-<script src="js/predictor.js"></script>
-<script src="js/temple.js"></script>
-<script src="js/app.js"></script>
+<script src="js/data.js?v=5"></script>
+<script src="js/analysis.js?v=5"></script>
+<script src="js/predictor.js?v=5"></script>
+<script src="js/sound.js?v=5"></script>
+<script src="js/temple.js?v=5"></script>
+<script src="js/app.js?v=5"></script>
 </body>
 </html>

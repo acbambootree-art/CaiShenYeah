@@ -267,6 +267,7 @@ const Temple = (() => {
       cylinder.classList.add('shaking');
       document.getElementById('kauchimResult').innerHTML = '';
       note.textContent = '';
+      if (window.Sound) Sound.rattle();
 
       setTimeout(() => {
         cylinder.classList.remove('shaking');
@@ -274,6 +275,7 @@ const Temple = (() => {
         const f = FORTUNES[Math.floor(Math.random() * FORTUNES.length)];
         try { localStorage.setItem(LS_KEY, JSON.stringify({ date: todaySG(), n: f.n })); } catch (e) {}
         renderFortune(f);
+        if (window.Sound) Sound.bowl();
       }, 1400);
     });
   }
@@ -383,6 +385,26 @@ const Temple = (() => {
     const btn = document.getElementById('incenseLight');
     const stick = document.getElementById('incenseStick');
     const note = document.getElementById('incenseNote');
+    const video = document.getElementById('incenseVideo');
+    const veil = document.getElementById('shrineVeil');
+
+    // Shrine video is optional: hide the frame if the asset is missing
+    if (video) {
+      const hideShrine = () => {
+        const shrine = document.getElementById('shrine');
+        if (shrine) shrine.hidden = true;
+      };
+      video.addEventListener('error', hideShrine);
+      if (video.error || video.networkState === 3) hideShrine(); // errored before we attached
+    }
+
+    function playRitualVideo() {
+      if (!video || !video.currentSrc && !video.src) return;
+      if (veil) veil.classList.add('lifted');
+      video.currentTime = 0;
+      const p = video.play();
+      if (p) p.catch(() => {});
+    }
 
     const yesterdaySG = () =>
       new Date(Date.now() - 86400000).toLocaleDateString('en-CA', { timeZone: 'Asia/Singapore' });
@@ -397,6 +419,7 @@ const Temple = (() => {
       note.textContent = fresh
         ? `Incense lit. 🔥 ${state.streak} ${days} of devotion.`
         : `Today's incense is already burning. 🔥 ${state.streak} ${days} of devotion.`;
+      if (fresh) playRitualVideo();
     }
 
     const saved = load();
@@ -409,6 +432,7 @@ const Temple = (() => {
       const state = { date: todaySG(), streak };
       try { localStorage.setItem(LS_INCENSE, JSON.stringify(state)); } catch (e) {}
       show(state, true);
+      if (window.Sound) Sound.bowl();
     });
   }
 
