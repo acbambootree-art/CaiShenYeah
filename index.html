@@ -23,11 +23,12 @@
     <nav class="nav" id="nav">
       <a href="#kauchim">求签 Ask</a>
       <a href="#dreams">Dreams</a>
+      <a href="#checker">Check</a>
+      <a href="#daily">Daily</a>
       <a href="#proven-winners">Blessings</a>
       <a href="#predictions">Oracle</a>
       <a href="#history">Records</a>
       <a href="#performance">Honesty</a>
-      <a href="#fairness">Fairness</a>
     </nav>
     <button class="nav-mobile-toggle" id="navToggle" aria-label="Menu">&#9776;</button>
   </div>
@@ -94,6 +95,19 @@
       <p class="kauchim-note" id="kauchimNote"></p>
     </div>
     <div id="kauchimResult"></div>
+
+    <!-- Incense ritual -->
+    <div class="incense-wrap">
+      <div class="incense-holder">
+        <div class="incense-stick" id="incenseStick">
+          <div class="incense-ember"></div>
+          <div class="incense-smoke"><span></span><span></span><span></span></div>
+        </div>
+        <div class="incense-pot">香</div>
+      </div>
+      <button class="temple-btn temple-btn-small" id="incenseLight">🕯️ Light Incense 上香</button>
+      <p class="kauchim-note" id="incenseNote"></p>
+    </div>
   </div>
 </section>
 
@@ -105,6 +119,45 @@
     <input type="search" class="dream-search" id="dreamSearch" placeholder="Search your dream… snake, fire, deceased relative, 蛇, 火…" aria-label="Search dream symbols">
     <div class="dream-grid" id="dreamGrid"></div>
     <div id="dreamResult"></div>
+  </div>
+</section>
+
+<!-- Number Checker -->
+<section class="section" id="checker" style="background:var(--black-light);">
+  <div class="container">
+    <div class="section-title">Check a Number 查号</div>
+    <div class="section-subtitle">Your car plate, phone, birthday, or the numbers you bought — see if they struck the latest draw and their full history across every draw since 2003</div>
+    <form class="checker-form" id="checkerForm">
+      <input type="text" class="dream-search checker-input" id="checkerInput" placeholder="e.g. 2843, SKV1234A, 9188 8888…" aria-label="Numbers to check" autocomplete="off">
+      <button type="submit" class="temple-btn temple-btn-small">🔍 Check</button>
+    </form>
+    <div id="checkerResult"></div>
+  </div>
+</section>
+
+<!-- Daily Blessings -->
+<section class="section" id="daily">
+  <div class="container">
+    <div class="section-title">Daily Blessings 今日运程</div>
+    <div class="section-subtitle">Your zodiac number, today's almanac, and the temple festival calendar — renewed each day at dawn, Singapore time</div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-title">Your Zodiac Number 生肖号</div>
+        <div class="card-desc">Choose your animal once — the temple remembers you</div>
+        <div class="dream-grid zodiac-grid" id="zodiacGrid"></div>
+        <div id="zodiacResult"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Today's Almanac 黄历</div>
+        <div class="card-desc" id="almanacDate"></div>
+        <div id="almanacContent"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:24px;">
+      <div class="card-title">Temple Festival Calendar 节日</div>
+      <div class="card-desc">Auspicious days on the temple calendar</div>
+      <div id="festivalContent"></div>
+    </div>
   </div>
 </section>
 

@@ -1195,3 +1195,168 @@ body {
   .fortune-number { font-size: 2rem; letter-spacing: 5px; }
   .dream-numbers { gap: 16px; }
 }
+
+/* ── Temple phase 2: checker, incense, daily ── */
+.temple-btn-small { font-size: 0.88rem; padding: 10px 24px; }
+
+.checker-form {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.checker-input { margin: 0; max-width: 420px; }
+
+.checker-card { max-width: 640px; margin: 0 auto 16px; }
+
+.checker-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.checker-number {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 6px;
+}
+
+.checker-summary { color: var(--white-muted); font-size: 0.9rem; margin-bottom: 12px; }
+
+.checker-strike {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.85rem;
+  color: var(--white-muted);
+}
+
+/* Incense */
+.incense-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.incense-holder {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.incense-stick {
+  position: relative;
+  width: 5px;
+  height: 80px;
+  background: linear-gradient(180deg, #7a4a2a, #5c3a20);
+  border-radius: 2px;
+  z-index: 1;
+}
+
+.incense-ember {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ff6a00;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.incense-stick.lit .incense-ember {
+  opacity: 1;
+  box-shadow: 0 0 10px #ff6a00, 0 0 22px rgba(255, 106, 0, 0.6);
+  animation: ember-glow 2s ease-in-out infinite;
+}
+
+@keyframes ember-glow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.5); }
+}
+
+.incense-smoke { position: absolute; top: -14px; left: 50%; }
+
+.incense-smoke span {
+  position: absolute;
+  bottom: 0;
+  left: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(200, 200, 200, 0.25);
+  filter: blur(4px);
+  opacity: 0;
+}
+
+.incense-stick.lit .incense-smoke span { animation: smoke-rise 3.2s ease-out infinite; }
+.incense-stick.lit .incense-smoke span:nth-child(2) { animation-delay: 1.1s; }
+.incense-stick.lit .incense-smoke span:nth-child(3) { animation-delay: 2.2s; }
+
+@keyframes smoke-rise {
+  0% { opacity: 0; transform: translateY(0) translateX(0) scale(1); }
+  20% { opacity: 0.7; }
+  100% { opacity: 0; transform: translateY(-70px) translateX(10px) scale(2.4); }
+}
+
+.incense-pot {
+  width: 64px;
+  height: 44px;
+  margin-top: -6px;
+  background: linear-gradient(180deg, #8b6a1a, #5c460f);
+  border: 2px solid var(--gold-dark);
+  border-radius: 8px 8px 20px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+}
+
+/* Daily blessings */
+.zodiac-grid { margin-bottom: 0; }
+
+.dream-chip.zodiac-active {
+  border-color: var(--gold);
+  background: rgba(212, 175, 55, 0.12);
+  color: var(--gold);
+}
+
+.almanac-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.92rem;
+}
+
+.almanac-label {
+  color: var(--white-muted);
+  font-size: 0.85rem;
+}
+
+.almanac-label.good { color: var(--green); }
+.almanac-label.bad { color: var(--red); }
+
+.festival-next { background: rgba(212, 175, 55, 0.05); border-radius: 8px; padding: 10px 12px; }

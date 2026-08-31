@@ -49,6 +49,98 @@ const Temple = (() => {
     return { count: e.count, text: `struck ${e.count}× in history · last seen ${ago}` };
   }
 
+  // ── Number checker ──
+  // 4D convention: a plate/phone becomes its last 4 digits, short numbers
+  // pad with leading zeros (plate 123 -> 0123).
+  function normalizeNumber(raw) {
+    const digits = raw.replace(/\D/g, '');
+    if (!digits) return null;
+    return digits.length >= 4 ? digits.slice(-4) : digits.padStart(4, '0');
+  }
+
+  function prizeOf(r, num) {
+    if (r.first === num) return '1st Prize';
+    if (r.second === num) return '2nd Prize';
+    if (r.third === num) return '3rd Prize';
+    if ((r.starters || []).includes(num)) return 'Starter';
+    if ((r.consolation || []).includes(num)) return 'Consolation';
+    return null;
+  }
+
+  function numberDetail(num) {
+    const strikes = [];
+    const byPrize = {};
+    results.forEach(r => {
+      const p = prizeOf(r, num);
+      if (p) {
+        strikes.push({ drawNo: r.drawNo, date: r.date, prize: p });
+        byPrize[p] = (byPrize[p] || 0) + 1;
+      }
+    });
+    return { strikes, byPrize, latestPrize: prizeOf(results[0], num) };
+  }
+
+  // ── Blessing card (canvas share) ──
+  function shareCard(title, subtitle, number, note) {
+    const W = 1080, H = 1350;
+    const c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    const ctx = c.getContext('2d');
+
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, W, H);
+    const glow = ctx.createRadialGradient(W / 2, H / 2, 80, W / 2, H / 2, 700);
+    glow.addColorStop(0, 'rgba(212,175,55,0.16)');
+    glow.addColorStop(1, 'rgba(212,175,55,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = '#a88a2a';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(40, 40, W - 80, H - 80);
+    ctx.strokeStyle = 'rgba(212,175,55,0.35)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(58, 58, W - 116, H - 116);
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#d4af37';
+    ctx.font = '52px Georgia, serif';
+    ctx.fillText('🏮 CaiShenYeah 财神爷', W / 2, 190);
+    ctx.fillStyle = '#a0a0a0';
+    ctx.font = '32px Georgia, serif';
+    ctx.fillText('The Digital Temple of Fortune', W / 2, 245);
+
+    ctx.fillStyle = '#f0d060';
+    ctx.font = 'bold 110px Georgia, serif';
+    ctx.fillText(title, W / 2, 480);
+    ctx.fillStyle = '#f5f5f5';
+    ctx.font = '40px Georgia, serif';
+    ctx.fillText(subtitle, W / 2, 560);
+
+    ctx.fillStyle = '#d4af37';
+    ctx.font = 'bold 230px "Courier New", monospace';
+    ctx.fillText(number.split('').join(' '), W / 2, 830);
+
+    ctx.fillStyle = '#a0a0a0';
+    ctx.font = '34px Georgia, serif';
+    ctx.fillText(note, W / 2, 930);
+    ctx.fillText(new Date().toLocaleDateString('en-SG', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Singapore' }), W / 2, 1150);
+    ctx.fillStyle = '#666';
+    ctx.font = '28px Georgia, serif';
+    ctx.fillText('Every number has the same 1-in-10,000 chance · Play responsibly', W / 2, 1230);
+
+    c.toBlob(async (blob) => {
+      const file = new File([blob], 'caishenyeah-blessing.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file], title: 'CaiShenYeah Blessing' }); return; } catch (e) { /* cancelled */ }
+      }
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'caishenyeah-blessing.png';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    });
+  }
+
   // ── Kau Chim fortunes ──
   const FORTUNE_LEVELS = {
     great: { label: '上上 Great Blessing', cls: 'level-great' },
@@ -145,8 +237,11 @@ const Temple = (() => {
           <div class="fortune-number">${blessed}</div>
           <div class="fortune-number-history">${info.text}</div>
         </div>
+        <button class="temple-btn temple-btn-small" id="fortuneShare">📤 Share Blessing Card</button>
         <p class="temple-honesty">The temple speaks plainly: every 4D number carries the same 1-in-10,000 chance. This number is a blessing to carry, not a prediction.</p>
       </div>`;
+    document.getElementById('fortuneShare').addEventListener('click', () =>
+      shareCard(f.title, `第 ${f.n} 签 · ${level.label}`, blessed, info.text));
   }
 
   function initKauChim() {
@@ -203,8 +298,12 @@ const Temple = (() => {
               </div>`;
           }).join('')}
         </div>
+        <button class="temple-btn temple-btn-small" id="dreamShare">📤 Share Blessing Card</button>
         <p class="temple-honesty">Dream numbers are drawn from the temple book, not from probability — every number has the same 1-in-10,000 chance. Strike history is real, from ${results.length.toLocaleString()} actual draws.</p>
       </div>`;
+    document.getElementById('dreamShare').addEventListener('click', () =>
+      shareCard(`${symbol.emoji || '🌙'} ${symbol.zh || symbol.en}`, `Dream: ${symbol.en}`, nums[0].number,
+        `Mirror ${nums[1].number} · Today's Sign ${nums[2].number}`));
     document.getElementById('dreamResult').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
@@ -238,11 +337,182 @@ const Temple = (() => {
     drawGrid('');
   }
 
+  // ── Number checker rendering ──
+  function initChecker() {
+    const form = document.getElementById('checkerForm');
+    const input = document.getElementById('checkerInput');
+    const out = document.getElementById('checkerResult');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const raw = input.value.trim();
+      if (!raw) return;
+      const nums = [...new Set(raw.split(/[,;/]+/).map(normalizeNumber).filter(Boolean))].slice(0, 8);
+      if (!nums.length) {
+        out.innerHTML = '<p style="text-align:center;color:var(--white-muted);">The temple needs at least one digit to read.</p>';
+        return;
+      }
+      const latest = results[0];
+      out.innerHTML = nums.map(num => {
+        const d = numberDetail(num);
+        const won = d.latestPrize;
+        const verdict = won
+          ? `<span class="badge badge-hot">🎉 ${won} — Draw #${latest.drawNo}!</span>`
+          : `<span class="badge badge-cold">Not in Draw #${latest.drawNo}</span>`;
+        const breakdown = Object.entries(d.byPrize).map(([p, n]) => `${p} ×${n}`).join(' · ');
+        const recent = d.strikes.slice(0, 5).map(s =>
+          `<div class="checker-strike"><span>Draw #${s.drawNo} · ${s.date}</span><span class="gold-text">${s.prize}</span></div>`).join('');
+        return `
+          <div class="card animate-in checker-card">
+            <div class="checker-head">
+              <span class="checker-number">${num}</span>
+              ${verdict}
+            </div>
+            ${d.strikes.length
+              ? `<p class="checker-summary">Struck <strong class="gold-text">${d.strikes.length}×</strong> in ${results.length.toLocaleString()} draws — ${breakdown}</p>${recent}`
+              : `<p class="checker-summary">Never struck in ${results.length.toLocaleString()} draws since ${results[results.length - 1].date.slice(0, 4)} — a fresh number, still holding its blessing.</p>`}
+          </div>`;
+      }).join('');
+    });
+  }
+
+  // ── Incense ritual ──
+  const LS_INCENSE = 'temple_incense';
+
+  function initIncense() {
+    const btn = document.getElementById('incenseLight');
+    const stick = document.getElementById('incenseStick');
+    const note = document.getElementById('incenseNote');
+
+    const yesterdaySG = () =>
+      new Date(Date.now() - 86400000).toLocaleDateString('en-CA', { timeZone: 'Asia/Singapore' });
+
+    function load() {
+      try { return JSON.parse(localStorage.getItem(LS_INCENSE) || 'null'); } catch (e) { return null; }
+    }
+
+    function show(state, fresh) {
+      stick.classList.add('lit');
+      const days = state.streak === 1 ? 'day' : 'days';
+      note.textContent = fresh
+        ? `Incense lit. 🔥 ${state.streak} ${days} of devotion.`
+        : `Today's incense is already burning. 🔥 ${state.streak} ${days} of devotion.`;
+    }
+
+    const saved = load();
+    if (saved && saved.date === todaySG()) show(saved, false);
+
+    btn.addEventListener('click', () => {
+      const cur = load();
+      if (cur && cur.date === todaySG()) { show(cur, false); return; }
+      const streak = (cur && cur.date === yesterdaySG()) ? cur.streak + 1 : 1;
+      const state = { date: todaySG(), streak };
+      try { localStorage.setItem(LS_INCENSE, JSON.stringify(state)); } catch (e) {}
+      show(state, true);
+    });
+  }
+
+  // ── Daily blessings: zodiac, almanac, festivals ──
+  const ZODIAC = [
+    { zh: '鼠', en: 'Rat', emoji: '🐀' }, { zh: '牛', en: 'Ox', emoji: '🐂' },
+    { zh: '虎', en: 'Tiger', emoji: '🐅' }, { zh: '兔', en: 'Rabbit', emoji: '🐇' },
+    { zh: '龙', en: 'Dragon', emoji: '🐉' }, { zh: '蛇', en: 'Snake', emoji: '🐍' },
+    { zh: '马', en: 'Horse', emoji: '🐎' }, { zh: '羊', en: 'Goat', emoji: '🐐' },
+    { zh: '猴', en: 'Monkey', emoji: '🐒' }, { zh: '鸡', en: 'Rooster', emoji: '🐓' },
+    { zh: '狗', en: 'Dog', emoji: '🐕' }, { zh: '猪', en: 'Pig', emoji: '🐖' }
+  ];
+
+  const ALMANAC_GOOD = ['placing a small bet', 'visiting family', 'settling a debt', 'starting a new habit', 'tidying the house', 'making a plan', 'reconciling with an old friend', 'learning something new', 'resting early', 'giving to charity', 'cooking at home', 'a long walk'];
+  const ALMANAC_AVOID = ['chasing losses', 'big-ticket purchases', 'quarrels over money', 'lending money', 'signing in haste', 'gossip', 'late nights', 'impulsive bets', 'empty promises', 'borrowed luck'];
+  const ALMANAC_COLORS = ['Gold', 'Red', 'Jade Green', 'White', 'Azure Blue', 'Purple'];
+  const ALMANAC_DIRECTIONS = ['North', 'South', 'East', 'West', 'Northeast', 'Southeast', 'Northwest', 'Southwest'];
+
+  const FESTIVALS = [
+    { date: '2026-09-25', zh: '中秋节', en: 'Mid-Autumn Festival', emoji: '🥮' },
+    { date: '2026-12-22', zh: '冬至', en: 'Dongzhi (Winter Solstice)', emoji: '🍡' },
+    { date: '2027-02-06', zh: '新年', en: 'Chinese New Year — Year of the Goat', emoji: '🧧' },
+    { date: '2027-02-10', zh: '迎财神', en: "God of Fortune's Day (正月初五)", emoji: '🏮' },
+    { date: '2027-04-05', zh: '清明', en: 'Qing Ming', emoji: '🌿' }
+  ];
+
+  const LS_ZODIAC = 'temple_zodiac';
+
+  function pickN(list, n, seed) {
+    const out = [];
+    const pool = [...list];
+    for (let i = 0; i < n && pool.length; i++) {
+      out.push(pool.splice(hash(seed + ':' + i) % pool.length, 1)[0]);
+    }
+    return out;
+  }
+
+  function renderZodiac(zh) {
+    const z = ZODIAC.find(x => x.zh === zh);
+    if (!z) return;
+    document.querySelectorAll('#zodiacGrid .dream-chip').forEach(c =>
+      c.classList.toggle('zodiac-active', c.dataset.zh === zh));
+    const num = num4('zodiac:' + zh + ':' + todaySG());
+    const info = numberInfo(num);
+    document.getElementById('zodiacResult').innerHTML = `
+      <div class="fortune-number-block" style="text-align:center;margin-top:16px;">
+        <div class="fortune-number-label">${z.emoji} ${z.en} — today's number</div>
+        <div class="fortune-number" style="font-size:2rem;">${num}</div>
+        <div class="fortune-number-history">${info.text}</div>
+      </div>`;
+  }
+
+  function initDaily() {
+    // Zodiac
+    const grid = document.getElementById('zodiacGrid');
+    grid.innerHTML = ZODIAC.map(z =>
+      `<button class="dream-chip" data-zh="${z.zh}">${z.emoji} ${z.zh}</button>`).join('');
+    grid.addEventListener('click', (e) => {
+      const chip = e.target.closest('.dream-chip');
+      if (!chip) return;
+      try { localStorage.setItem(LS_ZODIAC, chip.dataset.zh); } catch (err) {}
+      renderZodiac(chip.dataset.zh);
+    });
+    try {
+      const saved = localStorage.getItem(LS_ZODIAC);
+      if (saved) renderZodiac(saved);
+    } catch (e) {}
+
+    // Almanac
+    const today = todaySG();
+    document.getElementById('almanacDate').textContent =
+      new Date().toLocaleDateString('en-SG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Singapore' });
+    const good = pickN(ALMANAC_GOOD, 2, 'good:' + today);
+    const avoid = pickN(ALMANAC_AVOID, 2, 'avoid:' + today);
+    const color = ALMANAC_COLORS[hash('color:' + today) % ALMANAC_COLORS.length];
+    const dir = ALMANAC_DIRECTIONS[hash('dir:' + today) % ALMANAC_DIRECTIONS.length];
+    document.getElementById('almanacContent').innerHTML = `
+      <div class="almanac-row"><span class="almanac-label good">宜 Auspicious</span><span>${good.join(', ')}</span></div>
+      <div class="almanac-row"><span class="almanac-label bad">忌 Avoid</span><span>${avoid.join(', ')}</span></div>
+      <div class="almanac-row"><span class="almanac-label">Lucky colour</span><span class="gold-text">${color}</span></div>
+      <div class="almanac-row"><span class="almanac-label">Lucky direction</span><span class="gold-text">${dir}</span></div>
+      <p class="temple-honesty" style="margin-top:14px;">The almanac renews daily — guidance for the spirit, not the wallet.</p>`;
+
+    // Festivals
+    const upcoming = FESTIVALS.filter(f => f.date >= today);
+    document.getElementById('festivalContent').innerHTML = upcoming.map((f, i) => {
+      const days = Math.round((new Date(f.date + 'T00:00:00+08:00') - new Date()) / 86400000);
+      const when = days === 0 ? '🎉 Today!' : `in ${days} day${days === 1 ? '' : 's'}`;
+      return `
+        <div class="almanac-row${i === 0 ? ' festival-next' : ''}">
+          <span>${f.emoji} ${f.en} <span class="dream-zh">${f.zh}</span></span>
+          <span class="${i === 0 ? 'gold-text' : ''}">${f.date} · ${when}</span>
+        </div>`;
+    }).join('');
+  }
+
   // ── Init ──
   window.addEventListener('DOMContentLoaded', () => {
     initKauChim();
     initDreams();
+    initChecker();
+    initIncense();
+    initDaily();
   });
 
-  return { hash, num4, dreamNumbers, numberInfo, FORTUNES, DREAMS };
+  return { hash, num4, dreamNumbers, numberInfo, numberDetail, normalizeNumber, FORTUNES, DREAMS };
 })();
