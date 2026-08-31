@@ -1751,3 +1751,85 @@ body {
 .view[data-view="patterns"] .section:first-of-type {
   background-image: linear-gradient(180deg, rgba(10,10,10,0.66) 0%, rgba(10,10,10,0.88) 40%, var(--black) 75%), url('../banners/patterns.jpg');
 }
+
+/* ══════════════ Prayer Wall ══════════════ */
+.wish-form {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.wish-name { margin: 0; max-width: 200px; }
+.wish-text { margin: 0; max-width: 380px; flex: 1; min-width: 220px; }
+
+/* Honeypot: invisible to humans, tempting to bots */
+.wish-altar { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+
+.wish-form + .kauchim-note { text-align: center; margin: 0 auto 24px; }
+
+.wish-wall {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 12px;
+  max-width: 960px;
+  margin: 0 auto 16px;
+}
+
+.wish-plaque {
+  background: linear-gradient(165deg, #5c1414 0%, #451010 60%, #3a0c0c 100%);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  border-top: 4px solid var(--gold-dark);
+  border-radius: 6px 6px 10px 10px;
+  padding: 16px 14px 12px;
+  position: relative;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.wish-plaque::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 2px solid var(--gold-dark);
+  background: var(--black);
+}
+
+.wish-plaque-text {
+  color: var(--gold-pale);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  word-break: break-word;
+  margin-bottom: 10px;
+}
+
+.wish-plaque-meta {
+  color: rgba(212, 175, 55, 0.75);
+  font-size: 0.72rem;
+  letter-spacing: 0.5px;
+}
+
+/* Dream interpretations */
+.dream-meaning-label {
+  color: var(--white-muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 14px 0 6px;
+}
+
+.dream-meaning {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: var(--gold-pale);
+  max-width: 560px;
+  margin: 0 auto 6px;
+}

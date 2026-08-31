@@ -177,32 +177,56 @@ const Temple = (() => {
     { n: 100, level: 'good', title: '苦尽甘来', verse: 'Bitterness ends, sweetness arrives; the debt of effort is repaid.', advice: 'The tide has already turned, even if the shore looks the same.' }
   ];
 
-  // ── Dream dictionary ──
+  // ── Dream dictionary (interpretations in the 周公解梦 tradition) ──
   const DREAMS = [
-    { zh: '蛇', en: 'Snake', emoji: '🐍' }, { zh: '龙', en: 'Dragon', emoji: '🐉' },
-    { zh: '虎', en: 'Tiger', emoji: '🐅' }, { zh: '鼠', en: 'Rat', emoji: '🐀' },
-    { zh: '牛', en: 'Ox', emoji: '🐂' }, { zh: '兔', en: 'Rabbit', emoji: '🐇' },
-    { zh: '马', en: 'Horse', emoji: '🐎' }, { zh: '羊', en: 'Goat', emoji: '🐐' },
-    { zh: '猴', en: 'Monkey', emoji: '🐒' }, { zh: '鸡', en: 'Rooster', emoji: '🐓' },
-    { zh: '狗', en: 'Dog', emoji: '🐕' }, { zh: '猪', en: 'Pig', emoji: '🐖' },
-    { zh: '猫', en: 'Cat', emoji: '🐈' }, { zh: '鱼', en: 'Fish', emoji: '🐟' },
-    { zh: '鸟', en: 'Bird', emoji: '🐦' }, { zh: '乌龟', en: 'Turtle', emoji: '🐢' },
-    { zh: '大象', en: 'Elephant', emoji: '🐘' }, { zh: '鳄鱼', en: 'Crocodile', emoji: '🐊' },
-    { zh: '蝴蝶', en: 'Butterfly', emoji: '🦋' }, { zh: '蜘蛛', en: 'Spider', emoji: '🕷️' },
-    { zh: '祖先', en: 'Deceased relative', emoji: '🕯️' }, { zh: '神明', en: 'Deity', emoji: '⛩️' },
-    { zh: '鬼', en: 'Ghost', emoji: '👻' }, { zh: '婚礼', en: 'Wedding', emoji: '💒' },
-    { zh: '葬礼', en: 'Funeral', emoji: '⚰️' }, { zh: '婴儿', en: 'Baby', emoji: '👶' },
-    { zh: '怀孕', en: 'Pregnancy', emoji: '🤰' }, { zh: '掉牙', en: 'Teeth falling', emoji: '🦷' },
-    { zh: '飞翔', en: 'Flying', emoji: '🕊️' }, { zh: '坠落', en: 'Falling', emoji: '🌀' },
-    { zh: '被追', en: 'Being chased', emoji: '🏃' }, { zh: '火', en: 'Fire', emoji: '🔥' },
-    { zh: '水灾', en: 'Flood', emoji: '🌊' }, { zh: '下雨', en: 'Rain', emoji: '🌧️' },
-    { zh: '大海', en: 'Sea', emoji: '⛵' }, { zh: '高山', en: 'Mountain', emoji: '⛰️' },
-    { zh: '庙宇', en: 'Temple', emoji: '🏮' }, { zh: '钱', en: 'Money', emoji: '💵' },
-    { zh: '黄金', en: 'Gold', emoji: '🪙' }, { zh: '血', en: 'Blood', emoji: '🩸' },
-    { zh: '车祸', en: 'Car accident', emoji: '🚗' }, { zh: '警察', en: 'Police', emoji: '👮' },
-    { zh: '小偷', en: 'Thief', emoji: '🥷' }, { zh: '考试', en: 'Exam', emoji: '📝' },
-    { zh: '榴莲', en: 'Durian', emoji: '🍈' }, { zh: '房子', en: 'House', emoji: '🏠' },
-    { zh: '飞机', en: 'Aeroplane', emoji: '✈️' }, { zh: '闪电', en: 'Lightning', emoji: '⚡' }
+    { zh: '蛇', en: 'Snake', emoji: '🐍', meaning: 'The snake is coiled wealth. To dream of one is money moving toward you; to be bitten is fortune arriving faster than you expected. Beware only the snake that flees — spent luck.' },
+    { zh: '龙', en: 'Dragon', emoji: '🐉', meaning: 'The highest of dream omens. A dragon rising means recognition, promotion, or a name lifted before important people. Whatever you have been building is about to be seen.' },
+    { zh: '虎', en: 'Tiger', emoji: '🐅', meaning: 'Power meets you on the road. A calm tiger is authority won; a lunging one warns of a rival with teeth. Either way, walk in like you own the mountain.' },
+    { zh: '鼠', en: 'Rat', emoji: '🐀', meaning: 'Small leaks sink great ships: the rat gnaws quietly at your stores. Check the small recurring costs and the friend who always forgets their wallet.' },
+    { zh: '牛', en: 'Ox', emoji: '🐂', meaning: 'Slow wealth, sure wealth. The ox promises harvest for patient labour — nothing quick, everything lasting. Plant now.' },
+    { zh: '兔', en: 'Rabbit', emoji: '🐇', meaning: 'The moon’s own animal: quiet luck, gentle escapes, small gifts arriving softly. A narrow miss this week is the rabbit’s doing.' },
+    { zh: '马', en: 'Horse', emoji: '🐎', meaning: '马到成功 — success arrives the moment the horse does. News you have waited on is closer than it appears. Keep the reins in hand.' },
+    { zh: '羊', en: 'Goat', emoji: '🐐', meaning: 'Harmony and provision: the flock is fed, the family gathered. A goat dream favours reconciliation — make the phone call.' },
+    { zh: '猴', en: 'Monkey', emoji: '🐒', meaning: 'Cleverness cuts both ways. A scheme around you may be too smart for its own good — yours or another’s. Simplify before you sign.' },
+    { zh: '鸡', en: 'Rooster', emoji: '🐓', meaning: 'The rooster announces: something hidden will be declared in daylight. Good news comes early in the morning; listen at first light.' },
+    { zh: '狗', en: 'Dog', emoji: '🐕', meaning: 'Loyalty stands guard over you. A friendly dog is a friend proving true; a barking one warns that loyalty is being tested — yours.' },
+    { zh: '猪', en: 'Pig', emoji: '🐖', meaning: 'Abundance without anxiety — the pig dreams only of plenty. Comfort, feasting, and money that arrives without being chased.' },
+    { zh: '猫', en: 'Cat', emoji: '🐈', meaning: 'Something graceful is watching you with its own agenda. Charm surrounds a matter at hand; count your change anyway.' },
+    { zh: '鱼', en: 'Fish', emoji: '🐟', meaning: '年年有余 — fish is surplus itself. Wealth swims toward the dreamer, and the bigger the fish, the deeper the pool of luck.' },
+    { zh: '鸟', en: 'Bird', emoji: '🐦', meaning: 'A message crosses distance to reach you. Birds in dreams carry word from far away — expect a letter, a call, a name from the past.' },
+    { zh: '乌龟', en: 'Turtle', emoji: '🐢', meaning: 'Longevity and protection. The turtle blesses slow plans and long games; what you secure now will still be standing decades on.' },
+    { zh: '大象', en: 'Elephant', emoji: '🐘', meaning: 'Great weight moving gently: an elephant dream is major fortune handled safely. A big matter resolves without the crash you feared.' },
+    { zh: '鳄鱼', en: 'Crocodile', emoji: '🐊', meaning: 'Still water hides old teeth. Someone patient is waiting near your interests — be courteous, be careful, be brief.' },
+    { zh: '蝴蝶', en: 'Butterfly', emoji: '🦋', meaning: 'Transformation completes. What crawled all year is about to fly — a change of role, of heart, of season. Let the old skin go.' },
+    { zh: '蜘蛛', en: 'Spider', emoji: '🕷️', meaning: 'A web is being woven — patient work paying off thread by thread. If the spider is yours, profit; if you walk into the web, look up.' },
+    { zh: '祖先', en: 'Deceased relative', emoji: '🕯️', meaning: 'The most tender of dreams: an ancestor visits to bless, not to warn. They are watching over the house. Light incense, say thank you — and note any number they showed you.' },
+    { zh: '神明', en: 'Deity', emoji: '⛩️', meaning: 'To dream of a god is to be reminded you are seen. Protection surrounds a decision you thought you faced alone. Proceed with a clean heart.' },
+    { zh: '鬼', en: 'Ghost', emoji: '👻', meaning: 'Not an omen of harm but of unfinished business. Something unsaid or unpaid is asking to be settled. Settle it, and sleep returns.' },
+    { zh: '婚礼', en: 'Wedding', emoji: '💒', meaning: 'A union of matters, not always of people: partnerships, mergers, promises formalised. Joy with paperwork attached.' },
+    { zh: '葬礼', en: 'Funeral', emoji: '⚰️', meaning: 'In the dream book, a funeral is reversal: an ending that releases fortune. Something concludes so that money and ease can begin.' },
+    { zh: '婴儿', en: 'Baby', emoji: '👶', meaning: 'A new thing with your name on it — a venture, an idea, a beginning that needs feeding. Fragile now, mighty later.' },
+    { zh: '怀孕', en: 'Pregnancy', emoji: '🤰', meaning: 'Something is growing that cannot yet be seen. Plans conceived in private are healthy; do not announce them before their month.' },
+    { zh: '掉牙', en: 'Teeth falling', emoji: '🦷', meaning: 'The old book reads this as worry for elders — call your family. If the tooth falls without pain, a difficulty resolves without loss.' },
+    { zh: '飞翔', en: 'Flying', emoji: '🕊️', meaning: 'Rising above what held you. Ambition finds its wind — the higher and calmer the flight, the greater the coming elevation.' },
+    { zh: '坠落', en: 'Falling', emoji: '🌀', meaning: 'The grip you fear losing may be one worth releasing. A fall that wakes you is a warning; a fall you survive in the dream is a burden dropped.' },
+    { zh: '被追', en: 'Being chased', emoji: '🏃', meaning: 'What pursues you in sleep is a task you flee by day. Turn and face it this week — pursuers in dreams shrink when looked at.' },
+    { zh: '火', en: 'Fire', emoji: '🔥', meaning: '火 means 旺 — fire is flourishing itself. A house alight with flame that does not destroy is prosperity catching. Tend it; do not fear it.' },
+    { zh: '水灾', en: 'Flood', emoji: '🌊', meaning: 'Water is wealth, and a flood is wealth in excess of the banks. Overwhelming now, enriching later — hold on and let it rise.' },
+    { zh: '下雨', en: 'Rain', emoji: '🌧️', meaning: 'Heaven waters what you planted. Steady rain is steady income; a storm passing is a dispute that clears the air.' },
+    { zh: '大海', en: 'Sea', emoji: '⛵', meaning: 'Your fortune has scale beyond the harbour. A calm sea blesses journeys and ventures abroad; a rough one says wait for the next tide.' },
+    { zh: '高山', en: 'Mountain', emoji: '⛰️', meaning: 'The obstacle is also the viewpoint. Climbing means a hard task with a summit worth having; standing on top means it is already yours.' },
+    { zh: '庙宇', en: 'Temple', emoji: '🏮', meaning: 'To dream of a temple while visiting one — the blessing is doubled. Guidance you seek is nearer than you think; ask your question plainly.' },
+    { zh: '钱', en: 'Money', emoji: '💵', meaning: 'Counting money in dreams is mixed: finding it promises gain, losing it warns of scattered attention. Either way, the book says check your accounts with a smile.' },
+    { zh: '黄金', en: 'Gold', emoji: '🪙', meaning: 'The purest omen of value — not just money, but worth recognised. Something you carry quietly will be appraised at its true price.' },
+    { zh: '血', en: 'Blood', emoji: '🩸', meaning: 'Startling but auspicious: in the dream book, blood is money’s twin. 见血见财 — to see blood is to see wealth on its way.' },
+    { zh: '车祸', en: 'Car accident', emoji: '🚗', meaning: 'A collision of plans, not of cars. Two commitments are heading for the same crossroads — slow one of them down yourself, gently.' },
+    { zh: '警察', en: 'Police', emoji: '👮', meaning: 'Order arrives, invited or not. A matter will be judged fairly — welcome news if your accounts are straight. Straighten them.' },
+    { zh: '小偷', en: 'Thief', emoji: '🥷', meaning: 'Something of yours has quiet feet — time, credit, or affection slipping away unnoticed. Catch the thief in the dream and you reclaim it in waking.' },
+    { zh: '考试', en: 'Exam', emoji: '📝', meaning: 'You are being measured, or you are measuring yourself too harshly. The dream exam has no syllabus: preparation for life is the life already lived.' },
+    { zh: '榴莲', en: 'Durian', emoji: '🍈', meaning: 'Fortune with a thorny shell — an opportunity that looks difficult and divides opinion, but is golden inside. Open it with the right people.' },
+    { zh: '房子', en: 'House', emoji: '🏠', meaning: 'The house is the self. New rooms are talents undiscovered; a leaking roof asks for maintenance of body or savings; a bright house is a settled heart.' },
+    { zh: '飞机', en: 'Aeroplane', emoji: '✈️', meaning: 'Distance shrinks for you. Travel, expansion, or an opportunity from overseas taxis onto your runway. Keep documents ready.' },
+    { zh: '闪电', en: 'Lightning', emoji: '⚡', meaning: 'Sudden illumination: an answer arrives all at once after long darkness. Startling, brief, unforgettable — write it down when you wake.' }
   ];
 
   // Three temple numbers per symbol: direct, mirrored, and the seeker's own
@@ -286,9 +310,13 @@ const Temple = (() => {
     const title = symbol.emoji
       ? `${symbol.emoji} ${symbol.en} <span class="dream-zh">${symbol.zh}</span>`
       : `&ldquo;${symbol.en}&rdquo;`;
+    const meaning = symbol.meaning ||
+      'This dream has no entry in the temple book — it belongs to you alone. Its numbers are read from the dream’s own words; its meaning, only the dreamer can say.';
     document.getElementById('dreamResult').innerHTML = `
       <div class="card animate-in dream-result-card">
         <div class="card-title">${title}</div>
+        <div class="dream-meaning-label">周公解梦 · The Temple Book reads</div>
+        <p class="dream-meaning">${meaning}</p>
         <div class="dream-numbers">
           ${nums.map(x => {
             const info = numberInfo(x.number);
@@ -529,6 +557,88 @@ const Temple = (() => {
     }).join('');
   }
 
+  // ── Prayer wall ──
+  const LS_WISH = 'temple_wish';
+  let wallLoaded = false;
+
+  const esc = (s) => s.replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  function renderWall(wishes, count) {
+    const wall = document.getElementById('wishWall');
+    if (!wishes.length) {
+      wall.innerHTML = '<p style="text-align:center;color:var(--white-muted);">The wall is bare — be the first to hang a wish.</p>';
+    } else {
+      wall.innerHTML = wishes.map(w => `
+        <div class="wish-plaque">
+          <div class="wish-plaque-text">${esc(w.wish)}</div>
+          <div class="wish-plaque-meta">${w.name ? esc(w.name) : '无名 Anonymous'} · ${new Date(w.ts).toLocaleDateString('en-SG', { day: 'numeric', month: 'short', timeZone: 'Asia/Singapore' })}</div>
+        </div>`).join('');
+    }
+    if (count > wishes.length) {
+      document.getElementById('wishCount').textContent =
+        `${count.toLocaleString()} wishes hang on this wall — showing the newest ${wishes.length}.`;
+    } else {
+      document.getElementById('wishCount').textContent = '';
+    }
+  }
+
+  function loadWishes() {
+    if (wallLoaded) return;
+    wallLoaded = true;
+    const wall = document.getElementById('wishWall');
+    wall.innerHTML = '<p style="text-align:center;color:var(--white-muted);">Reading the wall&hellip;</p>';
+    fetch('/api/wishes')
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(d => renderWall(d.wishes || [], d.count || 0))
+      .catch(() => {
+        wallLoaded = false;
+        wall.innerHTML = '<p style="text-align:center;color:var(--white-muted);">The wall rests for now — wishes return when the temple reopens.</p>';
+      });
+  }
+
+  function initPrayerWall() {
+    const form = document.getElementById('wishForm');
+    const note = document.getElementById('wishNote');
+    const btn = document.getElementById('wishSubmit');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      try {
+        if (localStorage.getItem(LS_WISH) === todaySG()) {
+          note.textContent = 'The temple has already hung your wish today. Return tomorrow.';
+          return;
+        }
+      } catch (err) {}
+
+      const wish = document.getElementById('wishText').value.trim();
+      if (wish.length < 2) return;
+      btn.disabled = true;
+      note.textContent = 'Hanging your wish…';
+
+      fetch('/api/wishes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          wish,
+          name: document.getElementById('wishName').value.trim(),
+          altar: form.querySelector('.wish-altar').value
+        })
+      })
+        .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(() => {
+          try { localStorage.setItem(LS_WISH, todaySG()); } catch (err) {}
+          note.textContent = '🙏 Your wish hangs on the wall.';
+          document.getElementById('wishText').value = '';
+          if (window.Sound) Sound.bowl();
+          wallLoaded = false;
+          loadWishes();
+        })
+        .catch(() => { note.textContent = 'The wind took your wish — please try again.'; })
+        .finally(() => { btn.disabled = false; });
+    });
+  }
+
   // ── Init ──
   window.addEventListener('DOMContentLoaded', () => {
     initKauChim();
@@ -536,7 +646,8 @@ const Temple = (() => {
     initChecker();
     initIncense();
     initDaily();
+    initPrayerWall();
   });
 
-  return { hash, num4, dreamNumbers, numberInfo, numberDetail, normalizeNumber, FORTUNES, DREAMS };
+  return { hash, num4, dreamNumbers, numberInfo, numberDetail, normalizeNumber, loadWishes, FORTUNES, DREAMS };
 })();

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CaiShenYeah | The Digital Temple of Fortune — Singapore 4D</title>
   <meta name="description" content="CaiShenYeah — The Digital Temple of Fortune. Shake the kau chim sticks, look up your dream numbers, and explore 20+ years of real Singapore Pools 4D history. Ritual, culture, and honest statistics.">
-  <link rel="stylesheet" href="css/style.css?v=7">
+  <link rel="stylesheet" href="css/style.css?v=9">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -194,6 +194,24 @@
       <p class="kauchim-note" id="incenseNote"></p>
       <p class="temple-honesty" style="max-width:460px;border:none;">Incense asks for nothing and predicts nothing. It is the temple's oldest act: gratitude first, luck second.</p>
     </div>
+  </div>
+</section>
+
+<section class="section" id="prayerwall">
+  <div class="container">
+    <div class="section-title">许愿墙 Prayer Wall</div>
+    <div class="section-subtitle">Hang your wish beside the others — the temple grants each visitor one plaque a day</div>
+
+    <form class="wish-form" id="wishForm">
+      <input type="text" class="dream-search wish-name" id="wishName" placeholder="Your name (optional)" maxlength="24" autocomplete="off">
+      <input type="text" class="dream-search wish-text" id="wishText" placeholder="Your wish… 心想事成" maxlength="140" autocomplete="off" required>
+      <input type="text" class="wish-altar" name="altar" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit" class="temple-btn temple-btn-small" id="wishSubmit">🪷 Hang My Wish</button>
+    </form>
+    <p class="kauchim-note" id="wishNote"></p>
+
+    <div class="wish-wall" id="wishWall"></div>
+    <p class="temple-honesty" id="wishCount" style="text-align:center;border:none;"></p>
   </div>
 </section>
 
@@ -416,11 +434,11 @@
   </div>
 </footer>
 
-<script src="js/data.js?v=7"></script>
-<script src="js/analysis.js?v=7"></script>
-<script src="js/predictor.js?v=7"></script>
-<script src="js/sound.js?v=7"></script>
-<script src="js/temple.js?v=7"></script>
-<script src="js/app.js?v=7"></script>
+<script src="js/data.js?v=9"></script>
+<script src="js/analysis.js?v=9"></script>
+<script src="js/predictor.js?v=9"></script>
+<script src="js/sound.js?v=9"></script>
+<script src="js/temple.js?v=9"></script>
+<script src="js/app.js?v=9"></script>
 </body>
 </html>

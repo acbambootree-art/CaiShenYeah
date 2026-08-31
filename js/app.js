@@ -190,6 +190,7 @@
     document.body.classList.toggle('at-home', hall === 'home');
     window.scrollTo(0, 0);
     initHall(hall);
+    if (hall === 'incense') Temple.loadWishes(); // idempotent; retries after a failed load
     if (lastHall !== null && hall !== lastHall && hall !== 'home') Sound.gong();
     lastHall = hall;
     if (embersControl) embersControl();
