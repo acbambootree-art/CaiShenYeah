@@ -145,7 +145,8 @@
   let embersControl = null;
 
   // ── Hall router ──
-  const HALLS = ['home', 'ask', 'incense', 'dreams', 'check', 'oracle', 'patterns'];
+  // 'keeper' is routable but unlisted — moderation lives at #/keeper
+  const HALLS = ['home', 'ask', 'incense', 'dreams', 'check', 'oracle', 'patterns', 'keeper'];
   // Old #anchor deep links land in the hall that now holds that section
   const LEGACY = {
     kauchim: 'ask', daily: 'ask', dreams: 'dreams', checker: 'check',
@@ -191,6 +192,7 @@
     window.scrollTo(0, 0);
     initHall(hall);
     if (hall === 'incense') Temple.loadWishes(); // idempotent; retries after a failed load
+    if (hall === 'keeper') Temple.loadKeeperWall();
     if (lastHall !== null && hall !== lastHall && hall !== 'home') Sound.gong();
     lastHall = hall;
     if (embersControl) embersControl();

@@ -639,6 +639,100 @@ const Temple = (() => {
     });
   }
 
+  // ── Temple keeper (moderation) ──
+  const LS_KEEPER = 'temple_keeper';
+
+  const keeperKey = () => {
+    try { return localStorage.getItem(LS_KEEPER) || ''; } catch (e) { return ''; }
+  };
+
+  function renderKeeperWall(wishes, count) {
+    const wall = document.getElementById('keeperWall');
+    document.getElementById('keeperCount').textContent =
+      count ? `${count.toLocaleString()} wishes on the wall.` : '';
+    if (!wishes.length) {
+      wall.innerHTML = '<p style="text-align:center;color:var(--white-muted);">No wishes hang on the wall yet.</p>';
+      return;
+    }
+    wall.innerHTML = wishes.map(w => `
+      <div class="wish-plaque" data-id="${esc(w.id || '')}">
+        <div class="wish-plaque-text">${esc(w.wish)}</div>
+        <div class="wish-plaque-meta">${w.name ? esc(w.name) : '无名 Anonymous'} · ${new Date(w.ts).toLocaleString('en-SG', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Singapore' })}</div>
+        <button class="wish-remove" title="Take this wish down">✕</button>
+      </div>`).join('');
+  }
+
+  function loadKeeperWall() {
+    const wall = document.getElementById('keeperWall');
+    const note = document.getElementById('keeperNote');
+    if (!keeperKey()) {
+      wall.innerHTML = '';
+      document.getElementById('keeperCount').textContent = '';
+      note.textContent = 'The room is locked.';
+      return;
+    }
+    note.textContent = 'Unlocked. Click ✕ on a plaque to take it down.';
+    wall.innerHTML = '<p style="text-align:center;color:var(--white-muted);">Reading the wall&hellip;</p>';
+    fetch('/api/wishes?limit=200', { cache: 'no-store' })
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(d => renderKeeperWall(d.wishes || [], d.count || 0))
+      .catch(() => { wall.innerHTML = '<p style="text-align:center;color:var(--white-muted);">Could not read the wall.</p>'; });
+  }
+
+  function initKeeper() {
+    const form = document.getElementById('keeperForm');
+    const input = document.getElementById('keeperKey');
+    const note = document.getElementById('keeperNote');
+    const wall = document.getElementById('keeperWall');
+
+    if (keeperKey()) input.value = keeperKey();
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const key = input.value.trim();
+      if (!key) {
+        try { localStorage.removeItem(LS_KEEPER); } catch (err) {}
+        loadKeeperWall();
+        return;
+      }
+      try { localStorage.setItem(LS_KEEPER, key); } catch (err) {}
+      loadKeeperWall();
+    });
+
+    wall.addEventListener('click', (e) => {
+      const btn = e.target.closest('.wish-remove');
+      if (!btn) return;
+      const plaque = btn.closest('.wish-plaque');
+      const id = plaque && plaque.dataset.id;
+      if (!id) return;
+      btn.disabled = true;
+      plaque.classList.add('removing');
+
+      fetch('/api/wishes', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', 'x-temple-key': keeperKey() },
+        body: JSON.stringify({ id })
+      })
+        .then(r => {
+          if (r.status === 401) {
+            try { localStorage.removeItem(LS_KEEPER); } catch (err) {}
+            throw new Error('key');
+          }
+          if (!r.ok) throw new Error(r.status);
+          plaque.remove();
+          note.textContent = 'Wish taken down.';
+          wallLoaded = false; // public wall refetches on next visit
+        })
+        .catch(err => {
+          plaque.classList.remove('removing');
+          btn.disabled = false;
+          note.textContent = err.message === 'key'
+            ? 'That key was not accepted. Enter it again.'
+            : 'Could not take that wish down — try again.';
+        });
+    });
+  }
+
   // ── Init ──
   window.addEventListener('DOMContentLoaded', () => {
     initKauChim();
@@ -647,7 +741,8 @@ const Temple = (() => {
     initIncense();
     initDaily();
     initPrayerWall();
+    initKeeper();
   });
 
-  return { hash, num4, dreamNumbers, numberInfo, numberDetail, normalizeNumber, loadWishes, FORTUNES, DREAMS };
+  return { hash, num4, dreamNumbers, numberInfo, numberDetail, normalizeNumber, loadWishes, loadKeeperWall, FORTUNES, DREAMS };
 })();
