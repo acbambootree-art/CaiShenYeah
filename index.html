@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CaiShenYeah | Singapore Pools 4D Prediction</title>
-  <meta name="description" content="CaiShenYeah — Advanced statistical prediction engine for Singapore Pools 4D lottery. Powered by the God of Fortune. Frequency analysis, pattern detection, and AI-powered number predictions.">
+  <title>CaiShenYeah | The Digital Temple of Fortune — Singapore 4D</title>
+  <meta name="description" content="CaiShenYeah — The Digital Temple of Fortune. Shake the kau chim sticks, look up your dream numbers, and explore 20+ years of real Singapore Pools 4D history. Ritual, culture, and honest statistics.">
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
@@ -21,12 +21,12 @@
   <div class="container">
     <a href="#" class="logo">CaiShen<span>Yeah</span></a>
     <nav class="nav" id="nav">
-      <a href="#proven-winners">Winners</a>
-      <a href="#predictions">Predictions</a>
-      <a href="#performance">Performance</a>
-      <a href="#analysis">Analysis</a>
-      <a href="#history">History</a>
-      <a href="#statistics">Statistics</a>
+      <a href="#kauchim">求签 Ask</a>
+      <a href="#dreams">Dreams</a>
+      <a href="#proven-winners">Blessings</a>
+      <a href="#predictions">Oracle</a>
+      <a href="#history">Records</a>
+      <a href="#performance">Honesty</a>
       <a href="#fairness">Fairness</a>
     </nav>
     <button class="nav-mobile-toggle" id="navToggle" aria-label="Menu">&#9776;</button>
@@ -40,9 +40,9 @@
   </video>
   <div class="hero-overlay"></div>
   <div class="container hero-content">
-    <div class="hero-label">A Singapore Pools 4D Oracle</div>
+    <div class="hero-label">The Digital Temple of Fortune 🏮</div>
     <h1>CaiShenYeah<br><span class="gold">财神爷 Make You Huat</span></h1>
-    <p>The God of Fortune meets data science. Advanced statistical analysis powered by historical data, frequency patterns, and ensemble prediction models.</p>
+    <p>A temple you can visit from anywhere. Shake the fortune sticks, look up your dream numbers, and consult 20+ years of real draw history — with the honesty of a temple that tells you luck is luck.</p>
 
     <div class="hero-stats">
       <div class="hero-stat">
@@ -76,11 +76,43 @@
   </div>
 </section>
 
+<!-- Kau Chim -->
+<section class="section" id="kauchim" style="background:var(--black-light);">
+  <div class="container">
+    <div class="section-title">求签 Ask the Temple</div>
+    <div class="section-subtitle">Shake the cylinder, receive your fortune stick, and carry today's blessed number — one sincere ask per day</div>
+    <div class="kauchim-wrap">
+      <div class="kauchim-cylinder" id="kauchimCylinder">
+        <div class="kauchim-sticks">
+          <span class="kstick"></span><span class="kstick"></span><span class="kstick"></span>
+          <span class="kstick"></span><span class="kstick"></span><span class="kstick"></span>
+          <span class="kstick"></span><span class="kstick"></span><span class="kstick"></span>
+        </div>
+        <div class="kauchim-cup">签</div>
+      </div>
+      <button class="temple-btn" id="kauchimShake">🙏 Shake the Sticks</button>
+      <p class="kauchim-note" id="kauchimNote"></p>
+    </div>
+    <div id="kauchimResult"></div>
+  </div>
+</section>
+
+<!-- Dream Dictionary -->
+<section class="section" id="dreams">
+  <div class="container">
+    <div class="section-title">解梦 Dream Numbers</div>
+    <div class="section-subtitle">Dreamt of something last night? Find its numbers in the temple book — with each number's real strike history</div>
+    <input type="search" class="dream-search" id="dreamSearch" placeholder="Search your dream… snake, fire, deceased relative, 蛇, 火…" aria-label="Search dream symbols">
+    <div class="dream-grid" id="dreamGrid"></div>
+    <div id="dreamResult"></div>
+  </div>
+</section>
+
 <!-- Proven Winners -->
 <section class="section" id="proven-winners" style="background:var(--black-light);">
   <div class="container">
-    <div class="section-title">Proven Winners 🏆</div>
-    <div class="section-subtitle">Our predictions that matched actual Singapore Pools 4D results</div>
+    <div class="section-title">Answered Blessings 🏮</div>
+    <div class="section-subtitle">Temple numbers that matched actual Singapore Pools 4D results — luck we gratefully record</div>
     <div id="provenWinnersContent"></div>
   </div>
 </section>
@@ -88,8 +120,8 @@
 <!-- Predictions -->
 <section class="section" id="predictions">
   <div class="container">
-    <div class="section-title">Top Predictions</div>
-    <div class="section-subtitle">Numbers with the highest probability based on our ensemble prediction model</div>
+    <div class="section-title">The Oracle's Numbers</div>
+    <div class="section-subtitle">Numbers favoured by the temple's ensemble oracle — read the Temple Honesty section below for what this can and cannot do</div>
     <div class="predictions-grid" id="predictionsGrid"></div>
     <p style="text-align:center;color:var(--white-muted);font-size:0.85rem;margin-top:16px;">
       Predictions based on <span class="gold-text">Weighted Frequency</span>, <span class="gold-text">Position Analysis</span>, <span class="gold-text">Pattern Matching</span>, and <span class="gold-text">Due Number</span> models
@@ -100,7 +132,7 @@
 <!-- Model Performance -->
 <section class="section" id="performance" style="background:var(--black-light);">
   <div class="container">
-    <div class="section-title">Model Performance</div>
+    <div class="section-title">Temple Honesty</div>
     <div class="section-subtitle">Walk-forward backtest: for every past draw, the model is trained only on earlier draws, then its picks are checked against the real results — and compared with what pure luck would produce</div>
     <div class="card" id="performanceCard">
       <div class="card-title">Backtest vs Pure Chance</div>
@@ -120,7 +152,7 @@
 <!-- Analysis -->
 <section class="section" id="analysis">
   <div class="container">
-    <div class="section-title">Digit Analysis</div>
+    <div class="section-title">Hall of Patterns</div>
     <div class="section-subtitle">Frequency distribution of digits 0-9 across all winning numbers</div>
     <div class="card-grid">
       <!-- Digit Frequency Chart -->
@@ -174,7 +206,7 @@
 <!-- Recent History -->
 <section class="section" id="history">
   <div class="container">
-    <div class="section-title">Recent Results</div>
+    <div class="section-title">Hall of Records</div>
     <div class="section-subtitle">Latest winning numbers from Singapore Pools 4D</div>
     <div class="card" style="overflow-x:auto;">
       <table class="results-table" id="resultsTable">
@@ -217,7 +249,7 @@
 <!-- Draw Fairness -->
 <section class="section" id="fairness">
   <div class="container">
-    <div class="section-title">Draw Fairness Monitor</div>
+    <div class="section-title">Temple Integrity — Draw Fairness</div>
     <div class="section-subtitle">Chi-square uniformity tests on every digit position — if the draw machine ever developed a real physical bias, it would show up here first</div>
     <div class="card-grid">
       <div class="card">
@@ -254,6 +286,7 @@
 <script src="js/data.js"></script>
 <script src="js/analysis.js"></script>
 <script src="js/predictor.js"></script>
+<script src="js/temple.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

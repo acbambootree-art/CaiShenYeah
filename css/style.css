@@ -946,3 +946,252 @@ body {
 
   .section-title { font-size: 1.3rem; }
 }
+
+/* ══════════════ Digital Temple ══════════════ */
+
+/* ── Kau Chim ── */
+.kauchim-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.kauchim-cylinder {
+  position: relative;
+  width: 120px;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.kauchim-sticks {
+  position: absolute;
+  bottom: 70px;
+  display: flex;
+  gap: 5px;
+  align-items: flex-end;
+}
+
+.kstick {
+  width: 7px;
+  height: 74px;
+  background: linear-gradient(180deg, var(--gold-light), var(--gold-dark));
+  border-radius: 3px 3px 0 0;
+  box-shadow: 0 0 6px rgba(212, 175, 55, 0.35);
+}
+
+.kstick:nth-child(2n) { height: 86px; }
+.kstick:nth-child(3n) { height: 66px; }
+
+.kauchim-cup {
+  width: 110px;
+  height: 90px;
+  background: linear-gradient(180deg, #8b1a1a, #5c0f0f);
+  border: 2px solid var(--gold-dark);
+  border-radius: 10px 10px 26px 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  font-family: var(--font-display);
+  font-size: 2rem;
+  box-shadow: var(--shadow-gold);
+  z-index: 1;
+}
+
+.kauchim-cylinder.shaking { animation: kauchim-shake 0.28s ease-in-out infinite; }
+
+@keyframes kauchim-shake {
+  0%, 100% { transform: rotate(0deg) translateX(0); }
+  25% { transform: rotate(-7deg) translateX(-5px); }
+  75% { transform: rotate(7deg) translateX(5px); }
+}
+
+.temple-btn {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--black);
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  border: none;
+  border-radius: 999px;
+  padding: 14px 34px;
+  cursor: pointer;
+  box-shadow: var(--shadow-gold);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.temple-btn:hover { transform: translateY(-2px); box-shadow: 0 0 50px rgba(212, 175, 55, 0.3); }
+.temple-btn:disabled { opacity: 0.6; cursor: wait; transform: none; }
+
+.kauchim-note {
+  color: var(--white-muted);
+  font-size: 0.85rem;
+  text-align: center;
+  max-width: 440px;
+  min-height: 1em;
+}
+
+.fortune-card {
+  max-width: 560px;
+  margin: 0 auto;
+  background: var(--black-card);
+  border: 1px solid var(--gold-dark);
+  border-radius: var(--radius);
+  padding: 32px 28px;
+  text-align: center;
+  box-shadow: var(--shadow-gold);
+}
+
+.fortune-stick-no {
+  color: var(--white-muted);
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.fortune-title {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+.fortune-level { font-size: 0.75rem; }
+.level-great { background: rgba(255, 68, 68, 0.15); color: var(--red); border: 1px solid var(--red); }
+.level-good { background: rgba(212, 175, 55, 0.15); color: var(--gold); border: 1px solid var(--gold-dark); }
+.level-fair { background: rgba(68, 255, 136, 0.12); color: var(--green); border: 1px solid rgba(68, 255, 136, 0.4); }
+.level-neutral { background: rgba(255, 255, 255, 0.08); color: var(--white-muted); border: 1px solid var(--black-border); }
+.level-caution { background: rgba(68, 136, 255, 0.12); color: var(--blue); border: 1px solid rgba(68, 136, 255, 0.4); }
+
+.fortune-verse {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--white);
+  margin: 18px 0 8px;
+  line-height: 1.6;
+}
+
+.fortune-advice { color: var(--white-muted); font-size: 0.95rem; margin-bottom: 20px; }
+
+.fortune-number-block {
+  background: rgba(212, 175, 55, 0.06);
+  border: 1px dashed var(--gold-dark);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.fortune-number-label {
+  color: var(--white-muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 6px;
+}
+
+.fortune-number {
+  font-family: var(--font-mono);
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 8px;
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+}
+
+.fortune-number-history { color: var(--white-muted); font-size: 0.8rem; margin-top: 6px; }
+
+.temple-honesty {
+  color: var(--white-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+/* ── Dream Dictionary ── */
+.dream-search {
+  display: block;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto 24px;
+  background: var(--black-card);
+  border: 1px solid var(--black-border);
+  border-radius: 999px;
+  padding: 13px 22px;
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.dream-search:focus { border-color: var(--gold-dark); box-shadow: var(--shadow-gold); }
+.dream-search::placeholder { color: var(--white-muted); opacity: 0.7; }
+
+.dream-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  max-width: 900px;
+  margin: 0 auto 28px;
+}
+
+.dream-chip {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: var(--white);
+  background: var(--black-card);
+  border: 1px solid var(--black-border);
+  border-radius: 999px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.dream-chip:hover { border-color: var(--gold); transform: translateY(-2px); }
+.dream-chip .dream-zh { color: var(--gold); margin-left: 6px; }
+.dream-chip-custom { border-color: var(--gold-dark); color: var(--gold); }
+
+.dream-result-card { max-width: 720px; margin: 0 auto; text-align: center; }
+.dream-result-card .dream-zh { color: var(--gold); margin-left: 8px; font-family: var(--font-display); }
+
+.dream-numbers {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin: 22px 0;
+}
+
+.dream-number-item { min-width: 150px; }
+
+.dream-number-label {
+  color: var(--white-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
+}
+
+.dream-number {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 5px;
+}
+
+@media (max-width: 600px) {
+  .fortune-title { font-size: 1.7rem; }
+  .fortune-number { font-size: 2rem; letter-spacing: 5px; }
+  .dream-numbers { gap: 16px; }
+}
