@@ -69,9 +69,9 @@
     paint(Sound.enabled());
     btn.addEventListener('click', () => paint(Sound.toggle()));
 
-    // Wood-fish tok on temple taps (chips, doors, tabs)
+    // Wood-fish tok on temple taps (chips, doors, tabs, buttons)
     document.addEventListener('click', (e) => {
-      if (e.target.closest('.dream-chip, .door, .tabbar a, .nav a')) Sound.tok();
+      if (e.target.closest('.dream-chip, .door, .tabbar a, .nav a, .temple-btn')) Sound.tok();
     });
   }
 

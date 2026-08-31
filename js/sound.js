@@ -123,14 +123,20 @@ const Sound = (() => {
 
   function rattle() {
     if (!enabled() || !ensureCtx()) return;
-    for (let i = 0; i < 16; i++) {
+    // Bamboo sticks clacking in the cylinder: dense wooden knocks, loud
+    // enough to cut through the music bed
+    for (let i = 0; i < 26; i++) {
+      const when = (i / 26) * 1.25 + Math.random() * 0.05;
       noiseHit({
-        gain: 0.05 + Math.random() * 0.04,
-        decay: 0.02 + Math.random() * 0.02,
-        freq: 2200 + Math.random() * 2200,
-        q: 2,
-        when: Math.random() * 1.15
+        gain: 0.14 + Math.random() * 0.1,
+        decay: 0.03 + Math.random() * 0.03,
+        freq: 1300 + Math.random() * 1700,
+        q: 3,
+        when
       });
+      if (i % 3 === 0) {
+        tone(700 + Math.random() * 500, { gain: 0.07, attack: 0.002, decay: 0.05, bend: -300, when });
+      }
     }
   }
 
