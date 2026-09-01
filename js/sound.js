@@ -121,22 +121,26 @@ const Sound = (() => {
     noiseHit({ gain: 0.05, decay: 0.03, freq: 2200, q: 1 });
   }
 
+  // One bamboo stick striking another: a low-mid wooden body carries the
+  // thunk, a bright tick gives the edge, a pitched knock gives it wood.
+  // A narrow band alone reads as hiss and vanishes under the music.
+  function clack(when, force) {
+    noiseHit({ gain: 0.26 * force, decay: 0.05 + Math.random() * 0.03,
+      freq: 380 + Math.random() * 420, q: 0.9, when });
+    noiseHit({ gain: 0.12 * force, decay: 0.018,
+      freq: 2400 + Math.random() * 1800, q: 1.2, when });
+    tone(230 + Math.random() * 220, { gain: 0.15 * force, attack: 0.001,
+      decay: 0.07, type: 'triangle', bend: -110, when });
+  }
+
   function rattle() {
     if (!enabled() || !ensureCtx()) return;
-    // Bamboo sticks clacking in the cylinder: dense wooden knocks, loud
-    // enough to cut through the music bed
-    for (let i = 0; i < 26; i++) {
-      const when = (i / 26) * 1.25 + Math.random() * 0.05;
-      noiseHit({
-        gain: 0.14 + Math.random() * 0.1,
-        decay: 0.03 + Math.random() * 0.03,
-        freq: 1300 + Math.random() * 1700,
-        q: 3,
-        when
-      });
-      if (i % 3 === 0) {
-        tone(700 + Math.random() * 500, { gain: 0.07, attack: 0.002, decay: 0.05, bend: -300, when });
-      }
+    duckMusic(1.6);
+    const N = 30;
+    for (let i = 0; i < N; i++) {
+      const p = i / N;
+      // Sticks bunch up through the middle of the shake, as a worked cylinder does
+      clack(p * 1.25 + Math.random() * 0.04, 0.6 + 0.4 * Math.sin(Math.PI * p));
     }
   }
 
@@ -179,6 +183,21 @@ const Sound = (() => {
     }, 60);
   }
 
+  const MUSIC_VOLUME = 0.32;
+
+  // Drop the music under a ritual sound so the ritual is the thing you hear
+  function duckMusic(seconds) {
+    if (!musicEl || musicEl === 'failed' || musicEl.paused) return;
+    clearInterval(musicFade);
+    musicEl.volume = 0.07;
+    clearTimeout(duckTimer);
+    duckTimer = setTimeout(() => {
+      if (ambienceOn && musicEl && musicEl !== 'failed') fadeMusic(MUSIC_VOLUME, 900);
+    }, seconds * 1000);
+  }
+
+  let duckTimer = null;
+
   function startAmbience() {
     if (!enabled() || !ensureCtx() || ambienceOn) return;
     ambienceOn = true;
@@ -190,8 +209,9 @@ const Sound = (() => {
     if (musicEl === 'failed') { startSynthAmbience(); return; }
     musicEl.volume = 0;
     const p = musicEl.play();
-    if (p) p.catch(() => {});
-    fadeMusic(0.32, 2500);
+    // A refused or failed track must fall back to the synth, never to silence
+    if (p && p.then) p.then(() => fadeMusic(MUSIC_VOLUME, 2500)).catch(() => startSynthAmbience());
+    else fadeMusic(MUSIC_VOLUME, 2500);
   }
 
   function stopAmbience() {
