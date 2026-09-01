@@ -5,23 +5,13 @@
  * DELETE /api/wishes            -> { ok: true } ; body { id } + x-temple-key header
  */
 
-const crypto = require('crypto');
 const { put, list, del } = require('@vercel/blob');
+const { keyOk, readBody, loadRecords } = require('./_temple');
 
 const MAX_WISH = 140;
 const MAX_NAME = 24;
 const WALL_SIZE = 48;
 const KEEPER_MAX = 200;
-
-// Constant-time compare so the key can't be guessed byte-by-byte via timing
-function keyOk(given) {
-  const secret = process.env.TEMPLE_KEEPER_KEY || '';
-  if (!secret || !given) return false;
-  const a = Buffer.from(String(given));
-  const b = Buffer.from(secret);
-  if (a.length !== b.length) return false;
-  return crypto.timingSafeEqual(a, b);
-}
 
 module.exports = async (req, res) => {
   if (req.method === 'GET') {
@@ -32,25 +22,13 @@ module.exports = async (req, res) => {
     const want = Math.min(Number.isFinite(asked) && asked > 0 ? asked : WALL_SIZE, KEEPER_MAX);
     // ponytail: fan-out fetch of newest N blobs; an index blob if the wall
     // ever outgrows one list() page (1000 wishes)
-    const { blobs } = await list({ prefix: 'wishes/', limit: 1000 });
-    const newest = blobs
-      .sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt))
-      .slice(0, want);
-    const wishes = (await Promise.all(
-      newest.map(b => fetch(b.url)
-        .then(r => r.ok ? r.json() : null)
-        .then(j => j && Object.assign(j, { id: b.pathname }))
-        .catch(() => null))
-    )).filter(Boolean);
-    return res.status(200).json({ wishes, count: blobs.length });
+    const { records, total } = await loadRecords(list, 'wishes/', want);
+    return res.status(200).json({ wishes: records, count: total });
   }
 
   if (req.method === 'POST') {
     res.setHeader('Cache-Control', 'no-store');
-    let body = req.body;
-    if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = {}; } }
-    body = body || {};
-
+    const body = readBody(req);
     if (body.altar) return res.status(200).json({ ok: true }); // honeypot: pretend success
 
     const wish = String(body.wish || '').trim().slice(0, MAX_WISH);
@@ -69,9 +47,7 @@ module.exports = async (req, res) => {
     if (!keyOk(req.headers['x-temple-key'])) {
       return res.status(401).json({ error: 'Only the temple keeper may take a wish down.' });
     }
-    let body = req.body;
-    if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = {}; } }
-    const id = String((body || {}).id || '');
+    const id = String(readBody(req).id || '');
     // Confine deletion to the wishes folder, whatever the key holder sends
     if (!/^wishes\/[A-Za-z0-9._-]+\.json$/.test(id)) {
       return res.status(400).json({ error: 'That is not a wish.' });

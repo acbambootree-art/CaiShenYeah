@@ -35,26 +35,17 @@
     hideLoading();
   });
 
-  // ── Temple gate: the first visit's user gesture unlocks the soundscape ──
+  // ── Temple gate ──
+  // You enter through the doors every visit: it is the site's signature, and
+  // that push is also the gesture browsers require before any audio may play.
   function initGate() {
     const gate = document.getElementById('templeGate');
-    let entered = false;
-    try { entered = !!localStorage.getItem('temple_entered'); } catch (e) { entered = true; }
-
-    if (entered) {
-      // Returning visitor: quietly arm audio on the first interaction
-      const armOnce = () => { Sound.arm(); document.removeEventListener('pointerdown', armOnce); };
-      document.addEventListener('pointerdown', armOnce);
-      return;
-    }
-
     gate.hidden = false;
     // Swap in the generated door art when the asset exists
     const art = new Image();
     art.onload = () => gate.classList.add('gate-art');
     art.src = 'gate.jpg';
     document.getElementById('gateEnter').addEventListener('click', () => {
-      try { localStorage.setItem('temple_entered', '1'); } catch (e) {}
       Sound.arm();
       Sound.gong();
       gate.classList.add('open');
@@ -145,8 +136,9 @@
   let embersControl = null;
 
   // ── Hall router ──
-  // 'keeper' is routable but unlisted — moderation lives at #/keeper
-  const HALLS = ['home', 'ask', 'incense', 'dreams', 'check', 'oracle', 'patterns', 'keeper'];
+  // 'keeper' and 'board' are routable but unlisted: moderation at #/keeper,
+  // and #/board is the display that stands beside the real altar
+  const HALLS = ['home', 'ask', 'incense', 'dreams', 'check', 'oracle', 'patterns', 'keeper', 'board'];
   // Old #anchor deep links land in the hall that now holds that section
   const LEGACY = {
     kauchim: 'ask', daily: 'ask', dreams: 'dreams', checker: 'check',
@@ -191,8 +183,10 @@
     document.body.classList.toggle('at-home', hall === 'home');
     window.scrollTo(0, 0);
     initHall(hall);
-    if (hall === 'incense') Temple.loadWishes(); // idempotent; retries after a failed load
+    if (hall === 'incense') { Temple.loadWishes(); Temple.loadAltar(); } // idempotent; retries after a failed load
     if (hall === 'keeper') Temple.loadKeeperWall();
+    if (hall === 'board') Temple.loadBoard();
+    document.body.classList.toggle('board-mode', hall === 'board');
     if (lastHall !== null && hall !== lastHall && hall !== 'home') Sound.gong();
     lastHall = hall;
     if (embersControl) embersControl();

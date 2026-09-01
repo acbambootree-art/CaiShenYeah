@@ -639,6 +639,168 @@ const Temple = (() => {
     });
   }
 
+  // ── The Living Altar ──
+  // Feed-ready: when a temple partners, set liveUrl to their stream embed and
+  // name the temple. Everything below already works; nothing else changes.
+  const ALTAR = {
+    liveUrl: null,              // e.g. 'https://www.youtube.com/embed/<id>?autoplay=1&mute=1'
+    templeName: null,           // e.g. '福德祠 Fu De Temple'
+    rounds: ['08:00', '18:00']  // SGT times a caretaker offers the bundle
+  };
+
+  const LS_OFFERING = 'temple_offering';
+  let altarFramed = false;
+
+  function sgMinutes() {
+    const t = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Singapore', hour: '2-digit', minute: '2-digit', hour12: false
+    }).format(new Date());
+    const [h, m] = t.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  function nextRound() {
+    const now = sgMinutes();
+    const mins = ALTAR.rounds.map(r => {
+      const [h, m] = r.split(':').map(Number);
+      return h * 60 + m;
+    }).sort((a, b) => a - b);
+    const upcoming = mins.find(x => x > now);
+    const at = upcoming !== undefined ? upcoming : mins[0];
+    return { at, away: upcoming !== undefined ? at - now : 1440 - now + at };
+  }
+
+  function fmtTime(mins) {
+    const h = Math.floor(mins / 60), m = mins % 60;
+    const hh = h % 12 === 0 ? 12 : h % 12;
+    return `${hh}${m ? ':' + String(m).padStart(2, '0') : ''}${h >= 12 ? 'pm' : 'am'}`;
+  }
+
+  const safeLink = (u) => (typeof u === 'string' && /^https:\/\//.test(u)) ? u : null;
+
+  function renderAltarFrame() {
+    if (altarFramed) return; // never rebuild: it would restart the stream
+    altarFramed = true;
+    const frame = document.getElementById('altarFrame');
+    if (ALTAR.liveUrl) {
+      frame.innerHTML = `
+        <iframe src="${esc(ALTAR.liveUrl)}" allow="autoplay; encrypted-media" allowfullscreen title="Live temple altar"></iframe>
+        <span class="altar-badge live">● LIVE · ${esc(ALTAR.templeName || 'The temple altar')}</span>`;
+    } else {
+      frame.innerHTML = `
+        <video src="incense.mp4" autoplay muted loop playsinline></video>
+        <span class="altar-badge">PREVIEW · no temple connected yet</span>`;
+      document.getElementById('altarIntro').textContent =
+        'A real altar, a real flame — once a temple joins us. The round below already works: names gather, and a caretaker will light them at the altar itself.';
+    }
+  }
+
+  function renderRoundLine(pendingCount) {
+    const { at, away } = nextRound();
+    const h = Math.floor(away / 60), m = away % 60;
+    document.getElementById('altarRound').innerHTML = `
+      <span class="altar-round-time">Next round ${fmtTime(at)} SGT</span>
+      <span class="altar-round-dot">·</span><span>in ${h ? h + 'h ' : ''}${m}m</span>
+      <span class="altar-round-dot">·</span><span class="gold-text">${pendingCount} waiting</span>`;
+  }
+
+  function renderAltar(d) {
+    const pending = d.pending || [], offered = d.offered || [];
+    renderRoundLine(d.pendingCount || 0);
+
+    document.getElementById('altarQueue').innerHTML = pending.length
+      ? pending.map(o => `<div class="altar-name"><span>${esc(o.name)}</span>${
+          o.dedication ? `<span class="altar-ded">${esc(o.dedication)}</span>` : ''}</div>`).join('')
+      : '<p class="altar-empty">Nobody is waiting. Yours would be the first stick of the round.</p>';
+
+    document.getElementById('altarOffered').innerHTML = offered.length
+      ? offered.map(o => {
+          const clip = safeLink(o.clip);
+          const when = new Date(o.offeredAt).toLocaleString('en-SG',
+            { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Singapore' });
+          return `<div class="altar-name offered"><span>${esc(o.name)}</span><span class="altar-ded">🪔 ${when}${
+            clip ? ` · <a href="${esc(clip)}" target="_blank" rel="noopener noreferrer">watch</a>` : ''}</span></div>`;
+        }).join('')
+      : '<p class="altar-empty">No round has been offered yet.</p>';
+  }
+
+  function loadAltar() {
+    renderAltarFrame();
+    renderRoundLine(0);
+    fetch('/api/offerings', { cache: 'no-store' })
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(renderAltar)
+      .catch(() => {
+        document.getElementById('altarQueue').innerHTML =
+          '<p class="altar-empty">The altar is quiet just now — try again shortly.</p>';
+      });
+  }
+
+  function initAltar() {
+    const form = document.getElementById('offeringForm');
+    const note = document.getElementById('offeringNote');
+    const btn = document.getElementById('offeringSubmit');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      try {
+        if (localStorage.getItem(LS_OFFERING) === todaySG()) {
+          note.textContent = 'You have already joined a round today. One offering a day.';
+          return;
+        }
+      } catch (err) {}
+
+      const name = document.getElementById('offeringName').value.trim();
+      if (!name) return;
+      btn.disabled = true;
+      note.textContent = 'Adding your name to the round…';
+
+      fetch('/api/offerings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          dedication: document.getElementById('offeringDedication').value.trim(),
+          altar: form.querySelector('.wish-altar').value
+        })
+      })
+        .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(() => {
+          try { localStorage.setItem(LS_OFFERING, todaySG()); } catch (err) {}
+          note.textContent = '🪔 Your name is in the next round. We will show it here once the caretaker has offered it.';
+          document.getElementById('offeringDedication').value = '';
+          if (window.Sound) Sound.bowl();
+          loadAltar();
+        })
+        .catch(() => { note.textContent = 'The altar did not take your name — please try again.'; })
+        .finally(() => { btn.disabled = false; });
+    });
+  }
+
+  // ── Altar board: the display that stands beside the real altar ──
+  function loadBoard() {
+    document.getElementById('boardTemple').textContent = ALTAR.templeName || '';
+    fetch('/api/offerings', { cache: 'no-store' })
+      .then(r => r.json())
+      .then(d => {
+        const names = d.pending || [];
+        document.getElementById('boardNames').innerHTML = names.length
+          ? names.map(o => `<div class="board-name">${esc(o.name)}${
+              o.dedication ? `<span>${esc(o.dedication)}</span>` : ''}</div>`).join('')
+          : '<div class="board-empty">静候 · awaiting names</div>';
+        const { at } = nextRound();
+        document.getElementById('boardFoot').textContent =
+          `${names.length} offering${names.length === 1 ? '' : 's'} · round at ${fmtTime(at)}`;
+      })
+      .catch(() => {});
+  }
+
+  // Board is a wall display: keep it fresh without anyone touching it
+  setInterval(() => {
+    const v = document.querySelector('.view.active');
+    if (v && v.dataset.view === 'board') loadBoard();
+  }, 30000);
+
   // ── Temple keeper (moderation) ──
   const LS_KEEPER = 'temple_keeper';
 
@@ -662,9 +824,26 @@ const Temple = (() => {
       </div>`).join('');
   }
 
+  function loadKeeperAltar() {
+    const box = document.getElementById('keeperAltar');
+    box.hidden = !keeperKey();
+    if (box.hidden) return;
+    fetch('/api/offerings', { cache: 'no-store' })
+      .then(r => r.json())
+      .then(d => {
+        const n = d.pendingCount || 0;
+        document.getElementById('keeperRoundState').innerHTML = n
+          ? `<strong class="gold-text">${n}</strong> name${n === 1 ? '' : 's'} waiting for the next round.`
+          : 'Nobody is waiting. Nothing to offer right now.';
+      })
+      .catch(() => { document.getElementById('keeperRoundState').textContent = 'Could not read the round.'; });
+  }
+
   function loadKeeperWall() {
     const wall = document.getElementById('keeperWall');
     const note = document.getElementById('keeperNote');
+    loadKeeperAltar();
+    document.getElementById('keeperWallTitle').hidden = !keeperKey();
     if (!keeperKey()) {
       wall.innerHTML = '';
       document.getElementById('keeperCount').textContent = '';
@@ -697,6 +876,46 @@ const Temple = (() => {
       }
       try { localStorage.setItem(LS_KEEPER, key); } catch (err) {}
       loadKeeperWall();
+    });
+
+    // Record a round the caretaker has already made at the altar
+    document.getElementById('keeperRoundForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const rNote = document.getElementById('keeperRoundNote');
+      const rBtn = document.getElementById('keeperRoundBtn');
+      rBtn.disabled = true;
+      rNote.textContent = 'Recording the round…';
+
+      fetch('/api/offerings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-temple-key': keeperKey() },
+        body: JSON.stringify({ clip: document.getElementById('keeperClip').value.trim() })
+      })
+        .then(r => {
+          if (r.status === 401) {
+            try { localStorage.removeItem(LS_KEEPER); } catch (err) {}
+            throw new Error('key');
+          }
+          if (!r.ok) throw new Error(r.status);
+          return r.json();
+        })
+        .then(d => {
+          rNote.textContent = d.offered
+            ? `🪔 Round recorded — ${d.offered} offering${d.offered === 1 ? '' : 's'} now shown as made.`
+            : 'Nobody was waiting, so nothing changed.';
+          document.getElementById('keeperClip').value = '';
+          // The blob listing trails the writes by a moment, so state the known
+          // outcome now and reconcile shortly after
+          document.getElementById('keeperRoundState').textContent =
+            'Nobody is waiting. Nothing to offer right now.';
+          setTimeout(loadKeeperAltar, 3000);
+        })
+        .catch(err => {
+          rNote.textContent = err.message === 'key'
+            ? 'That key was not accepted. Enter it again.'
+            : 'Could not record the round — try again.';
+        })
+        .finally(() => { rBtn.disabled = false; });
     });
 
     wall.addEventListener('click', (e) => {
@@ -740,9 +959,11 @@ const Temple = (() => {
     initChecker();
     initIncense();
     initDaily();
+    initAltar();
     initPrayerWall();
     initKeeper();
   });
 
-  return { hash, num4, dreamNumbers, numberInfo, numberDetail, normalizeNumber, loadWishes, loadKeeperWall, FORTUNES, DREAMS };
+  return { hash, num4, dreamNumbers, numberInfo, numberDetail, normalizeNumber,
+    loadWishes, loadKeeperWall, loadAltar, loadBoard, ALTAR, FORTUNES, DREAMS };
 })();

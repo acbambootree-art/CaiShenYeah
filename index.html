@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CaiShenYeah | The Digital Temple of Fortune — Singapore 4D</title>
   <meta name="description" content="CaiShenYeah — The Digital Temple of Fortune. Shake the kau chim sticks, look up your dream numbers, and explore 20+ years of real Singapore Pools 4D history. Ritual, culture, and honest statistics.">
-  <link rel="stylesheet" href="css/style.css?v=10">
+  <link rel="stylesheet" href="css/style.css?v=14">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -194,6 +194,38 @@
       <p class="kauchim-note" id="incenseNote"></p>
       <p class="temple-honesty" style="max-width:460px;border:none;">Incense asks for nothing and predicts nothing. It is the temple's oldest act: gratitude first, luck second.</p>
     </div>
+  </div>
+</section>
+
+<section class="section" id="livingaltar">
+  <div class="container">
+    <div class="section-title">灵坛 The Living Altar</div>
+    <div class="section-subtitle" id="altarIntro">A real altar, a real flame. Join an offering round and a caretaker lights your incense at the temple itself</div>
+
+    <div class="altar-stage">
+      <div class="altar-frame" id="altarFrame"></div>
+      <div class="altar-round" id="altarRound"></div>
+    </div>
+
+    <form class="wish-form" id="offeringForm">
+      <input type="text" class="dream-search wish-name" id="offeringName" placeholder="Name to be read aloud" maxlength="24" autocomplete="off" required>
+      <input type="text" class="dream-search wish-text" id="offeringDedication" placeholder="Offered for… (optional)" maxlength="80" autocomplete="off">
+      <input type="text" class="wish-altar" name="altar" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit" class="temple-btn temple-btn-small" id="offeringSubmit">🪔 Join the Next Round</button>
+    </form>
+    <p class="kauchim-note" id="offeringNote"></p>
+
+    <div class="altar-cols">
+      <div>
+        <div class="altar-col-title">In the next round</div>
+        <div id="altarQueue"></div>
+      </div>
+      <div>
+        <div class="altar-col-title">Already offered</div>
+        <div id="altarOffered"></div>
+      </div>
+    </div>
+    <p class="temple-honesty" style="text-align:center;">The temple never promises a future offering — a round appears here only after a caretaker has actually made it at the altar.</p>
   </div>
 </section>
 
@@ -419,11 +451,37 @@
     </form>
     <p class="kauchim-note" id="keeperNote"></p>
 
+    <div class="card" id="keeperAltar" hidden>
+      <div class="card-title">灵坛 Offering Round</div>
+      <div class="card-desc">Light the bundle at the altar first, then record it here. Devotees are only ever told about offerings that have already been made.</div>
+      <div id="keeperRoundState"></div>
+      <form class="wish-form" id="keeperRoundForm" style="justify-content:flex-start;margin-top:12px;">
+        <input type="url" class="dream-search wish-text" id="keeperClip" placeholder="Clip or stream link for this round (optional)" autocomplete="off">
+        <button type="submit" class="temple-btn temple-btn-small" id="keeperRoundBtn">🪔 Record This Round as Offered</button>
+      </form>
+      <p class="kauchim-note" id="keeperRoundNote" style="text-align:left;"></p>
+    </div>
+
+    <div class="keeper-subtitle" id="keeperWallTitle" hidden>许愿墙 Wishes</div>
     <div class="wish-wall" id="keeperWall"></div>
     <p class="temple-honesty" id="keeperCount" style="text-align:center;border:none;"></p>
   </div>
 </section>
 
+</div>
+
+<!-- ═══ Altar board (unlisted: the display that stands beside the real altar) ═══ -->
+<div class="view" data-view="board">
+  <section class="section board">
+    <div class="container">
+      <div class="board-head">
+        <div class="board-title">今日上香 · Offering Round</div>
+        <div class="board-temple" id="boardTemple"></div>
+      </div>
+      <div class="board-names" id="boardNames"></div>
+      <div class="board-foot" id="boardFoot"></div>
+    </div>
+  </section>
 </div>
 
 </main>
@@ -455,11 +513,11 @@
   </div>
 </footer>
 
-<script src="js/data.js?v=10"></script>
-<script src="js/analysis.js?v=10"></script>
-<script src="js/predictor.js?v=10"></script>
-<script src="js/sound.js?v=10"></script>
-<script src="js/temple.js?v=10"></script>
-<script src="js/app.js?v=10"></script>
+<script src="js/data.js?v=14"></script>
+<script src="js/analysis.js?v=14"></script>
+<script src="js/predictor.js?v=14"></script>
+<script src="js/sound.js?v=14"></script>
+<script src="js/temple.js?v=14"></script>
+<script src="js/app.js?v=14"></script>
 </body>
 </html>
