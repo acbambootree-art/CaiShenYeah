@@ -618,7 +618,8 @@ const Temple = (() => {
     const btn = document.getElementById('jiaoThrow');
     const note = document.getElementById('jiaoNote');
     btn.disabled = true;
-    if (window.Sound) Sound.tok();
+    // The toss animation touches the floor at ~0.63s: the clatter lands with it
+    if (window.Sound) setTimeout(() => Sound.blocks(), 600);
     jiaoTries++;
 
     const r = Math.random();

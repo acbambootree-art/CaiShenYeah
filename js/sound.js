@@ -133,6 +133,23 @@ const Sound = (() => {
       decay: 0.07, type: 'triangle', bend: -110, when });
   }
 
+  // Two wooden moon blocks landing on the temple floor: hard double-knock,
+  // then each bounces once and settles
+  function blocks() {
+    if (!enabled() || !ensureCtx()) return;
+    duckMusic(1);
+    const knock = (when, force) => {
+      noiseHit({ gain: 0.3 * force, decay: 0.045, freq: 620 + Math.random() * 250, q: 1.1, when });
+      noiseHit({ gain: 0.12 * force, decay: 0.02, freq: 2600 + Math.random() * 900, q: 1.5, when });
+      tone(210 + Math.random() * 70, { gain: 0.2 * force, attack: 0.001, decay: 0.09, type: 'triangle', bend: -70, when });
+    };
+    knock(0, 1);        // first block lands
+    knock(0.07, 0.9);   // second lands
+    knock(0.17, 0.45);  // first bounces
+    knock(0.24, 0.35);  // second bounces
+    knock(0.33, 0.15);  // settle
+  }
+
   function rattle() {
     if (!enabled() || !ensureCtx()) return;
     duckMusic(1.6);
@@ -183,13 +200,13 @@ const Sound = (() => {
     }, 60);
   }
 
-  const MUSIC_VOLUME = 0.32;
+  const MUSIC_VOLUME = 0.18;
 
   // Drop the music under a ritual sound so the ritual is the thing you hear
   function duckMusic(seconds) {
     if (!musicEl || musicEl === 'failed' || musicEl.paused) return;
     clearInterval(musicFade);
-    musicEl.volume = 0.07;
+    musicEl.volume = 0.05;
     clearTimeout(duckTimer);
     duckTimer = setTimeout(() => {
       if (ambienceOn && musicEl && musicEl !== 'failed') fadeMusic(MUSIC_VOLUME, 900);
@@ -275,5 +292,5 @@ const Sound = (() => {
     return on;
   }
 
-  return { arm, toggle, enabled, gong, bowl, tok, rattle };
+  return { arm, toggle, enabled, gong, bowl, tok, rattle, blocks };
 })();
