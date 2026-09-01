@@ -1007,64 +1007,6 @@ const Temple = (() => {
     });
   }
 
-  // ── Incense ritual ──
-  const LS_INCENSE = 'temple_incense';
-
-  function initIncense() {
-    const btn = document.getElementById('incenseLight');
-    const stick = document.getElementById('incenseStick');
-    const note = document.getElementById('incenseNote');
-    const video = document.getElementById('incenseVideo');
-    const veil = document.getElementById('shrineVeil');
-
-    // Shrine video is optional: hide the frame if the asset is missing
-    if (video) {
-      const hideShrine = () => {
-        const shrine = document.getElementById('shrine');
-        if (shrine) shrine.hidden = true;
-      };
-      video.addEventListener('error', hideShrine);
-      if (video.error || video.networkState === 3) hideShrine(); // errored before we attached
-    }
-
-    function playRitualVideo() {
-      if (!video || !video.currentSrc && !video.src) return;
-      if (veil) veil.classList.add('lifted');
-      video.currentTime = 0;
-      const p = video.play();
-      if (p) p.catch(() => {});
-    }
-
-    const yesterdaySG = () =>
-      new Date(Date.now() - 86400000).toLocaleDateString('en-CA', { timeZone: 'Asia/Singapore' });
-
-    function load() {
-      try { return JSON.parse(localStorage.getItem(LS_INCENSE) || 'null'); } catch (e) { return null; }
-    }
-
-    function show(state, fresh) {
-      stick.classList.add('lit');
-      const days = state.streak === 1 ? 'day' : 'days';
-      note.textContent = fresh
-        ? `Incense lit. 🔥 ${state.streak} ${days} of devotion.`
-        : `Today's incense is already burning. 🔥 ${state.streak} ${days} of devotion.`;
-      if (fresh) playRitualVideo();
-    }
-
-    const saved = load();
-    if (saved && saved.date === todaySG()) show(saved, false);
-
-    btn.addEventListener('click', () => {
-      const cur = load();
-      if (cur && cur.date === todaySG()) { show(cur, false); return; }
-      const streak = (cur && cur.date === yesterdaySG()) ? cur.streak + 1 : 1;
-      const state = { date: todaySG(), streak };
-      try { localStorage.setItem(LS_INCENSE, JSON.stringify(state)); } catch (e) {}
-      show(state, true);
-      if (window.Sound) Sound.bowl();
-    });
-  }
-
   // ── Daily blessings: zodiac, almanac, festivals ──
   const ZODIAC = [
     { zh: '鼠', en: 'Rat', emoji: '🐀' }, { zh: '牛', en: 'Ox', emoji: '🐂' },
@@ -1559,7 +1501,6 @@ const Temple = (() => {
     initKauChim();
     initDreams();
     initChecker();
-    initIncense();
     initDaily();
     initAltar();
     initPrayerWall();

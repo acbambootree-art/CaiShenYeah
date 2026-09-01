@@ -209,12 +209,7 @@
     try {
       const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Singapore' });
       const stick = JSON.parse(localStorage.getItem('temple_kauchim') || 'null');
-      const incense = JSON.parse(localStorage.getItem('temple_incense') || 'null');
       if (stick && stick.date === today) askTease = `Today's stick: 第 ${stick.n} 签`;
-      if (incense && incense.date === today) {
-        document.getElementById('doorTeaseIncense').textContent =
-          `🔥 Lit today · ${incense.streak}-day streak of devotion`;
-      }
     } catch (e) {}
     document.getElementById('doorTeaseAsk').textContent = askTease;
   }

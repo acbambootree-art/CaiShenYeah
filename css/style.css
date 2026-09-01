@@ -1005,10 +1005,13 @@ body {
 
 .kauchim-cylinder.shaking { animation: kauchim-shake 0.28s ease-in-out infinite; }
 
+/* Vertical jolt: the cylinder is worked up and down, as at the temple */
 @keyframes kauchim-shake {
-  0%, 100% { transform: rotate(0deg) translateX(0); }
-  25% { transform: rotate(-7deg) translateX(-5px); }
-  75% { transform: rotate(7deg) translateX(5px); }
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  22% { transform: translateY(-13px) rotate(-1deg); }
+  42% { transform: translateY(3px) rotate(0.8deg); }
+  64% { transform: translateY(-9px) rotate(0.9deg); }
+  84% { transform: translateY(2px) rotate(-0.7deg); }
 }
 
 .temple-btn {
