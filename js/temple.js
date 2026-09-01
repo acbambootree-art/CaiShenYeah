@@ -177,56 +177,302 @@ const Temple = (() => {
     { n: 100, level: 'good', title: '苦尽甘来', verse: 'Bitterness ends, sweetness arrives; the debt of effort is repaid.', advice: 'The tide has already turned, even if the shore looks the same.' }
   ];
 
-  // ── Dream dictionary (interpretations in the 周公解梦 tradition) ──
+  // ── Dream dictionary (readings in the 周公解梦 tradition) ──
+  const OMEN = {
+    auspicious: { label: '吉 Auspicious', cls: 'omen-good' },
+    neutral: { label: '平 Neutral', cls: 'omen-neutral' },
+    caution: { label: '慎 Take Care', cls: 'omen-caution' }
+  };
+
   const DREAMS = [
-    { zh: '蛇', en: 'Snake', emoji: '🐍', meaning: 'The snake is coiled wealth. To dream of one is money moving toward you; to be bitten is fortune arriving faster than you expected. Beware only the snake that flees — spent luck.' },
-    { zh: '龙', en: 'Dragon', emoji: '🐉', meaning: 'The highest of dream omens. A dragon rising means recognition, promotion, or a name lifted before important people. Whatever you have been building is about to be seen.' },
-    { zh: '虎', en: 'Tiger', emoji: '🐅', meaning: 'Power meets you on the road. A calm tiger is authority won; a lunging one warns of a rival with teeth. Either way, walk in like you own the mountain.' },
-    { zh: '鼠', en: 'Rat', emoji: '🐀', meaning: 'Small leaks sink great ships: the rat gnaws quietly at your stores. Check the small recurring costs and the friend who always forgets their wallet.' },
-    { zh: '牛', en: 'Ox', emoji: '🐂', meaning: 'Slow wealth, sure wealth. The ox promises harvest for patient labour — nothing quick, everything lasting. Plant now.' },
-    { zh: '兔', en: 'Rabbit', emoji: '🐇', meaning: 'The moon’s own animal: quiet luck, gentle escapes, small gifts arriving softly. A narrow miss this week is the rabbit’s doing.' },
-    { zh: '马', en: 'Horse', emoji: '🐎', meaning: '马到成功 — success arrives the moment the horse does. News you have waited on is closer than it appears. Keep the reins in hand.' },
-    { zh: '羊', en: 'Goat', emoji: '🐐', meaning: 'Harmony and provision: the flock is fed, the family gathered. A goat dream favours reconciliation — make the phone call.' },
-    { zh: '猴', en: 'Monkey', emoji: '🐒', meaning: 'Cleverness cuts both ways. A scheme around you may be too smart for its own good — yours or another’s. Simplify before you sign.' },
-    { zh: '鸡', en: 'Rooster', emoji: '🐓', meaning: 'The rooster announces: something hidden will be declared in daylight. Good news comes early in the morning; listen at first light.' },
-    { zh: '狗', en: 'Dog', emoji: '🐕', meaning: 'Loyalty stands guard over you. A friendly dog is a friend proving true; a barking one warns that loyalty is being tested — yours.' },
-    { zh: '猪', en: 'Pig', emoji: '🐖', meaning: 'Abundance without anxiety — the pig dreams only of plenty. Comfort, feasting, and money that arrives without being chased.' },
-    { zh: '猫', en: 'Cat', emoji: '🐈', meaning: 'Something graceful is watching you with its own agenda. Charm surrounds a matter at hand; count your change anyway.' },
-    { zh: '鱼', en: 'Fish', emoji: '🐟', meaning: '年年有余 — fish is surplus itself. Wealth swims toward the dreamer, and the bigger the fish, the deeper the pool of luck.' },
-    { zh: '鸟', en: 'Bird', emoji: '🐦', meaning: 'A message crosses distance to reach you. Birds in dreams carry word from far away — expect a letter, a call, a name from the past.' },
-    { zh: '乌龟', en: 'Turtle', emoji: '🐢', meaning: 'Longevity and protection. The turtle blesses slow plans and long games; what you secure now will still be standing decades on.' },
-    { zh: '大象', en: 'Elephant', emoji: '🐘', meaning: 'Great weight moving gently: an elephant dream is major fortune handled safely. A big matter resolves without the crash you feared.' },
-    { zh: '鳄鱼', en: 'Crocodile', emoji: '🐊', meaning: 'Still water hides old teeth. Someone patient is waiting near your interests — be courteous, be careful, be brief.' },
-    { zh: '蝴蝶', en: 'Butterfly', emoji: '🦋', meaning: 'Transformation completes. What crawled all year is about to fly — a change of role, of heart, of season. Let the old skin go.' },
-    { zh: '蜘蛛', en: 'Spider', emoji: '🕷️', meaning: 'A web is being woven — patient work paying off thread by thread. If the spider is yours, profit; if you walk into the web, look up.' },
-    { zh: '祖先', en: 'Deceased relative', emoji: '🕯️', meaning: 'The most tender of dreams: an ancestor visits to bless, not to warn. They are watching over the house. Light incense, say thank you — and note any number they showed you.' },
-    { zh: '神明', en: 'Deity', emoji: '⛩️', meaning: 'To dream of a god is to be reminded you are seen. Protection surrounds a decision you thought you faced alone. Proceed with a clean heart.' },
-    { zh: '鬼', en: 'Ghost', emoji: '👻', meaning: 'Not an omen of harm but of unfinished business. Something unsaid or unpaid is asking to be settled. Settle it, and sleep returns.' },
-    { zh: '婚礼', en: 'Wedding', emoji: '💒', meaning: 'A union of matters, not always of people: partnerships, mergers, promises formalised. Joy with paperwork attached.' },
-    { zh: '葬礼', en: 'Funeral', emoji: '⚰️', meaning: 'In the dream book, a funeral is reversal: an ending that releases fortune. Something concludes so that money and ease can begin.' },
-    { zh: '婴儿', en: 'Baby', emoji: '👶', meaning: 'A new thing with your name on it — a venture, an idea, a beginning that needs feeding. Fragile now, mighty later.' },
-    { zh: '怀孕', en: 'Pregnancy', emoji: '🤰', meaning: 'Something is growing that cannot yet be seen. Plans conceived in private are healthy; do not announce them before their month.' },
-    { zh: '掉牙', en: 'Teeth falling', emoji: '🦷', meaning: 'The old book reads this as worry for elders — call your family. If the tooth falls without pain, a difficulty resolves without loss.' },
-    { zh: '飞翔', en: 'Flying', emoji: '🕊️', meaning: 'Rising above what held you. Ambition finds its wind — the higher and calmer the flight, the greater the coming elevation.' },
-    { zh: '坠落', en: 'Falling', emoji: '🌀', meaning: 'The grip you fear losing may be one worth releasing. A fall that wakes you is a warning; a fall you survive in the dream is a burden dropped.' },
-    { zh: '被追', en: 'Being chased', emoji: '🏃', meaning: 'What pursues you in sleep is a task you flee by day. Turn and face it this week — pursuers in dreams shrink when looked at.' },
-    { zh: '火', en: 'Fire', emoji: '🔥', meaning: '火 means 旺 — fire is flourishing itself. A house alight with flame that does not destroy is prosperity catching. Tend it; do not fear it.' },
-    { zh: '水灾', en: 'Flood', emoji: '🌊', meaning: 'Water is wealth, and a flood is wealth in excess of the banks. Overwhelming now, enriching later — hold on and let it rise.' },
-    { zh: '下雨', en: 'Rain', emoji: '🌧️', meaning: 'Heaven waters what you planted. Steady rain is steady income; a storm passing is a dispute that clears the air.' },
-    { zh: '大海', en: 'Sea', emoji: '⛵', meaning: 'Your fortune has scale beyond the harbour. A calm sea blesses journeys and ventures abroad; a rough one says wait for the next tide.' },
-    { zh: '高山', en: 'Mountain', emoji: '⛰️', meaning: 'The obstacle is also the viewpoint. Climbing means a hard task with a summit worth having; standing on top means it is already yours.' },
-    { zh: '庙宇', en: 'Temple', emoji: '🏮', meaning: 'To dream of a temple while visiting one — the blessing is doubled. Guidance you seek is nearer than you think; ask your question plainly.' },
-    { zh: '钱', en: 'Money', emoji: '💵', meaning: 'Counting money in dreams is mixed: finding it promises gain, losing it warns of scattered attention. Either way, the book says check your accounts with a smile.' },
-    { zh: '黄金', en: 'Gold', emoji: '🪙', meaning: 'The purest omen of value — not just money, but worth recognised. Something you carry quietly will be appraised at its true price.' },
-    { zh: '血', en: 'Blood', emoji: '🩸', meaning: 'Startling but auspicious: in the dream book, blood is money’s twin. 见血见财 — to see blood is to see wealth on its way.' },
-    { zh: '车祸', en: 'Car accident', emoji: '🚗', meaning: 'A collision of plans, not of cars. Two commitments are heading for the same crossroads — slow one of them down yourself, gently.' },
-    { zh: '警察', en: 'Police', emoji: '👮', meaning: 'Order arrives, invited or not. A matter will be judged fairly — welcome news if your accounts are straight. Straighten them.' },
-    { zh: '小偷', en: 'Thief', emoji: '🥷', meaning: 'Something of yours has quiet feet — time, credit, or affection slipping away unnoticed. Catch the thief in the dream and you reclaim it in waking.' },
-    { zh: '考试', en: 'Exam', emoji: '📝', meaning: 'You are being measured, or you are measuring yourself too harshly. The dream exam has no syllabus: preparation for life is the life already lived.' },
-    { zh: '榴莲', en: 'Durian', emoji: '🍈', meaning: 'Fortune with a thorny shell — an opportunity that looks difficult and divides opinion, but is golden inside. Open it with the right people.' },
-    { zh: '房子', en: 'House', emoji: '🏠', meaning: 'The house is the self. New rooms are talents undiscovered; a leaking roof asks for maintenance of body or savings; a bright house is a settled heart.' },
-    { zh: '飞机', en: 'Aeroplane', emoji: '✈️', meaning: 'Distance shrinks for you. Travel, expansion, or an opportunity from overseas taxis onto your runway. Keep documents ready.' },
-    { zh: '闪电', en: 'Lightning', emoji: '⚡', meaning: 'Sudden illumination: an answer arrives all at once after long darkness. Startling, brief, unforgettable — write it down when you wake.' }
+    {
+      zh: '蛇', en: 'Snake', emoji: '🐍', omen: 'auspicious',
+      reading: 'Coiled wealth — money is already moving toward you.',
+      variants: 'Bitten: fortune arrives faster than expected. Fleeing: an opportunity slipping away. Many snakes: money from several directions at once.',
+      insight: 'Act on the offer you have been circling for weeks.'
+    },
+    {
+      zh: '龙', en: 'Dragon', emoji: '🐉', omen: 'auspicious',
+      reading: 'The highest omen — recognition, elevation, a name lifted before important people.',
+      variants: 'Rising: promotion or public notice. Sleeping: your moment is not yet ripe. Riding it: you are in control of the rise.',
+      insight: 'Ask for the bigger role. You are already doing the work.'
+    },
+    {
+      zh: '虎', en: 'Tiger', emoji: '🐅', omen: 'neutral',
+      reading: 'Power meets you on the road.',
+      variants: 'Calm tiger: authority won. Lunging: a rival with teeth. Riding one: a danger you cannot safely dismount from.',
+      insight: 'Face the confrontation directly — hesitation will be read as weakness.'
+    },
+    {
+      zh: '鼠', en: 'Rat', emoji: '🐀', omen: 'caution',
+      reading: 'Something small is quietly gnawing at your stores.',
+      variants: 'Many rats: scattered small losses. White rat: a hidden helper. Catching one: you find the leak.',
+      insight: 'Audit the recurring costs you have stopped noticing.'
+    },
+    {
+      zh: '牛', en: 'Ox', emoji: '🐂', omen: 'auspicious',
+      reading: 'Slow wealth, sure wealth — harvest for patient labour.',
+      variants: 'Ploughing: today\'s work pays later. Charging: overwork turning against you. Buying one: an asset worth holding.',
+      insight: 'Choose what compounds over what pays out this month.'
+    },
+    {
+      zh: '兔', en: 'Rabbit', emoji: '🐇', omen: 'auspicious',
+      reading: 'The moon\'s own animal — quiet luck and narrow escapes.',
+      variants: 'White rabbit: pure fortune. Running away: luck you will have to chase. Holding one: safety already in your hands.',
+      insight: 'That near-miss was protection, not bad luck.'
+    },
+    {
+      zh: '马', en: 'Horse', emoji: '🐎', omen: 'auspicious',
+      reading: '马到成功 — success arrives the moment the horse does.',
+      variants: 'Galloping: news travelling fast toward you. Fallen: a delay, not a defeat. Riding: you set the pace.',
+      insight: 'Move on the thing you have been waiting for permission to do.'
+    },
+    {
+      zh: '羊', en: 'Goat', emoji: '🐐', omen: 'auspicious',
+      reading: 'Harmony and provision — the family gathered and fed.',
+      variants: 'A flock: support around you. Lost goat: someone drifting from the family. Black goat: a stubborn relative.',
+      insight: 'Make the call to the relative you keep postponing.'
+    },
+    {
+      zh: '猴', en: 'Monkey', emoji: '🐒', omen: 'caution',
+      reading: 'Cleverness that may be too clever for its own good.',
+      variants: 'Playing: harmless mischief. Stealing: someone is outsmarting you. Caged: talent going to waste.',
+      insight: 'Simplify the arrangement before you sign it.'
+    },
+    {
+      zh: '鸡', en: 'Rooster', emoji: '🐓', omen: 'auspicious',
+      reading: 'Something hidden will be announced in daylight.',
+      variants: 'Crowing: news at dawn. Hen with chicks: increase in the family. Fighting cocks: a quarrel becoming public.',
+      insight: 'Say it out loud — the secret is costing more than the telling.'
+    },
+    {
+      zh: '狗', en: 'Dog', emoji: '🐕', omen: 'auspicious',
+      reading: 'Loyalty stands guard over you.',
+      variants: 'Friendly: a friend proving true. Barking: a warning worth heeding. Biting: betrayal by someone close.',
+      insight: 'Trust the friend who tells you the unwelcome thing.'
+    },
+    {
+      zh: '猪', en: 'Pig', emoji: '🐖', omen: 'auspicious',
+      reading: 'Abundance without anxiety — the pig dreams only of plenty.',
+      variants: 'Fat pig: money arriving easily. Piglets: small gains multiplying. Escaping: wealth leaking through habits.',
+      insight: 'Enjoy the surplus, but bank a share of it first.'
+    },
+    {
+      zh: '猫', en: 'Cat', emoji: '🐈', omen: 'neutral',
+      reading: 'Something graceful is watching you with its own agenda.',
+      variants: 'Purring: charm working in your favour. Scratching: a deceit surfacing. Black cat: a rival you have not identified.',
+      insight: 'Verify the charming offer, and count your change.'
+    },
+    {
+      zh: '鱼', en: 'Fish', emoji: '🐟', omen: 'auspicious',
+      reading: '年年有余 — the fish is surplus itself.',
+      variants: 'A big fish: a large windfall. Many: steady flow. A dead fish: a plan that has run its course.',
+      insight: 'Deepen the source already feeding you instead of finding a new one.'
+    },
+    {
+      zh: '鸟', en: 'Bird', emoji: '🐦', omen: 'neutral',
+      reading: 'A message crosses distance to reach you.',
+      variants: 'Singing: good news. Caged: news being withheld. Flying away: a chance departing.',
+      insight: 'Answer the message you have left unread.'
+    },
+    {
+      zh: '乌龟', en: 'Turtle', emoji: '🐢', omen: 'auspicious',
+      reading: 'Longevity and protection over anything built slowly.',
+      variants: 'Swimming: steady progress. Withdrawn into its shell: retreat is wise for now. On its back: someone near you is stuck and needs turning.',
+      insight: 'Take the slow option — it will outlast the fast one.'
+    },
+    {
+      zh: '大象', en: 'Elephant', emoji: '🐘', omen: 'auspicious',
+      reading: 'Great weight moving gently — major fortune handled safely.',
+      variants: 'Riding one: authority carried with ease. Charging: a big matter escaping control. White elephant: a gift that costs more to keep than it gives.',
+      insight: 'Say yes to scale, no to what merely looks impressive.'
+    },
+    {
+      zh: '鳄鱼', en: 'Crocodile', emoji: '🐊', omen: 'caution',
+      reading: 'Still water hides old teeth.',
+      variants: 'Submerged: a threat you cannot yet see. Snapping: an argument about to surface. Escaping one: you avoid a trap set for you.',
+      insight: 'Be brief and courteous with the person testing your patience.'
+    },
+    {
+      zh: '蝴蝶', en: 'Butterfly', emoji: '🦋', omen: 'auspicious',
+      reading: 'Transformation completing — what crawled all year is ready to fly.',
+      variants: 'Landing on you: a blessing choosing you. Many: a whole season of change. Trapped: growth you keep postponing.',
+      insight: 'Release the old arrangement; it has finished its purpose.'
+    },
+    {
+      zh: '蜘蛛', en: 'Spider', emoji: '🕷️', omen: 'neutral',
+      reading: 'Patient work paying off thread by thread.',
+      variants: 'Spinning: your effort is compounding. Walking into a web: a trap laid by another. Killing one: you break a scheme.',
+      insight: 'Stay with the slow project one more week.'
+    },
+    {
+      zh: '祖先', en: 'Deceased relative', emoji: '🕯️', omen: 'auspicious',
+      reading: 'The tenderest of dreams — an ancestor visits to bless, never to warn.',
+      variants: 'Smiling: approval of your path. Silent: simply company. Speaking: remember exactly what was said.',
+      insight: 'Light incense and give thanks — and note any number or date they showed you.'
+    },
+    {
+      zh: '神明', en: 'Deity', emoji: '⛩️', omen: 'auspicious',
+      reading: 'You are seen; protection surrounds a decision you thought you faced alone.',
+      variants: 'A statue: steady watch over you. A speaking deity: an instruction worth obeying. A hall of many gods: help arriving from several sides.',
+      insight: 'Choose the right path rather than the easy one — you are not unsupported.'
+    },
+    {
+      zh: '鬼', en: 'Ghost', emoji: '👻', omen: 'caution',
+      reading: 'Unfinished business, not harm.',
+      variants: 'A familiar ghost: something left unsaid to that person. Chasing you: a debt or guilt in pursuit. Fading: the matter is already resolving.',
+      insight: 'Settle the thing you keep pretending to have forgotten.'
+    },
+    {
+      zh: '婚礼', en: 'Wedding', emoji: '💒', omen: 'auspicious',
+      reading: 'A union of matters — partnerships, mergers, promises made formal.',
+      variants: 'Your own: a commitment approaching. Attending: someone else\'s fortune touching you. Interrupted: terms still unsettled.',
+      insight: 'Read the agreement carefully before you celebrate it.'
+    },
+    {
+      zh: '葬礼', en: 'Funeral', emoji: '⚰️', omen: 'auspicious',
+      reading: 'Reversal — an ending that releases fortune.',
+      variants: 'Of a stranger: a burden lifts. Of someone living: long life for them. Your own: a chapter closing well.',
+      insight: 'Stop funding the thing that has already ended.'
+    },
+    {
+      zh: '婴儿', en: 'Baby', emoji: '👶', omen: 'auspicious',
+      reading: 'A new thing with your name on it — fragile now, mighty later.',
+      variants: 'Crying: it needs attention today. Sleeping: it is growing quietly. Holding it: responsibility gladly taken.',
+      insight: 'Give the new venture an hour a day, not one burst a month.'
+    },
+    {
+      zh: '怀孕', en: 'Pregnancy', emoji: '🤰', omen: 'auspicious',
+      reading: 'Something is growing that cannot yet be seen.',
+      variants: 'Your own: a private plan is healthy. Another\'s: news coming from them. Difficult: the idea needs more time.',
+      insight: 'Do not announce it before its month.'
+    },
+    {
+      zh: '掉牙', en: 'Teeth falling', emoji: '🦷', omen: 'caution',
+      reading: 'The old book reads this as worry for elders.',
+      variants: 'Painless: a difficulty resolves without loss. Bleeding: a worry with a real cost. All at once: fear of losing standing.',
+      insight: 'Call your parents this week.'
+    },
+    {
+      zh: '飞翔', en: 'Flying', emoji: '🕊️', omen: 'auspicious',
+      reading: 'Rising above what held you.',
+      variants: 'High and calm: real elevation coming. Struggling to stay up: ambition outrunning support. Falling mid-flight: a plan needing a firmer base.',
+      insight: 'Put your name forward for the thing you assume is out of reach.'
+    },
+    {
+      zh: '坠落', en: 'Falling', emoji: '🌀', omen: 'caution',
+      reading: 'The grip you fear losing may be the one worth releasing.',
+      variants: 'Waking before you land: a warning. Landing safely: a burden dropped. Pushed: someone quietly undermining you.',
+      insight: 'Let go of the commitment you hold on to out of pride.'
+    },
+    {
+      zh: '被追', en: 'Being chased', emoji: '🏃', omen: 'caution',
+      reading: 'What pursues you in sleep is what you avoid by day.',
+      variants: 'An unseen pursuer: vague dread — name it and it shrinks. A known person: unresolved conflict. Turning to face it: the fear is already passing.',
+      insight: 'Do the avoided task first thing tomorrow.'
+    },
+    {
+      zh: '火', en: 'Fire', emoji: '🔥', omen: 'auspicious',
+      reading: '火 means 旺 — fire is flourishing itself.',
+      variants: 'Warm and contained: prosperity catching. Your house alight: change you did not choose but will profit from. Extinguished: an opportunity cooling.',
+      insight: 'Feed the fire already burning; do not start a second one.'
+    },
+    {
+      zh: '水灾', en: 'Flood', emoji: '🌊', omen: 'auspicious',
+      reading: 'Water is wealth, and a flood is wealth past the banks.',
+      variants: 'Rising: abundance beyond what you can hold. Muddy: money arriving with complications. Reaching high ground: you keep what matters.',
+      insight: 'Hold on through the mess — do not sell in the panic.'
+    },
+    {
+      zh: '下雨', en: 'Rain', emoji: '🌧️', omen: 'auspicious',
+      reading: 'Heaven waters what you planted.',
+      variants: 'Steady rain: reliable income. A storm passing: a dispute that clears the air. Rain indoors: trouble inside the home.',
+      insight: 'Keep the routine — it is working even when it feels slow.'
+    },
+    {
+      zh: '大海', en: 'Sea', emoji: '⛵', omen: 'neutral',
+      reading: 'Your fortune has scale beyond the harbour.',
+      variants: 'Calm: safe journeys and ventures abroad. Rough: wait for the next tide. Sinking: a venture beyond your depth.',
+      insight: 'Take the bigger opportunity, but not without a crew.'
+    },
+    {
+      zh: '高山', en: 'Mountain', emoji: '⛰️', omen: 'auspicious',
+      reading: 'The obstacle is also the viewpoint.',
+      variants: 'Climbing: a hard task worth its summit. Standing on top: it is already yours. A blocked path: a detour, not a defeat.',
+      insight: 'Learn the skill rather than buying the shortcut.'
+    },
+    {
+      zh: '庙宇', en: 'Temple', emoji: '🏮', omen: 'auspicious',
+      reading: 'Guidance is nearer than you think.',
+      variants: 'Entering: help is available if you ask. An empty temple: you are seeking in the wrong place. Praying: the answer is already forming in you.',
+      insight: 'Ask your question plainly, of someone who can actually answer it.'
+    },
+    {
+      zh: '钱', en: 'Money', emoji: '💵', omen: 'neutral',
+      reading: 'A mixed omen — what you do with it in the dream is the message.',
+      variants: 'Finding it: gain. Losing it: scattered attention. Counting it: anxiety about enough. Giving it away: generosity that returns.',
+      insight: 'Look at your accounts calmly this week, without dread.'
+    },
+    {
+      zh: '黄金', en: 'Gold', emoji: '🪙', omen: 'auspicious',
+      reading: 'Not merely money — worth finally recognised.',
+      variants: 'Wearing it: status arriving. Buried: talent unused. Fake gold: an offer that glitters and is not.',
+      insight: 'Let someone appraise the thing you keep quiet about.'
+    },
+    {
+      zh: '血', en: 'Blood', emoji: '🩸', omen: 'auspicious',
+      reading: '见血见财 — to see blood is to see wealth on its way.',
+      variants: 'A small cut: a quick small gain. Another\'s blood: money through a relationship. Stopping the bleeding: you protect what you have.',
+      insight: 'Do not be spooked — look for the opportunity inside the shock.'
+    },
+    {
+      zh: '车祸', en: 'Car accident', emoji: '🚗', omen: 'caution',
+      reading: 'A collision of plans, not of cars.',
+      variants: 'Witnessing one: someone else\'s crisis touches you. Driving: you are moving too fast. Walking away unhurt: a near miss you will recognise later.',
+      insight: 'Slow one of your two competing commitments this week.'
+    },
+    {
+      zh: '警察', en: 'Police', emoji: '👮', omen: 'neutral',
+      reading: 'Order arrives, invited or not.',
+      variants: 'Helped by them: protection and fair judgement. Chased: a rule you have been bending. Reporting to them: you want a matter settled properly.',
+      insight: 'Straighten the paperwork before anyone asks for it.'
+    },
+    {
+      zh: '小偷', en: 'Thief', emoji: '🥷', omen: 'caution',
+      reading: 'Something of yours has quiet feet.',
+      variants: 'Catching one: you reclaim what was slipping. Being robbed: time or credit taken. Being the thief: you are stealing from your own rest.',
+      insight: 'Name what is draining away — hours, credit, or goodwill.'
+    },
+    {
+      zh: '考试', en: 'Exam', emoji: '📝', omen: 'neutral',
+      reading: 'You are being measured, or measuring yourself far too harshly.',
+      variants: 'Unprepared: fear of exposure, not real lack. Passing: confidence returning. A blank paper: a decision you have not started.',
+      insight: 'You are more prepared than the dream suggests. Begin.'
+    },
+    {
+      zh: '榴莲', en: 'Durian', emoji: '🍈', omen: 'auspicious',
+      reading: 'Fortune with a thorny shell — difficult, divisive, golden inside.',
+      variants: 'Opening one: the reward is within reach. Pricked: a cost before the gain. Sharing it: profit best taken with others.',
+      insight: 'Take the opportunity that others find off-putting.'
+    },
+    {
+      zh: '房子', en: 'House', emoji: '🏠', omen: 'neutral',
+      reading: 'The house is the self.',
+      variants: 'New rooms: talents undiscovered. A leaking roof: body or savings needing maintenance. Bright and full: a settled heart. Empty: loneliness to tend.',
+      insight: 'Repair the small thing at home you keep walking past.'
+    },
+    {
+      zh: '飞机', en: 'Aeroplane', emoji: '✈️', omen: 'auspicious',
+      reading: 'Distance shrinks for you.',
+      variants: 'Boarding: travel or expansion approaching. Missing it: an opportunity with a deadline. Turbulence: a rough but completed journey.',
+      insight: 'Keep your documents and your options ready.'
+    },
+    {
+      zh: '闪电', en: 'Lightning', emoji: '⚡', omen: 'neutral',
+      reading: 'Sudden illumination after long darkness.',
+      variants: 'Distant: insight approaching. Striking near you: an abrupt change you did not choose. Lighting a path: the way forward is briefly, clearly visible.',
+      insight: 'Write the idea down the moment it comes — it will not wait.'
+    }
   ];
 
   // Three temple numbers per symbol: direct, mirrored, and the seeker's own
@@ -310,13 +556,26 @@ const Temple = (() => {
     const title = symbol.emoji
       ? `${symbol.emoji} ${symbol.en} <span class="dream-zh">${symbol.zh}</span>`
       : `&ldquo;${symbol.en}&rdquo;`;
-    const meaning = symbol.meaning ||
-      'This dream has no entry in the temple book — it belongs to you alone. Its numbers are read from the dream’s own words; its meaning, only the dreamer can say.';
+    const reading = symbol.reading
+      ? `
+        <div class="dream-reading-head">
+          <span class="dream-meaning-label">周公解梦 · The Temple Book reads</span>
+          <span class="badge dream-omen ${OMEN[symbol.omen].cls}">${OMEN[symbol.omen].label}</span>
+        </div>
+        <p class="dream-meaning">${symbol.reading}</p>
+        <dl class="dream-detail">
+          <dt>变 If the dream differed</dt><dd>${symbol.variants}</dd>
+          <dt>宜 What it asks of you</dt><dd>${symbol.insight}</dd>
+        </dl>`
+      : `
+        <div class="dream-reading-head">
+          <span class="dream-meaning-label">周公解梦 · The Temple Book reads</span>
+        </div>
+        <p class="dream-meaning">This dream has no entry in the temple book — it belongs to you alone. Its numbers are read from the dream’s own words; its meaning, only the dreamer can say.</p>`;
     document.getElementById('dreamResult').innerHTML = `
       <div class="card animate-in dream-result-card">
         <div class="card-title">${title}</div>
-        <div class="dream-meaning-label">周公解梦 · The Temple Book reads</div>
-        <p class="dream-meaning">${meaning}</p>
+        ${reading}
         <div class="dream-numbers">
           ${nums.map(x => {
             const info = numberInfo(x.number);
@@ -687,11 +946,12 @@ const Temple = (() => {
         <iframe src="${esc(ALTAR.liveUrl)}" allow="autoplay; encrypted-media" allowfullscreen title="Live temple altar"></iframe>
         <span class="altar-badge live">● LIVE · ${esc(ALTAR.templeName || 'The temple altar')}</span>`;
     } else {
+      // Mock feed: what the frame will show once a temple's camera is connected
       frame.innerHTML = `
-        <video src="incense.mp4" autoplay muted loop playsinline></video>
-        <span class="altar-badge">PREVIEW · no temple connected yet</span>`;
+        <video src="altar-live.mp4" autoplay muted loop playsinline></video>
+        <span class="altar-badge">DEMO FEED · no temple connected yet</span>`;
       document.getElementById('altarIntro').textContent =
-        'A real altar, a real flame — once a temple joins us. The round below already works: names gather, and a caretaker will light them at the altar itself.';
+        'A real altar, a real flame — once a temple joins us. This is a mock-up of the feed; the round below already works: names gather, and a caretaker will light them at the altar itself.';
     }
   }
 
