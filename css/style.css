@@ -2065,3 +2065,212 @@ body.board-mode { padding-bottom: 0; }
 }
 
 .dream-detail dd:last-child { margin-bottom: 4px; }
+
+/* ══════════════ The Kau Chim rite ══════════════ */
+.ritual-step { max-width: 640px; margin: 0 auto 8px; text-align: center; }
+
+.ritual-step-label {
+  color: var(--gold);
+  font-size: 0.74rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin: 18px 0 10px;
+}
+
+.ritual-guide {
+  color: var(--white-muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+#askQuestion { margin-bottom: 18px; }
+
+/* One stick works itself loose */
+.stick-flyout {
+  position: absolute;
+  bottom: 120px;
+  left: 50%;
+  margin-left: -3px;
+  z-index: 2;
+}
+
+.stick-flyout.flying { animation: stick-fly 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+@keyframes stick-fly {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  60% { transform: translateY(-70px) rotate(14deg); opacity: 1; }
+  100% { transform: translateY(-40px) rotate(24deg); opacity: 0; }
+}
+
+/* Moon blocks 筊杯 */
+.jiao-pair {
+  display: flex;
+  justify-content: center;
+  gap: 26px;
+  margin: 18px 0 20px;
+  min-height: 46px;
+}
+
+.jiao {
+  width: 96px;
+  height: 48px;
+  overflow: visible;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.55));
+}
+
+/* Crescent moon block, resting curved face up: glossy lacquered dome */
+.jiao .face-round { fill: url(#jiaoRound); stroke: rgba(0, 0, 0, 0.4); stroke-width: 1; }
+.jiao .round-sheen { fill: rgba(255, 255, 255, 0.18); }
+.jiao .face-flat, .jiao .flat-face-line { display: none; }
+
+/* Flat face up: the matte cut plane shows, sitting lower */
+.jiao.flat .face-round, .jiao.flat .round-sheen { display: none; }
+.jiao.flat .face-flat { display: block; fill: url(#jiaoFlat); stroke: rgba(0, 0, 0, 0.4); stroke-width: 1; }
+.jiao.flat .flat-face-line { display: block; fill: none; stroke: rgba(60, 12, 4, 0.55); stroke-width: 2; stroke-linecap: round; }
+
+.jiao.tossing { animation: jiao-toss 0.9s cubic-bezier(0.34, 1.2, 0.5, 1); }
+
+@keyframes jiao-toss {
+  0% { transform: translateY(0) rotateX(0) rotate(0); }
+  35% { transform: translateY(-72px) rotateX(540deg) rotate(12deg); }
+  70% { transform: translateY(4px) rotateX(1080deg) rotate(-6deg); }
+  85% { transform: translateY(-8px) rotate(3deg); }
+  100% { transform: translateY(0) rotate(0); }
+}
+
+/* Collection 签谱 */
+.stick-collection { max-width: 640px; margin: 26px auto 0; text-align: center; }
+
+.stick-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.stick-cell {
+  width: 38px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(160, 160, 160, 0.4);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.stick-cell.got {
+  border-color: var(--gold-dark);
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--gold);
+}
+
+/* The category line inside the fortune card */
+.fortune-asked {
+  color: var(--gold);
+  font-size: 0.78rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 16px;
+}
+
+.fortune-cat-advice { font-style: italic; color: var(--gold-pale); }
+
+#kauchimShake { touch-action: none; user-select: none; -webkit-user-select: none; }
+
+/* ══════════════ Photoreal kau chim stage ══════════════ */
+.kauchim-stage {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.kauchim-photo {
+  height: clamp(360px, 56vh, 620px);
+  width: auto;
+  max-width: 92vw;
+  object-fit: contain;
+  /* Real alpha cutout (kauchim.webp): just a warm glow and grounding shadow */
+  filter: drop-shadow(0 22px 40px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 55px rgba(212, 175, 55, 0.14));
+}
+
+.kauchim-stage.shaking { animation: kauchim-shake 0.28s ease-in-out infinite; }
+.kauchim-stage.shaking .kauchim-photo { filter: brightness(1.06); }
+
+/* The slot sits over the mouth of the cylinder; its overflow hides the
+   stick until it emerges. Tuned to the kauchim.jpg composition. */
+.stick-slot {
+  position: absolute;
+  left: 50%;
+  top: -26%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 56%;
+  overflow: hidden;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 2;
+}
+
+.stick-rise {
+  display: block;
+  width: 15px;
+  height: 76%;
+  /* A stick cropped from the cylinder photo itself, so the one that emerges
+     is indistinguishable from the ones it emerges among */
+  background: url('../stick.webp') center top / 100% 100% no-repeat;
+  filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.45));
+  transform: translateY(105%);
+  position: relative;
+}
+
+.stick-rise-tip { display: none; } /* the crop carries its own red characters */
+
+.stick-rise { will-change: transform; }
+.stick-rise.sinking { transition: transform 0.7s cubic-bezier(0.5, 0, 0.7, 0.4); }
+
+@keyframes stick-rise {
+  0% { transform: translateY(105%) rotate(0deg); }
+  18% { transform: translateY(96%) rotate(-1.4deg); }
+  30% { transform: translateY(88%) rotate(1.4deg); }
+  44% { transform: translateY(74%) rotate(-1.2deg); }
+  58% { transform: translateY(58%) rotate(1.2deg); }
+  72% { transform: translateY(40%) rotate(-0.8deg); }
+  86% { transform: translateY(22%) rotate(0.8deg); }
+  100% { transform: translateY(6%) rotate(0deg); }
+}
+
+@media (max-width: 600px) {
+  .kauchim-photo { height: clamp(300px, 46vh, 460px); }
+}
+
+/* The hidden attribute must win over the class's display:flex */
+.kauchim-cylinder[hidden], .kauchim-stage[hidden] { display: none; }
+
+/* A told dream: each recognised sign gets its own reading */
+.dream-sign {
+  max-width: 560px;
+  margin: 0 auto;
+  text-align: left;
+  border-top: 1px solid rgba(212, 175, 55, 0.15);
+  padding: 14px 0 4px;
+}
+
+.dream-sign-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.dream-sign-name { font-family: var(--font-display); font-size: 1.02rem; color: var(--white); }
+.dream-sign-reading { color: var(--gold-pale); font-style: italic; font-size: 0.92rem; line-height: 1.55; margin-bottom: 6px; }
+.dream-sign-insight { color: var(--white-muted); font-size: 0.84rem; margin-bottom: 8px; }

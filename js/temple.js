@@ -488,13 +488,104 @@ const Temple = (() => {
     ];
   }
 
-  // ── Kau Chim rendering ──
+  // ── Kau Chim: the full temple rite ──
+  // 静心 still the heart → 摇签 hold-and-shake until a stick falls →
+  // 掷筊 throw the moon blocks for the deity to confirm → the reading.
   const LS_KEY = 'temple_kauchim';
+  const LS_STICKS = 'temple_sticks';
 
-  function renderFortune(f) {
+  const ASK_CATS = [
+    { key: 'love', zh: '姻缘', en: 'Love', emoji: '🌸' },
+    { key: 'wealth', zh: '财运', en: 'Wealth', emoji: '🪙' },
+    { key: 'career', zh: '事业', en: 'Career', emoji: '⛰️' },
+    { key: 'health', zh: '健康', en: 'Health', emoji: '🍃' },
+    { key: 'study', zh: '学业', en: 'Studies', emoji: '📖' },
+    { key: 'peace', zh: '平安', en: 'Peace', emoji: '🏮' }
+  ];
+
+  // What each fortune level says about each kind of question
+  const CAT_ADVICE = {
+    great: {
+      love: 'A red thread is pulling taut — say the thing you have been saving.',
+      wealth: 'The door is open; walk through it while the incense still burns.',
+      career: 'Put your name on the bigger work. The timing will not be better.',
+      health: 'Strength is returning faster than you feel it. Keep the routine.',
+      study: 'Sit the paper, take the interview — this season favours you.',
+      peace: 'The house is protected. Enjoy it aloud, gratefully.'
+    },
+    good: {
+      love: 'Warmth grows where you water it. One sincere gesture this week.',
+      wealth: 'Gains come through steadiness, not boldness. Collect what is owed.',
+      career: 'A helpful senior is watching. Do the unglamorous task well.',
+      health: 'Good, if you guard your sleep. The body is asking politely.',
+      study: 'Effort lands now. One focused hour beats five distracted ones.',
+      peace: 'Small frictions dissolve if you speak gently first.'
+    },
+    fair: {
+      love: 'Neither push nor retreat — let the other person arrive.',
+      wealth: 'Hold what you have; the better price comes to the patient.',
+      career: 'A sideways move now beats a leap. Build the skill quietly.',
+      health: 'Nothing alarming, everything improvable. Start with walking.',
+      study: 'Progress is real but uneven. Review before you advance.',
+      peace: 'Keep your own counsel this week; not every matter needs you.'
+    },
+    neutral: {
+      love: 'The pot must simmer. Checking it constantly cools it.',
+      wealth: 'A flat stretch, not a bad one. Spend nothing you would miss.',
+      career: 'Stay at your post. Movement for its own sake wastes the season.',
+      health: 'Maintain, do not overhaul. The dull habits are the medicine.',
+      study: 'Consolidate. The exam rewards what you already half-know.',
+      peace: 'Stillness is the answer to the question you asked.'
+    },
+    caution: {
+      love: 'Do not force an answer from someone still finding theirs.',
+      wealth: 'Guard the purse. Lend nothing you are not ready to lose.',
+      career: 'Sign nothing in haste; a clause hides in the fine print.',
+      health: 'Rest is not laziness — see to the small complaint before it grows.',
+      study: 'Postpone the gamble; sit this one only when prepared.',
+      peace: 'Walk away from the quarrel that wants you in it.'
+    }
+  };
+
+  let askCat = null;       // chosen category object
+  let pendingStick = null; // fortune drawn, awaiting the blocks
+  let jiaoTries = 0;
+
+  const showStep = (id) => {
+    ['ritualFocus', 'ritualShake', 'ritualJiao'].forEach(s =>
+      document.getElementById(s).hidden = s !== id);
+  };
+
+  // ── Stick collection (签谱) ──
+  const collected = () => {
+    try { return JSON.parse(localStorage.getItem(LS_STICKS) || '[]'); } catch (e) { return []; }
+  };
+
+  function collect(n) {
+    try {
+      const c = collected();
+      if (!c.includes(n)) { c.push(n); localStorage.setItem(LS_STICKS, JSON.stringify(c)); }
+    } catch (e) {}
+  }
+
+  function renderCollection() {
+    const c = collected();
+    const box = document.getElementById('stickCollection');
+    if (!c.length) { box.innerHTML = ''; return; }
+    box.innerHTML = `
+      <div class="ritual-step-label">签谱 Your collection · ${c.length} of ${FORTUNES.length} sticks</div>
+      <div class="stick-grid">${FORTUNES.map(f =>
+        `<span class="stick-cell${c.includes(f.n) ? ' got' : ''}" title="${c.includes(f.n) ? f.title : '未得 not yet drawn'}">${f.n}</span>`).join('')}</div>`;
+  }
+
+  function renderFortune(f, catKey) {
     const level = FORTUNE_LEVELS[f.level];
     const blessed = num4('stick:' + f.n + ':' + todaySG());
     const info = numberInfo(blessed);
+    const cat = ASK_CATS.find(c => c.key === catKey);
+    const catLine = cat ? `
+        <div class="fortune-asked">You asked of ${cat.emoji} ${cat.zh} ${cat.en}</div>
+        <p class="fortune-advice fortune-cat-advice">${CAT_ADVICE[f.level][cat.key]}</p>` : '';
     document.getElementById('kauchimResult').innerHTML = `
       <div class="fortune-card animate-in">
         <div class="fortune-stick-no">第 ${f.n} 签 · Lot No. ${f.n}</div>
@@ -502,6 +593,7 @@ const Temple = (() => {
         <span class="badge fortune-level ${level.cls}">${level.label}</span>
         <p class="fortune-verse">&ldquo;${f.verse}&rdquo;</p>
         <p class="fortune-advice">${f.advice}</p>
+        ${catLine}
         <div class="fortune-number-block">
           <div class="fortune-number-label">Your blessed number for today</div>
           <div class="fortune-number">${blessed}</div>
@@ -512,50 +604,274 @@ const Temple = (() => {
       </div>`;
     document.getElementById('fortuneShare').addEventListener('click', () =>
       shareCard(f.title, `第 ${f.n} 签 · ${level.label}`, blessed, info.text));
+    renderCollection();
   }
 
-  function initKauChim() {
-    const btn = document.getElementById('kauchimShake');
-    const cylinder = document.getElementById('kauchimCylinder');
-    const note = document.getElementById('kauchimNote');
+  // ── Moon blocks (掷筊) ──
+  function setJiao(el, face) { // 'flat' or 'round'
+    el.classList.remove('flat', 'round', 'tossing');
+    void el.offsetWidth; // restart the animation
+    el.classList.add('tossing', face);
+  }
 
-    // Restore today's stick — the temple gives one sincere answer per day.
+  function throwJiao() {
+    const btn = document.getElementById('jiaoThrow');
+    const note = document.getElementById('jiaoNote');
+    btn.disabled = true;
+    if (window.Sound) Sound.tok();
+    jiaoTries++;
+
+    const r = Math.random();
+    // Real blocks: 圣筊 50%, 笑筊 25%, 阴筊 25% — and at the temple,
+    // the third throw is taken as the answer
+    let outcome = r < 0.5 ? 'sheng' : r < 0.75 ? 'laugh' : 'yin';
+    if (jiaoTries >= 3) outcome = 'sheng';
+
+    const A = document.getElementById('jiaoA'), B = document.getElementById('jiaoB');
+    if (outcome === 'sheng') {
+      const flip = Math.random() < 0.5;
+      setJiao(A, flip ? 'flat' : 'round');
+      setJiao(B, flip ? 'round' : 'flat');
+    } else {
+      setJiao(A, outcome === 'laugh' ? 'flat' : 'round');
+      setJiao(B, outcome === 'laugh' ? 'flat' : 'round');
+    }
+
+    setTimeout(() => {
+      btn.disabled = false;
+      if (outcome === 'sheng') {
+        note.textContent = '圣筊 — one flat, one curved. The deity confirms this stick.';
+        if (window.Sound) Sound.bowl();
+        const f = pendingStick;
+        try { localStorage.setItem(LS_KEY, JSON.stringify({ date: todaySG(), n: f.n, cat: askCat && askCat.key })); } catch (e) {}
+        collect(f.n);
+        setTimeout(() => {
+          document.getElementById('ritualJiao').hidden = true;
+          renderFortune(f, askCat && askCat.key);
+        }, 900);
+      } else if (outcome === 'laugh') {
+        note.textContent = '笑筊 — both flat. The deity smiles: ask the question more sincerely, and throw again.';
+      } else {
+        note.textContent = '阴筊 — both curved. This stick is not your answer. Return and shake for another.';
+        setTimeout(() => {
+          showStep('ritualShake');
+          document.getElementById('kauchimNote').textContent = 'The blocks said no — hold and shake for a different stick.';
+        }, 1400);
+      }
+    }, 950);
+  }
+
+  // ── The rite ──
+  function initKauChim() {
+    // Category chips start the rite
+    const cats = document.getElementById('askCats');
+    cats.innerHTML = ASK_CATS.map(c =>
+      `<button class="dream-chip" data-cat="${c.key}">${c.emoji} ${c.zh} ${c.en}</button>`).join('');
+    cats.addEventListener('click', (e) => {
+      const chip = e.target.closest('.dream-chip');
+      if (!chip) return;
+      askCat = ASK_CATS.find(c => c.key === chip.dataset.cat);
+      cats.querySelectorAll('.dream-chip').forEach(x =>
+        x.classList.toggle('zodiac-active', x === chip));
+      showStep('ritualShake');
+      document.getElementById('kauchimNote').textContent =
+        'Press and hold — keep shaking until a stick works itself free.';
+    });
+
+    // Photoreal cylinder with CSS fallback
+    const stage = document.getElementById('kauchimStage');
+    const photo = document.getElementById('kauchimPhoto');
+    const cssCylinder = document.getElementById('kauchimCylinder');
+    const useCss = () => { stage.hidden = true; cssCylinder.hidden = false; };
+    photo.addEventListener('error', useCss);
+    if (photo.error || (photo.complete && !photo.naturalWidth)) useCss();
+
+    // Hold-to-shake: the stick creeps out WHILE you hold, coming free
+    // somewhere between 4 and 8 seconds. Let go early and it slips back in.
+    const btn = document.getElementById('kauchimShake');
+    const shaker = () => stage.hidden ? cssCylinder : stage;
+    const riseEl = document.getElementById('stickRise');
+    let holding = false, advancing = false, holdStart = 0, riseTarget = 0, rattleLoop = null, riseRAF = null;
+
+    const setStick = (p, wobble) => {
+      const y = 105 - p * 99; // 105% buried -> 6% fully out
+      const rot = wobble ? Math.sin(Date.now() / 65) * 1.5 * (1 - p * 0.4) : 0;
+      riseEl.style.transform = `translateY(${y}%) rotate(${rot}deg)`;
+    };
+
+    const emerge = () => {
+      holding = false;
+      advancing = true;
+      clearInterval(rattleLoop);
+      cancelAnimationFrame(riseRAF);
+      shaker().classList.remove('shaking');
+      setStick(1, false);
+      if (window.Sound) Sound.tok(); // it comes free of the rim
+      document.getElementById('kauchimNote').textContent = 'It has come free.';
+      setTimeout(() => {
+        advancing = false;
+        riseEl.classList.add('sinking');
+        setStick(0, false); // reset for the next ask, unseen behind the step switch
+        document.getElementById('jiaoStickNo').textContent = `第 ${pendingStick.n} 签`;
+        document.getElementById('jiaoNote').textContent = '';
+        document.getElementById('jiaoA').classList.remove('flat', 'round', 'tossing');
+        document.getElementById('jiaoB').classList.remove('flat', 'round', 'tossing');
+        showStep('ritualJiao');
+        setTimeout(() => riseEl.classList.remove('sinking'), 800);
+      }, 1100);
+    };
+
+    const frame = () => {
+      if (!holding) return;
+      const p = Math.min(1, (Date.now() - holdStart) / riseTarget);
+      setStick(p, true);
+      if (p >= 1) { emerge(); return; }
+      riseRAF = requestAnimationFrame(frame);
+    };
+
+    const stopHold = () => {
+      if (!holding) return;
+      holding = false;
+      clearInterval(rattleLoop);
+      cancelAnimationFrame(riseRAF);
+      shaker().classList.remove('shaking');
+      // The stick slips back into the cup
+      riseEl.classList.add('sinking');
+      setStick(0, false);
+      setTimeout(() => riseEl.classList.remove('sinking'), 800);
+      document.getElementById('kauchimNote').textContent =
+        'It slipped back in — keep holding until the stick comes free.';
+    };
+
+    btn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      if (holding || advancing) return;
+      holding = true;
+      holdStart = Date.now();
+      riseTarget = 4000 + Math.random() * 4000; // the deity decides: 4-8s
+      pendingStick = FORTUNES[Math.floor(Math.random() * FORTUNES.length)];
+      jiaoTries = 0;
+      riseEl.classList.remove('sinking');
+      shaker().classList.add('shaking');
+      document.getElementById('kauchimResult').innerHTML = '';
+      document.getElementById('kauchimNote').textContent =
+        'Keep holding — a stick is working itself loose…';
+      if (window.Sound) { Sound.rattle(); rattleLoop = setInterval(() => Sound.rattle(), 1150); }
+      frame();
+    });
+    btn.addEventListener('pointerup', stopHold);
+    btn.addEventListener('pointerleave', stopHold);
+    btn.addEventListener('pointercancel', stopHold);
+
+    document.getElementById('jiaoThrow').addEventListener('click', throwJiao);
+
+    // Restore today's confirmed stick
     try {
       const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
       if (saved && saved.date === todaySG()) {
         const f = FORTUNES.find(x => x.n === saved.n);
         if (f) {
-          renderFortune(f);
-          note.textContent = 'The temple has already answered you today. You may ask again, but the first answer is the sincere one.';
+          renderFortune(f, saved.cat);
+          document.getElementById('ritualFocus').querySelector('.ritual-guide').textContent =
+            'The temple has already answered you today. You may ask again, but the first answer is the sincere one.';
         }
       }
-    } catch (e) { /* localStorage unavailable — ritual still works */ }
-
-    btn.addEventListener('click', () => {
-      if (btn.disabled) return;
-      btn.disabled = true;
-      cylinder.classList.add('shaking');
-      document.getElementById('kauchimResult').innerHTML = '';
-      note.textContent = '';
-      if (window.Sound) Sound.rattle();
-
-      setTimeout(() => {
-        cylinder.classList.remove('shaking');
-        btn.disabled = false;
-        const f = FORTUNES[Math.floor(Math.random() * FORTUNES.length)];
-        try { localStorage.setItem(LS_KEY, JSON.stringify({ date: todaySG(), n: f.n })); } catch (e) {}
-        renderFortune(f);
-        if (window.Sound) Sound.bowl();
-      }, 1400);
-    });
+    } catch (e) { /* localStorage unavailable — the rite still works */ }
+    renderCollection();
   }
 
   // ── Dream dictionary rendering ──
+  // A dream told in full can carry several signs: find every symbol the
+  // temple book recognises in the text.
+  const DREAM_SYNONYMS = {
+    '蛇': ['serpent', 'python', 'cobra'],
+    '祖先': ['grandmother', 'grandfather', 'grandma', 'grandpa', 'ancestor', 'passed away', 'late father', 'late mother'],
+    '掉牙': ['tooth'],
+    '钱': ['cash', 'wallet', 'salary'],
+    '黄金': ['golden', 'jewellery', 'jewelry'],
+    '婴儿': ['infant', 'newborn'],
+    '房子': ['home', 'apartment', 'flat', 'hdb'],
+    '车祸': ['crash', 'collision'],
+    '大海': ['ocean', 'waves'],
+    '下雨': ['raining', 'rainstorm'],
+    '水灾': ['drowning', 'tsunami'],
+    '飞机': ['plane', 'flight', 'airplane'],
+    '被追': ['chasing', 'chased', 'pursued'],
+    '飞翔': ['flew', 'fly', 'soaring'],
+    '坠落': ['fell', 'fall'],
+    '考试': ['test', 'examination'],
+    '神明': ['god', 'goddess', 'buddha', 'guanyin', 'deities'],
+    '鬼': ['spirit', 'haunted', 'phantom'],
+    '婚礼': ['marry', 'married', 'marriage', 'bride', 'groom'],
+    '葬礼': ['burial', 'coffin', 'cemetery'],
+    '鱼': ['koi', 'goldfish', 'arowana'],
+    '警察': ['policeman', 'cop'],
+    '小偷': ['stolen', 'robber', 'burglar', 'steal'],
+    '闪电': ['thunder', 'storm'],
+    '火': ['flames', 'burning', 'burn'],
+    '虎': ['tigers'],
+    '龙': ['dragons'],
+    '狗': ['puppy', 'dogs'],
+    '猫': ['kitten', 'cats'],
+    '鼠': ['rats', 'mouse', 'mice'],
+    '猪': ['pigs', 'boar'],
+    '马': ['horses', 'pony'],
+    '鸟': ['birds', 'sparrow', 'eagle', 'owl'],
+    '乌龟': ['tortoise'],
+    '怀孕': ['pregnant'],
+    '高山': ['mountains', 'hill', 'climbing'],
+    '庙宇': ['shrine', 'pagoda', 'monastery']
+  };
+
+  const esc2 = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  function matchDreams(text) {
+    const q = text.toLowerCase();
+    const wordHit = (w) => new RegExp('\\b' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(q);
+    const found = [];
+    for (const d of DREAMS) {
+      const keys = [d.en.toLowerCase(), ...(DREAM_SYNONYMS[d.zh] || [])];
+      // multi-word names also match on their significant words, unless that
+      // word is itself another symbol's name (teeth falling vs falling)
+      for (const w of d.en.toLowerCase().split(/\s+/)) {
+        if (w.length > 3 && !DREAMS.some(o => o !== d && o.en.toLowerCase() === w)) keys.push(w);
+      }
+      const hit = q.includes(d.zh) || keys.some(k => k.includes(' ') ? q.includes(k) : wordHit(k));
+      if (hit) found.push(d);
+    }
+    return found;
+  }
+
+  function numbersBlock(nums) {
+    return `
+        <div class="dream-numbers">
+          ${nums.map(x => {
+            const info = numberInfo(x.number);
+            return `
+              <div class="dream-number-item">
+                <div class="dream-number-label">${x.label}</div>
+                <div class="dream-number">${x.number}</div>
+                <div class="fortune-number-history">${info.text}</div>
+              </div>`;
+          }).join('')}
+        </div>`;
+  }
+
+  function honestyLine() {
+    return `<p class="temple-honesty">Dream numbers are drawn from the temple book, not from probability — every number has the same 1-in-10,000 chance. Strike history is real, from ${results.length.toLocaleString()} actual draws.</p>`;
+  }
+
+  function wireShare(title, sub, nums) {
+    document.getElementById('dreamShare').addEventListener('click', () =>
+      shareCard(title, sub, nums[0].number, `Mirror ${nums[1].number} · Today's Sign ${nums[2].number}`));
+    document.getElementById('dreamResult').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
   function renderDreamResult(symbol) {
     const nums = dreamNumbers(symbol.zh || symbol.en);
     const title = symbol.emoji
       ? `${symbol.emoji} ${symbol.en} <span class="dream-zh">${symbol.zh}</span>`
-      : `&ldquo;${symbol.en}&rdquo;`;
+      : `&ldquo;${esc2(symbol.en)}&rdquo;`;
     const reading = symbol.reading
       ? `
         <div class="dream-reading-head">
@@ -576,24 +892,48 @@ const Temple = (() => {
       <div class="card animate-in dream-result-card">
         <div class="card-title">${title}</div>
         ${reading}
-        <div class="dream-numbers">
-          ${nums.map(x => {
-            const info = numberInfo(x.number);
-            return `
-              <div class="dream-number-item">
-                <div class="dream-number-label">${x.label}</div>
-                <div class="dream-number">${x.number}</div>
-                <div class="fortune-number-history">${info.text}</div>
-              </div>`;
-          }).join('')}
-        </div>
+        ${numbersBlock(nums)}
         <button class="temple-btn temple-btn-small" id="dreamShare">📤 Share Blessing Card</button>
-        <p class="temple-honesty">Dream numbers are drawn from the temple book, not from probability — every number has the same 1-in-10,000 chance. Strike history is real, from ${results.length.toLocaleString()} actual draws.</p>
+        ${honestyLine()}
       </div>`;
-    document.getElementById('dreamShare').addEventListener('click', () =>
-      shareCard(`${symbol.emoji || '🌙'} ${symbol.zh || symbol.en}`, `Dream: ${symbol.en}`, nums[0].number,
-        `Mirror ${nums[1].number} · Today's Sign ${nums[2].number}`));
-    document.getElementById('dreamResult').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    wireShare(`${symbol.emoji || '🌙'} ${symbol.zh || symbol.en}`, `Dream: ${symbol.en}`, nums);
+  }
+
+  // A whole dream, told in the dreamer's words: read every sign in it
+  function renderDreamTelling(text) {
+    const matches = matchDreams(text).slice(0, 4);
+    if (matches.length <= 1) {
+      renderDreamResult(matches[0] || { en: text, zh: '', emoji: '' });
+      return;
+    }
+    const nums = dreamNumbers(text.toLowerCase());
+    const good = matches.filter(m => m.omen === 'auspicious').length;
+    const wary = matches.filter(m => m.omen === 'caution').length;
+    const weave =
+      wary === 0 ? 'The signs agree — this dream leans towards fortune.'
+      : good === 0 ? 'The signs counsel care — walk gently this week.'
+      : 'The signs pull in different directions; where they disagree, the temple book counsels the gentler path.';
+    document.getElementById('dreamResult').innerHTML = `
+      <div class="card animate-in dream-result-card">
+        <div class="card-title">&ldquo;${esc2(text)}&rdquo;</div>
+        <div class="dream-reading-head">
+          <span class="dream-meaning-label">周公解梦 · The Temple Book reads ${matches.length} signs in this dream</span>
+        </div>
+        <p class="dream-meaning">${weave}</p>
+        ${matches.map(m => `
+          <div class="dream-sign">
+            <div class="dream-sign-head">
+              <span class="dream-sign-name">${m.emoji} ${m.en} <span class="dream-zh">${m.zh}</span></span>
+              <span class="badge dream-omen ${OMEN[m.omen].cls}">${OMEN[m.omen].label}</span>
+            </div>
+            <p class="dream-sign-reading">${m.reading}</p>
+            <p class="dream-sign-insight">宜 ${m.insight}</p>
+          </div>`).join('')}
+        ${numbersBlock(nums)}
+        <button class="temple-btn temple-btn-small" id="dreamShare">📤 Share Blessing Card</button>
+        ${honestyLine()}
+      </div>`;
+    wireShare(`🌙 ${matches.map(m => m.zh).join(' ')}`, `Dream of ${matches.map(m => m.en.toLowerCase()).join(', ')}`.slice(0, 60), nums);
   }
 
   function initDreams() {
@@ -604,11 +944,12 @@ const Temple = (() => {
       const q = (filter || '').trim().toLowerCase();
       const shown = DREAMS.filter(d =>
         !q || d.en.toLowerCase().includes(q) || d.zh.includes(q));
-      grid.innerHTML = shown.map((d, i) =>
+      grid.innerHTML = shown.map((d) =>
         `<button class="dream-chip" data-i="${DREAMS.indexOf(d)}">${d.emoji} ${d.en}<span class="dream-zh">${d.zh}</span></button>`
       ).join('');
-      if (!shown.length && q) {
-        grid.innerHTML = `<button class="dream-chip dream-chip-custom" data-custom="${q.replace(/"/g, '')}">🌙 Interpret &ldquo;${q.replace(/</g, '&lt;')}&rdquo;</button>`;
+      // A told dream (several words, or nothing matching) always offers a full telling
+      if (q && (!shown.length || /\s/.test(q))) {
+        grid.innerHTML = `<button class="dream-chip dream-chip-custom" data-custom="${esc2(q)}">🌙 Tell this dream &ldquo;${esc2(q)}&rdquo;</button>` + grid.innerHTML;
       }
     }
 
@@ -616,7 +957,7 @@ const Temple = (() => {
       const chip = e.target.closest('.dream-chip');
       if (!chip) return;
       if (chip.dataset.custom !== undefined) {
-        renderDreamResult({ en: chip.dataset.custom, zh: '', emoji: '' });
+        renderDreamTelling(chip.dataset.custom);
       } else {
         renderDreamResult(DREAMS[Number(chip.dataset.i)]);
       }

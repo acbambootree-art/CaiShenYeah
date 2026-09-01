@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CaiShenYeah | The Digital Temple of Fortune — Singapore 4D</title>
   <meta name="description" content="CaiShenYeah — The Digital Temple of Fortune. Shake the kau chim sticks, look up your dream numbers, and explore 20+ years of real Singapore Pools 4D history. Ritual, culture, and honest statistics.">
-  <link rel="stylesheet" href="css/style.css?v=17">
+  <link rel="stylesheet" href="css/style.css?v=23">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -121,20 +121,77 @@
 <section class="section" id="kauchim">
   <div class="container">
     <div class="section-title">求签 Ask the Temple</div>
-    <div class="section-subtitle">Shake the cylinder, receive your fortune stick, and carry today's blessed number — one sincere ask per day</div>
-    <div class="kauchim-wrap">
-      <div class="kauchim-cylinder" id="kauchimCylinder">
-        <div class="kauchim-sticks">
-          <span class="kstick"></span><span class="kstick"></span><span class="kstick"></span>
-          <span class="kstick"></span><span class="kstick"></span><span class="kstick"></span>
-          <span class="kstick"></span><span class="kstick"></span><span class="kstick"></span>
-        </div>
-        <div class="kauchim-cup">签</div>
-      </div>
-      <button class="temple-btn" id="kauchimShake">🙏 Shake the Sticks</button>
-      <p class="kauchim-note" id="kauchimNote"></p>
+    <div class="section-subtitle">Seek divination the way it is done at the temple: still your heart, shake until one stick falls, then throw the moon blocks to see if the deity confirms it</div>
+
+    <!-- Step 1 · 静心 Still the heart -->
+    <div class="ritual-step" id="ritualFocus">
+      <div class="ritual-step-label">一 · 静心 Still your heart</div>
+      <p class="ritual-guide">Choose what you are asking about, and whisper the question to yourself. It stays with you — the temple never sends it anywhere.</p>
+      <input type="text" class="dream-search" id="askQuestion" maxlength="120" placeholder="Whisper your question… (optional, never leaves your device)" autocomplete="off">
+      <div class="dream-grid" id="askCats"></div>
     </div>
+
+    <!-- Step 2 · 摇签 Shake -->
+    <div class="ritual-step" id="ritualShake" hidden>
+      <div class="ritual-step-label">二 · 摇签 Shake the cylinder</div>
+      <div class="kauchim-wrap">
+        <div class="kauchim-stage" id="kauchimStage">
+          <div class="stick-slot"><span class="stick-rise" id="stickRise"><span class="stick-rise-tip">签</span></span></div>
+          <img class="kauchim-photo" id="kauchimPhoto" src="kauchim.webp" alt="Bamboo kau chim cylinder filled with fortune sticks">
+        </div>
+        <div class="kauchim-cylinder" id="kauchimCylinder" hidden>
+          <div class="kauchim-sticks">
+            <span class="kstick"></span><span class="kstick"></span><span class="kstick"></span>
+            <span class="kstick"></span><span class="kstick"></span><span class="kstick"></span>
+            <span class="kstick"></span><span class="kstick"></span><span class="kstick"></span>
+          </div>
+          <span class="kstick stick-flyout" id="stickFlyout" hidden></span>
+          <div class="kauchim-cup">签</div>
+        </div>
+        <button class="temple-btn" id="kauchimShake">🙏 Press and Hold to Shake</button>
+        <p class="kauchim-note" id="kauchimNote">Press and hold — keep shaking until a stick works itself free.</p>
+      </div>
+    </div>
+
+    <!-- Step 3 · 掷筊 Confirm with the moon blocks -->
+    <div class="ritual-step" id="ritualJiao" hidden>
+      <div class="ritual-step-label">三 · 掷筊 Ask the deity to confirm</div>
+      <p class="ritual-guide">A stick has fallen — <strong class="gold-text" id="jiaoStickNo"></strong>. Throw the two moon blocks: one flat and one curved means the deity confirms it.</p>
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+          <radialGradient id="jiaoRound" cx="42%" cy="28%" r="85%">
+            <stop offset="0%" stop-color="#e07a52"/>
+            <stop offset="35%" stop-color="#b23c24"/>
+            <stop offset="75%" stop-color="#7a2113"/>
+            <stop offset="100%" stop-color="#54140a"/>
+          </radialGradient>
+          <linearGradient id="jiaoFlat" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#d05f40"/>
+            <stop offset="60%" stop-color="#a03a28"/>
+            <stop offset="100%" stop-color="#7c2818"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="jiao-pair">
+        <svg class="jiao" id="jiaoA" viewBox="0 0 120 60" aria-label="Moon block">
+          <path class="face-round" d="M6,54 C16,-2 104,-2 114,54 C88,34 32,34 6,54 Z"/>
+          <ellipse class="round-sheen" cx="48" cy="18" rx="30" ry="10"/>
+          <path class="face-flat" d="M6,48 C20,10 100,10 114,48 C88,32 32,32 6,48 Z"/>
+          <path class="flat-face-line" d="M12,46 C40,28 80,28 108,46"/>
+        </svg>
+        <svg class="jiao" id="jiaoB" viewBox="0 0 120 60" aria-label="Moon block">
+          <path class="face-round" d="M6,54 C16,-2 104,-2 114,54 C88,34 32,34 6,54 Z"/>
+          <ellipse class="round-sheen" cx="48" cy="18" rx="30" ry="10"/>
+          <path class="face-flat" d="M6,48 C20,10 100,10 114,48 C88,32 32,32 6,48 Z"/>
+          <path class="flat-face-line" d="M12,46 C40,28 80,28 108,46"/>
+        </svg>
+      </div>
+      <button class="temple-btn" id="jiaoThrow">掷筊 Throw the Moon Blocks</button>
+      <p class="kauchim-note" id="jiaoNote"></p>
+    </div>
+
     <div id="kauchimResult"></div>
+    <div class="stick-collection" id="stickCollection"></div>
   </div>
 </section>
 
@@ -256,7 +313,7 @@
   <div class="container">
     <div class="section-title">解梦 Dream Numbers</div>
     <div class="section-subtitle">Dreamt of something last night? Find its numbers in the temple book — with each number's real strike history</div>
-    <input type="search" class="dream-search" id="dreamSearch" placeholder="Search your dream… snake, fire, deceased relative, 蛇, 火…" aria-label="Search dream symbols">
+    <input type="search" class="dream-search" id="dreamSearch" placeholder="Tell your dream… 'ghost and snake', 'lost my teeth at a wedding'…" aria-label="Search dream symbols">
     <div class="dream-grid" id="dreamGrid"></div>
     <div id="dreamResult"></div>
   </div>
@@ -513,11 +570,11 @@
   </div>
 </footer>
 
-<script src="js/data.js?v=17"></script>
-<script src="js/analysis.js?v=17"></script>
-<script src="js/predictor.js?v=17"></script>
-<script src="js/sound.js?v=17"></script>
-<script src="js/temple.js?v=17"></script>
-<script src="js/app.js?v=17"></script>
+<script src="js/data.js?v=23"></script>
+<script src="js/analysis.js?v=23"></script>
+<script src="js/predictor.js?v=23"></script>
+<script src="js/sound.js?v=23"></script>
+<script src="js/temple.js?v=23"></script>
+<script src="js/app.js?v=23"></script>
 </body>
 </html>
