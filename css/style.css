@@ -2574,10 +2574,10 @@ body {
 .section-subtitle { color: var(--bone-dim); }
 
 /* Hall banner sections: silk instead of photo scenery */
-#kauchim, #dreams, #checker, #predictions, #analysis {
+#kauchim, #dreams, #checker, #predictions, #analysis, #livingaltar, #prayerwall, #daily {
   background-image:
-    linear-gradient(180deg, rgba(90, 14, 9, 0.30) 0%, rgba(64, 10, 7, 0.42) 55%, var(--lacquer) 96%),
-    url('../cards/silk-bright.jpg');
+    linear-gradient(180deg, rgba(70, 10, 6, 0.10) 0%, rgba(50, 8, 5, 0.22) 55%, var(--lacquer) 97%),
+    url('../cards/red-lore.jpg');
   background-size: cover;
   background-position: center top;
 }
