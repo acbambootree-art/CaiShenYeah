@@ -26,14 +26,24 @@
   // a visible container to size itself anyway).
   window.addEventListener('DOMContentLoaded', () => {
     renderDoorTeasers();
+    initCourtyardMood();
     renderCountdown();
     renderResultsTable();
     initRouter();
     initGate();
     initSoundUI();
     initEmbers();
+    initSmoke3D();
     hideLoading();
   });
+
+  // ── Lazy 3D module (shared by the gate shaft and courtyard smoke) ──
+  let t3dPromise = null;
+  const load3D = () => {
+    if (!t3dPromise) t3dPromise = import('./temple3d.mjs').catch(() => null);
+    return t3dPromise;
+  };
+  const noMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ── Temple gate ──
   // You enter through the doors every visit: it is the site's signature, and
@@ -45,10 +55,16 @@
     const art = new Image();
     art.onload = () => gate.classList.add('gate-art');
     art.src = 'gate.jpg';
+    // Warm the 3D module while the visitor faces the doors
+    setTimeout(load3D, 700);
     document.getElementById('gateEnter').addEventListener('click', () => {
       Sound.arm();
       Sound.gong();
       gate.classList.add('open');
+      // The courtyard reveals itself in procession as the doors swing,
+      // with a shaft of light through the widening seam
+      document.body.classList.add('temple-arrival');
+      if (!noMotion()) load3D().then(m => { if (m) m.gateShaft(); });
       setTimeout(() => gate.remove(), 2000);
     }, { once: true });
   }
@@ -135,6 +151,32 @@
 
   let embersControl = null;
 
+  // ── Volumetric courtyard smoke (3D), CSS wisps as fallback ──
+  let smoke3d = null, smokeTried = false, smokeControl = null;
+
+  function initSmoke3D() {
+    if (noMotion()) return;
+    smokeControl = () => {
+      const home = document.querySelector('.view-home').classList.contains('active');
+      // Mount once the courtyard is the active view; running follows visibility
+      if (home && !smoke3d && !smokeTried) {
+        smokeTried = true;
+        load3D().then(m => {
+          const hero = document.querySelector('.hero');
+          smoke3d = m && hero ? m.courtyardSmoke(hero) : null;
+          if (smoke3d) {
+            document.body.classList.add('smoke3d');
+            smokeControl();
+          }
+        });
+        return;
+      }
+      if (smoke3d) { (home && !document.hidden) ? smoke3d.start() : smoke3d.stop(); }
+    };
+    document.addEventListener('visibilitychange', () => smokeControl());
+    smokeControl();
+  }
+
   // ── Hall router ──
   // 'keeper' and 'board' are routable but unlisted: moderation at #/keeper,
   // and #/board is the display that stands beside the real altar
@@ -190,11 +232,75 @@
     if (lastHall !== null && hall !== lastHall && hall !== 'home') Sound.gong();
     lastHall = hall;
     if (embersControl) embersControl();
+    if (smokeControl) smokeControl();
   }
 
   function initRouter() {
     window.addEventListener('hashchange', () => showHall(currentHall()));
     showHall(currentHall());
+  }
+
+  // ── Courtyard mood: the temple knows the hour and shows its life ──
+  const COUPLETS = [
+    ['财源广进', '福气盈门'],
+    ['心想事成', '万事如意'],
+    ['招财进宝', '出入平安'],
+    ['花开富贵', '竹报平安'],
+    ['龙马精神', '鸿运当头'],
+    ['风调雨顺', '吉星高照'],
+    ['金玉满堂', '喜气临门']
+  ];
+
+  function initCourtyardMood() {
+    const sgHour = parseInt(new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Singapore', hour: '2-digit', hour12: false
+    }).format(new Date()), 10);
+    const phase = sgHour >= 5 && sgHour < 8 ? 'dawn'
+      : sgHour >= 8 && sgHour < 17 ? 'day'
+      : sgHour >= 17 && sgHour < 20 ? 'dusk' : 'night';
+    document.getElementById('heroTint').className = 'hero-tint tint-' + phase;
+    document.getElementById('heroLabel').textContent = {
+      dawn: '晨钟 The temple wakes with you 🏮',
+      day: 'The Digital Temple of Fortune 🏮',
+      dusk: '暮鼓 The lanterns are being lit 🏮',
+      night: '夜 The temple keeps its lamps burning 🏮'
+    }[phase];
+
+    // A couplet for the day, hung either side of the courtyard
+    const dayNum = Math.floor(Date.now() / 86400000);
+    const pair = COUPLETS[dayNum % COUPLETS.length];
+    document.getElementById('coupletLeft').textContent = pair[0];
+    document.getElementById('coupletRight').textContent = pair[1];
+
+    // Signs of life: what already hangs and burns in the temple today
+    Promise.allSettled([
+      fetch('/api/wishes').then(r => r.ok ? r.json() : null),
+      fetch('/api/offerings').then(r => r.ok ? r.json() : null)
+    ]).then(([w, o]) => {
+      const bits = [];
+      const wishes = w.status === 'fulfilled' && w.value ? w.value.count : 0;
+      const pending = o.status === 'fulfilled' && o.value ? o.value.pendingCount : 0;
+      if (wishes) bits.push(`${wishes} wish${wishes === 1 ? '' : 'es'} hang on the wall`);
+      if (pending) bits.push(`${pending} offering${pending === 1 ? '' : 's'} await the next round`);
+      if (bits.length) {
+        const el = document.getElementById('templePresence');
+        el.textContent = '此刻 · ' + bits.join(' · ');
+        el.hidden = false;
+      }
+    }).catch(() => {});
+
+    // Gentle pointer parallax gives the courtyard depth (pointer devices only)
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches &&
+        window.matchMedia('(pointer: fine)').matches) {
+      const content = document.getElementById('heroContent');
+      const video = document.querySelector('.hero-video');
+      document.querySelector('.hero').addEventListener('mousemove', (e) => {
+        const dx = (e.clientX / window.innerWidth - 0.5);
+        const dy = (e.clientY / window.innerHeight - 0.5);
+        content.style.transform = `translate3d(${dx * -10}px, ${dy * -6}px, 0)`;
+        if (video) video.style.transform = `translate(-50%, -50%) scale(1.04) translate3d(${dx * 14}px, ${dy * 8}px, 0)`;
+      });
+    }
   }
 
   // ── Courtyard door teasers ──

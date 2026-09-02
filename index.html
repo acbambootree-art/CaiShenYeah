@@ -5,7 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CaiShenYeah | The Digital Temple of Fortune — Singapore 4D</title>
   <meta name="description" content="CaiShenYeah — The Digital Temple of Fortune. Shake the kau chim sticks, look up your dream numbers, and explore 20+ years of real Singapore Pools 4D history. Ritual, culture, and honest statistics.">
-  <link rel="stylesheet" href="css/style.css?v=30">
+  <meta property="og:title" content="CaiShenYeah 财神爷 · The Digital Temple of Fortune">
+  <meta property="og:description" content="Shake the fortune sticks, throw the moon blocks, read your dreams as numbers. A temple you can visit from anywhere — honest about luck, generous with blessings.">
+  <meta property="og:image" content="https://cai-shen-yeah.vercel.app/banners/oracle.jpg">
+  <meta property="og:url" content="https://cai-shen-yeah.vercel.app/">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/style.css?v=34">
   <script type="importmap">
   { "imports": { "three": "./js/vendor/three.module.min.js" } }
   </script>
@@ -58,11 +64,16 @@
       <source src="hero-bg.mp4" type="video/mp4">
     </video>
     <div class="hero-overlay"></div>
+    <div class="hero-tint" id="heroTint"></div>
     <canvas class="embers" id="embersCanvas" aria-hidden="true"></canvas>
-    <div class="container hero-content">
-      <div class="hero-label">The Digital Temple of Fortune 🏮</div>
+    <div class="courtyard-smoke" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="couplet couplet-left" id="coupletLeft" aria-hidden="true"></div>
+    <div class="couplet couplet-right" id="coupletRight" aria-hidden="true"></div>
+    <div class="container hero-content" id="heroContent">
+      <div class="hero-label" id="heroLabel">The Digital Temple of Fortune 🏮</div>
       <h1>CaiShenYeah<br><span class="gold">财神爷 Make You Huat</span></h1>
       <p>A temple you can visit from anywhere. Six halls await — enter where your heart leads.</p>
+      <p class="temple-presence" id="templePresence" hidden></p>
 
       <div class="courtyard">
         <a class="door door-ask" href="#/ask">
@@ -545,11 +556,11 @@
   </div>
 </footer>
 
-<script src="js/data.js?v=30"></script>
-<script src="js/analysis.js?v=30"></script>
-<script src="js/predictor.js?v=30"></script>
-<script src="js/sound.js?v=30"></script>
-<script src="js/temple.js?v=30"></script>
-<script src="js/app.js?v=30"></script>
+<script src="js/data.js?v=34"></script>
+<script src="js/analysis.js?v=34"></script>
+<script src="js/predictor.js?v=34"></script>
+<script src="js/sound.js?v=34"></script>
+<script src="js/temple.js?v=34"></script>
+<script src="js/app.js?v=34"></script>
 </body>
 </html>

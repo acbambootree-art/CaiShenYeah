@@ -248,3 +248,186 @@ export function goldRain() {
     step();
   } catch (e) { /* celebration is optional */ }
 }
+
+// ── Light shaft through the opening gate ──
+// Sits just beneath the gate overlay: as the doors part, a golden beam
+// blazes through the widening seam with dust motes hanging in it, then
+// settles and fades as your eyes adjust to the courtyard.
+export function gateShaft() {
+  try {
+    const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
+    if (!renderer.getContext()) return;
+    renderer.setPixelRatio(DPR());
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    const el = renderer.domElement;
+    el.style.cssText = 'position:fixed;inset:0;z-index:9999;pointer-events:none;';
+    document.body.appendChild(el);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+    const beam = new THREE.Mesh(
+      new THREE.PlaneGeometry(2, 2),
+      new THREE.ShaderMaterial({
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        uniforms: { uTime: { value: 0 }, uOpen: { value: 0 }, uFade: { value: 1 } },
+        vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+        fragmentShader: `
+          varying vec2 vUv;
+          uniform float uTime, uOpen, uFade;
+          float hash(float n) { return fract(sin(n) * 43758.5453); }
+          void main() {
+            float x = vUv.x - 0.5;
+            // the slit: blinding when barely open, soft when wide
+            float width = 0.015 + uOpen * 0.30;
+            float slit = exp(-abs(x) / width);
+            // god-ray bands fanning from the seam
+            float ang = atan(x * 3.0, 0.35 + (1.0 - vUv.y));
+            float bands = 0.65 + 0.35 * sin(ang * 22.0 + uTime * 0.6 + hash(floor(ang * 22.0)) * 6.283);
+            float vert = smoothstep(0.0, 0.25, vUv.y) * smoothstep(1.05, 0.55, vUv.y);
+            float glow = slit * bands * (1.6 - uOpen * 0.9);
+            vec3 col = vec3(1.0, 0.86, 0.55) * glow + vec3(1.0, 0.95, 0.8) * slit * slit * 0.9;
+            gl_FragColor = vec4(col, clamp(glow, 0.0, 1.0) * uFade * (0.35 + vert * 0.65));
+          }`
+      })
+    );
+    scene.add(beam);
+
+    // Dust hanging in the light
+    const N = 120;
+    const pos = new Float32Array(N * 3);
+    for (let i = 0; i < N; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * (Math.random() < 0.7 ? 0.35 : 1.2);
+      pos[i * 3 + 1] = Math.random() * 2 - 1;
+      pos[i * 3 + 2] = 0;
+    }
+    const dustGeo = new THREE.BufferGeometry();
+    dustGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({
+      color: 0xffe8b0, size: 3, sizeAttenuation: false,
+      transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false
+    }));
+    scene.add(dust);
+
+    const clock = new THREE.Clock();
+    let raf, done = false;
+    const dispose = () => {
+      if (done) return;
+      done = true;
+      cancelAnimationFrame(raf);
+      beam.geometry.dispose(); beam.material.dispose();
+      dustGeo.dispose(); dust.material.dispose();
+      renderer.dispose();
+      el.remove();
+    };
+    setTimeout(dispose, 6000); // failsafe: the beam never outstays the arrival
+
+    const ease = (t) => 1 - Math.pow(1 - t, 3);
+    function step() {
+      const t = clock.getElapsedTime();
+      beam.material.uniforms.uTime.value = t;
+      beam.material.uniforms.uOpen.value = ease(Math.min(1, t / 1.7));
+      const fade = 1 - Math.max(0, Math.min(1, (t - 2.3) / 1.1));
+      beam.material.uniforms.uFade.value = fade;
+      dust.material.opacity = Math.min(1, t / 0.8) * fade * 0.8;
+      const p = dustGeo.attributes.position;
+      for (let i = 0; i < N; i++) {
+        p.array[i * 3 + 1] += 0.0007 + (i % 5) * 0.0002;
+        if (p.array[i * 3 + 1] > 1) p.array[i * 3 + 1] = -1;
+      }
+      p.needsUpdate = true;
+      renderer.render(scene, camera);
+      if (t > 3.5) { dispose(); return; }
+      raf = requestAnimationFrame(step);
+    }
+    step();
+  } catch (e) { /* the arrival is fine without the beam */ }
+}
+
+// ── Volumetric courtyard smoke ──
+// Soft sprite plumes rising through the hero, replacing the flat CSS wisps.
+export function courtyardSmoke(container) {
+  try {
+    const W = container.clientWidth || window.innerWidth;
+    const H = container.clientHeight || 600;
+    const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
+    if (!renderer.getContext()) return null;
+    renderer.setPixelRatio(Math.min(DPR(), 1.5));
+    renderer.setSize(W, H);
+    const el = renderer.domElement;
+    el.style.cssText = 'position:absolute;inset:0;z-index:1;pointer-events:none;';
+    container.appendChild(el);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, W / H, 0.1, 40);
+    camera.position.set(0, 0, 12);
+    const worldH = 2 * 12 * Math.tan(THREE.MathUtils.degToRad(25));
+    const worldW = worldH * (W / H);
+
+    // Soft smoke blob texture, painted once
+    const tc = document.createElement('canvas');
+    tc.width = tc.height = 128;
+    const g = tc.getContext('2d');
+    for (let i = 0; i < 7; i++) {
+      const bx = 40 + Math.random() * 48, by = 40 + Math.random() * 48, r = 22 + Math.random() * 26;
+      const grad = g.createRadialGradient(bx, by, 0, bx, by, r);
+      grad.addColorStop(0, 'rgba(215,208,192,0.16)');
+      grad.addColorStop(1, 'rgba(215,208,192,0)');
+      g.fillStyle = grad;
+      g.fillRect(0, 0, 128, 128);
+    }
+    const tex = new THREE.CanvasTexture(tc);
+
+    const N = 34;
+    const plumes = [];
+    const spawn = (p, fresh) => {
+      p.x = (Math.random() < 0.5 ? -1 : 1) * (0.18 + Math.random() * 0.32) * worldW;
+      p.y = fresh ? (-worldH / 2 + Math.random() * worldH) : -worldH / 2 - 1;
+      p.vy = 0.25 + Math.random() * 0.45;
+      p.vx = (Math.random() - 0.5) * 0.12;
+      p.rot = (Math.random() - 0.5) * 0.25;
+      p.life = 0;
+      p.scale = 1.6 + Math.random() * 2.2;
+      p.sprite.position.set(p.x, p.y, (Math.random() - 0.5) * 3);
+    };
+    for (let i = 0; i < N; i++) {
+      const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0, depthWrite: false });
+      mat.rotation = Math.random() * Math.PI * 2;
+      const sprite = new THREE.Sprite(mat);
+      const p = { sprite };
+      spawn(p, true);
+      sprite.scale.setScalar(p.scale);
+      scene.add(sprite);
+      plumes.push(p);
+    }
+
+    const clock = new THREE.Clock();
+    let running = false, raf = null;
+    function step() {
+      if (!running) return;
+      const dt = Math.min(clock.getDelta(), 0.05);
+      for (const p of plumes) {
+        p.y += p.vy * dt;
+        p.x += p.vx * dt;
+        p.life += dt;
+        p.scale += dt * 0.35;
+        p.sprite.material.rotation += p.rot * dt;
+        p.sprite.material.opacity = Math.min(1, p.life / 4) * 0.75 *
+          Math.max(0, 1 - (p.y + worldH / 2) / (worldH * 1.15));
+        p.sprite.position.set(p.x, p.y, p.sprite.position.z);
+        p.sprite.scale.setScalar(p.scale);
+        if (p.y > worldH / 2 + 2) spawn(p, false);
+      }
+      renderer.render(scene, camera);
+      raf = requestAnimationFrame(step);
+    }
+
+    return {
+      start() { if (running) return; running = true; clock.getDelta(); step(); },
+      stop() { running = false; cancelAnimationFrame(raf); },
+      dispose() { this.stop(); tex.dispose(); renderer.dispose(); el.remove(); }
+    };
+  } catch (e) { return null; }
+}
