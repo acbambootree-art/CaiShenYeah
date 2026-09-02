@@ -346,11 +346,10 @@ export function gateShaft() {
   } catch (e) { /* the arrival is fine without the beam */ }
 }
 
-// ── Incense smoke ──
-// Thin threads that rise from a point and break into turbulent curls, the
-// way a joss stick smokes — not broad billowing steam. Particles from one
-// source share a wave phase so they cohere into a ribbon near the base and
-// scatter as they climb.
+// ── Misty clouds ──
+// Soft, slow, low-drifting mist that rolls and billows at the gate like
+// auspicious cloud — broad translucent puffs layered in depth, drifting
+// sideways more than rising, rather than steam columns or thin threads.
 export function courtyardSmoke(container) {
   try {
     const W = container.clientWidth || window.innerWidth;
@@ -369,78 +368,71 @@ export function courtyardSmoke(container) {
     const worldH = 2 * 12 * Math.tan(THREE.MathUtils.degToRad(25));
     const worldW = worldH * (W / H);
 
-    // A single soft, faintly warm smoke wisp
+    // A big, very soft cloud puff with irregular internal structure
     const tc = document.createElement('canvas');
-    tc.width = tc.height = 128;
+    tc.width = tc.height = 256;
     const g = tc.getContext('2d');
-    const grad = g.createRadialGradient(64, 64, 0, 64, 64, 60);
-    grad.addColorStop(0, 'rgba(200,198,190,0.55)');
-    grad.addColorStop(0.45, 'rgba(190,188,182,0.22)');
-    grad.addColorStop(1, 'rgba(190,188,182,0)');
-    g.fillStyle = grad;
-    g.beginPath(); g.arc(64, 64, 60, 0, Math.PI * 2); g.fill();
+    for (let i = 0; i < 10; i++) {
+      const bx = 70 + Math.random() * 116, by = 70 + Math.random() * 116, r = 48 + Math.random() * 60;
+      const grad = g.createRadialGradient(bx, by, 0, bx, by, r);
+      grad.addColorStop(0, 'rgba(214,214,220,0.16)');
+      grad.addColorStop(0.55, 'rgba(206,208,216,0.07)');
+      grad.addColorStop(1, 'rgba(206,208,216,0)');
+      g.fillStyle = grad;
+      g.beginPath(); g.arc(bx, by, r, 0, Math.PI * 2); g.fill();
+    }
     const tex = new THREE.CanvasTexture(tc);
 
-    // Two or three incense threads rising from fixed sources
-    const SOURCES = W < 700 ? 2 : 3;
-    const sources = Array.from({ length: SOURCES }, (_, i) => ({
-      x: (SOURCES === 1 ? 0 : (-0.34 + (i / (SOURCES - 1)) * 0.68)) * worldW,
-      phase: Math.random() * Math.PI * 2,
-      freq: 1.6 + Math.random() * 0.8,
-      drift: (Math.random() - 0.5) * 0.04 * worldW
-    }));
-
-    const PER = 26;                 // particles per thread
-    const N = SOURCES * PER;
+    const N = 46;
     const parts = [];
     const spawn = (p, fresh) => {
-      const life0 = fresh ? Math.random() : 0;
-      p.life = life0 * p.span;
-      p.sprite.material.opacity = 0;
+      p.x = (Math.random() - 0.5) * worldW * 1.2;
+      // mist gathers low and drifts up slowly, so bias the band to the lower half
+      p.y = fresh ? (-worldH * 0.6 + Math.random() * worldH * 1.1)
+                  : -worldH * 0.62 - Math.random() * 0.5;
+      p.z = (Math.random() - 0.5) * 7;               // deep layering
+      p.rise = 0.14 + Math.random() * 0.24;          // very slow lift
+      p.drift = (Math.random() - 0.5) * 0.5;         // sideways roll dominates
+      p.sway = 0.25 + Math.random() * 0.5;
+      p.swayFreq = 0.15 + Math.random() * 0.3;
+      p.phase = Math.random() * Math.PI * 2;
+      p.spin = (Math.random() - 0.5) * 0.12;
+      p.scale = 4.5 + Math.random() * 4.5;           // broad, cloud-like
+      p.life = 0;
+      p.span = 10 + Math.random() * 8;
+      p.sprite.material.rotation = Math.random() * Math.PI * 2;
     };
     for (let i = 0; i < N; i++) {
-      const src = sources[i % SOURCES];
       const mat = new THREE.SpriteMaterial({
         map: tex, transparent: true, opacity: 0,
         depthWrite: false, blending: THREE.NormalBlending
       });
       const sprite = new THREE.Sprite(mat);
-      const p = {
-        sprite, src,
-        span: 5.5 + Math.random() * 2.5,     // seconds from ember to gone
-        rise: 0.85 + Math.random() * 0.4,    // slow, so the curl reads
-        wobble: Math.random() * Math.PI * 2,
-        seed: Math.random()
-      };
-      p.life = Math.random() * p.span;       // stagger the stream
+      const p = { sprite };
+      spawn(p, true);
+      p.life = Math.random() * p.span;
       scene.add(sprite);
       parts.push(p);
     }
 
     const clock = new THREE.Clock();
-    let running = false, raf = null, tSmoke = 0;
+    let running = false, raf = null;
     function step() {
       if (!running) return;
       const dt = Math.min(clock.getDelta(), 0.05);
-      tSmoke += dt;
       for (const p of parts) {
         p.life += dt;
-        if (p.life > p.span) p.life -= p.span;
-        const a = p.life / p.span;                    // 0 ember -> 1 dispersed
-        const y = -worldH * 0.5 + a * worldH * 1.05;
-        // amplitude of the curl grows with height: a thin thread that unravels
-        const amp = (0.04 + a * a * 0.9) * worldW * 0.5;
-        const wave = Math.sin(y * p.src.freq - tSmoke * 0.9 + p.src.phase + p.wobble * a);
-        const turb = Math.sin(tSmoke * 1.7 + p.seed * 20) * amp * 0.25 * a;
-        const x = p.src.x + p.src.drift * a + wave * amp + turb;
-        // small and tight at the ember, larger and softer as it rises
-        const w = (0.28 + a * 1.8) * (0.7 + p.seed * 0.5);
-        p.sprite.position.set(x, y, (p.seed - 0.5) * 3);
-        p.sprite.scale.set(w, w * (1.5 - a * 0.6), 1);   // elongated low, rounder high
-        p.sprite.material.rotation = wave * 0.5;
-        const fadeIn = Math.min(1, a / 0.12);
-        const fadeOut = Math.max(0, 1 - Math.max(0, a - 0.55) / 0.45);
-        p.sprite.material.opacity = fadeIn * fadeOut * 0.4;
+        p.y += p.rise * dt;
+        p.x += p.drift * dt + Math.sin(p.life * p.swayFreq + p.phase) * p.sway * dt;
+        p.scale += dt * 0.28;                          // slow billowing growth
+        p.sprite.material.rotation += p.spin * dt;
+        const a = p.life / p.span;
+        // long soft fade in and out — mist has no hard edge in time
+        const fade = Math.min(1, p.life / 3) * Math.max(0, 1 - a);
+        p.sprite.material.opacity = fade * 0.3;
+        p.sprite.position.set(p.x, p.y, p.z);
+        p.sprite.scale.setScalar(p.scale);
+        if (p.life > p.span || p.y > worldH * 0.65) spawn(p, false);
       }
       renderer.render(scene, camera);
       raf = requestAnimationFrame(step);
