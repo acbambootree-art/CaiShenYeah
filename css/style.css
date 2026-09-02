@@ -1,38 +1,51 @@
 /* =========================================================
-   CaiShenYeah – Cyberpunk Neon Gold Theme
+   CaiShenYeah – Imperial Lacquer 朱金
    ========================================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
+  /* Imperial Lacquer — vermilion, gold leaf, ink */
+  --vermilion: #b3271e;
+  --vermilion-deep: #8e1b14;
+  --lacquer: #1b0b08;        /* the dark ground */
+  --lacquer-2: #24100b;      /* raised panels */
+  --lacquer-3: #2f1510;      /* hover panels */
   --gold: #d4af37;
-  --gold-light: #f0d060;
-  --gold-dark: #a88a2a;
-  --gold-pale: #fff8e1;
-  --neon-gold: #ffd700;
-  --neon-cyan: #00f0ff;
-  --neon-magenta: #ff00ff;
-  --neon-pink: #ff2d95;
-  --black: #0a0a0a;
-  --black-light: #141414;
-  --black-card: #1c1c1c;
-  --black-border: #333;
-  --white: #f5f5f5;
-  --white-muted: #a0a0a0;
-  --red: #ff4444;
-  --green: #44ff88;
-  --blue: #4488ff;
-  --font-display: 'Playfair Display', Georgia, serif;
-  --font-body: 'Inter', -apple-system, sans-serif;
+  --gold-light: #ecd489;
+  --gold-dark: #97772a;
+  --gold-pale: #f6ecd4;
+  --jade: #3f8d78;           /* rare cloisonné accent — labels only */
+  --bone: #efe6d3;
+  --bone-dim: #b3a88f;
+  --hairline: rgba(212, 175, 55, 0.28);
+  --hairline-dim: rgba(212, 175, 55, 0.14);
+
+  /* legacy aliases so nothing old goes neon again */
+  --neon-gold: #d4af37;
+  --neon-cyan: #d4af37;
+  --neon-magenta: #d4af37;
+  --neon-pink: #b3271e;
+  --black: #140906;
+  --black-light: #1b0b08;
+  --black-card: #24100b;
+  --black-border: rgba(212, 175, 55, 0.18);
+  --white: #efe6d3;
+  --white-muted: #b3a88f;
+  --red: #c8442e;
+  --green: #3f8d78;
+  --blue: #b3a88f;
+  --font-display: 'Playfair Display', 'Songti SC', Georgia, serif;
+  --font-body: 'Inter', 'PingFang SC', -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
-  --radius: 12px;
-  --shadow: 0 4px 30px rgba(212, 175, 55, 0.08);
-  --shadow-gold: 0 0 40px rgba(212, 175, 55, 0.15);
-  --neon-glow-gold: 0 0 7px #d4af37, 0 0 10px #d4af37, 0 0 21px #d4af37, 0 0 42px #f0d060, 0 0 82px rgba(240,208,96,0.3);
-  --neon-glow-cyan: 0 0 7px #00f0ff, 0 0 10px #00f0ff, 0 0 21px #00f0ff, 0 0 42px #00f0ff, 0 0 82px rgba(0,240,255,0.3);
-  --neon-glow-green: 0 0 7px #44ff88, 0 0 10px #44ff88, 0 0 21px #44ff88, 0 0 42px rgba(68,255,136,0.4);
-  --neon-glow-red: 0 0 7px #ff4444, 0 0 10px #ff4444, 0 0 21px #ff4444, 0 0 42px rgba(255,68,68,0.4);
-  --neon-glow-pink: 0 0 7px #ff2d95, 0 0 10px #ff2d95, 0 0 21px #ff2d95, 0 0 42px rgba(255,45,149,0.4);
+  --radius: 6px;
+  --shadow: 0 10px 34px rgba(0, 0, 0, 0.45);
+  --shadow-gold: 0 0 34px rgba(212, 175, 55, 0.12);
+  --neon-glow-gold: 0 0 18px rgba(212, 175, 55, 0.35);
+  --neon-glow-cyan: 0 0 18px rgba(212, 175, 55, 0.35);
+  --neon-glow-green: 0 0 18px rgba(212, 175, 55, 0.35);
+  --neon-glow-red: 0 0 18px rgba(179, 39, 30, 0.35);
+  --neon-glow-pink: 0 0 18px rgba(179, 39, 30, 0.35);
 }
 
 /* --- Neon shimmer animations --- */
@@ -65,7 +78,7 @@
 .shimmer-cyan {
   background: linear-gradient(
     90deg,
-    #00f0ff 0%, #66ffff 20%, #e0ffff 40%, #66ffff 60%, #00f0ff 80%, #009daa 100%
+    #d4af37 0%, #ecd489 20%, #f6ecd4 40%, #ecd489 60%, #d4af37 80%, #97772a 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
@@ -131,7 +144,7 @@ body {
   letter-spacing: 0.5px;
 }
 .badge-hot { background: rgba(255,68,68,0.15); color: var(--red); border: 1px solid rgba(255,68,68,0.3); text-shadow: 0 0 5px rgba(255,68,68,0.5); }
-.badge-cold { background: rgba(0,240,255,0.1); color: var(--neon-cyan); border: 1px solid rgba(0,240,255,0.3); text-shadow: 0 0 5px rgba(0,240,255,0.5); }
+.badge-cold { background: rgba(212,175,55,0.1); color: var(--neon-cyan); border: 1px solid rgba(212,175,55,0.3); text-shadow: 0 0 5px rgba(212,175,55,0.5); }
 .badge-model { background: rgba(212,175,55,0.1); color: var(--neon-gold); border: 1px solid rgba(212,175,55,0.3); text-shadow: 0 0 5px rgba(212,175,55,0.4); }
 
 /* --- Header --- */
@@ -168,13 +181,13 @@ body {
 }
 .logo span {
   font-weight: 400;
-  background: linear-gradient(90deg, #00f0ff 0%, #66ffff 20%, #e0ffff 40%, #66ffff 60%, #00f0ff 80%, #009daa 100%);
+  background: linear-gradient(90deg, #d4af37 0%, #ecd489 20%, #f6ecd4 40%, #ecd489 60%, #d4af37 80%, #97772a 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: shimmerCyan 3s linear infinite;
-  filter: drop-shadow(0 0 6px rgba(0,240,255,0.6));
+  filter: drop-shadow(0 0 6px rgba(212,175,55,0.6));
 }
 .nav { display: flex; gap: 32px; align-items: center; }
 .nav a {
@@ -255,16 +268,16 @@ body {
   background: rgba(10,10,10,0.6);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 0 7px rgba(0,240,255,0.3), 0 0 15px rgba(0,240,255,0.15), inset 0 0 7px rgba(0,240,255,0.1);
+  box-shadow: 0 0 7px rgba(212,175,55,0.3), 0 0 15px rgba(212,175,55,0.15), inset 0 0 7px rgba(212,175,55,0.1);
   /* shimmer text */
   color: transparent;
-  background-image: linear-gradient(90deg, #00f0ff 0%, #66ffff 20%, #e0ffff 40%, #66ffff 60%, #00f0ff 80%, #009daa 100%);
+  background-image: linear-gradient(90deg, #d4af37 0%, #ecd489 20%, #f6ecd4 40%, #ecd489 60%, #d4af37 80%, #97772a 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: shimmerCyan 3s linear infinite;
-  filter: drop-shadow(0 0 6px rgba(0,240,255,0.5));
+  filter: drop-shadow(0 0 6px rgba(212,175,55,0.5));
 }
 .hero h1 {
   font-family: var(--font-display);
@@ -272,13 +285,13 @@ body {
   font-weight: 800;
   line-height: 1.15;
   margin-bottom: 20px;
-  background: linear-gradient(90deg, #eee 0%, #fff 15%, #fffbe6 30%, #fff 50%, #eee 65%, #fff 80%, #eee 100%);
+  background: linear-gradient(90deg, #e9dab2 0%, #f6ecd4 15%, #fdf4dd 30%, #f6ecd4 50%, #e9dab2 65%, #f6ecd4 80%, #e9dab2 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: shimmerGold 3.5s linear infinite;
-  filter: drop-shadow(0 0 12px rgba(255,255,255,0.4)) drop-shadow(0 0 30px rgba(212,175,55,0.2));
+  filter: drop-shadow(0 0 12px rgba(246,236,212,0.3)) drop-shadow(0 0 30px rgba(212,175,55,0.2));
 }
 .hero h1 .gold {
   background: linear-gradient(90deg, #d4af37 0%, #f0d060 15%, #fffbe6 30%, #f0d060 50%, #d4af37 65%, #f0d060 80%, #d4af37 100%);
@@ -385,13 +398,13 @@ body {
 .countdown-sep {
   font-size: 1.5rem;
   line-height: 1;
-  background: linear-gradient(90deg, #00f0ff, #66ffff, #e0ffff, #66ffff, #00f0ff);
+  background: linear-gradient(90deg, #d4af37, #ecd489, #f6ecd4, #ecd489, #d4af37);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: shimmerCyan 2.5s linear infinite;
-  filter: drop-shadow(0 0 4px rgba(0,240,255,0.5));
+  filter: drop-shadow(0 0 4px rgba(212,175,55,0.5));
 }
 
 /* --- Prediction Cards --- */
@@ -418,7 +431,7 @@ body {
   top: 0; left: 0; right: 0;
   height: 3px;
   background: linear-gradient(90deg, transparent, var(--neon-gold), var(--neon-cyan), var(--neon-gold), transparent);
-  box-shadow: 0 0 10px rgba(212,175,55,0.5), 0 0 20px rgba(0,240,255,0.3);
+  box-shadow: 0 0 10px rgba(212,175,55,0.5), 0 0 20px rgba(212,175,55,0.3);
 }
 .prediction-card::after {
   content: '';
@@ -459,13 +472,13 @@ body {
   color: var(--white-muted);
 }
 .prediction-card .confidence strong {
-  background: linear-gradient(90deg, #44ff88, #88ffbb, #ccffe6, #88ffbb, #44ff88);
+  background: linear-gradient(90deg, #3f8d78, #88ffbb, #ccffe6, #88ffbb, #3f8d78);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: shimmerGold 3s linear infinite;
-  filter: drop-shadow(0 0 4px rgba(68,255,136,0.5));
+  filter: drop-shadow(0 0 4px rgba(63,141,120,0.5));
 }
 .prediction-card.top-3 {
   border-color: transparent;
@@ -499,27 +512,27 @@ body {
 }
 .winner-card {
   background: rgba(28,28,28,0.9);
-  border: 1px solid rgba(68,255,136,0.3);
+  border: 1px solid rgba(63,141,120,0.3);
   border-radius: var(--radius);
   padding: 24px;
   text-align: center;
   position: relative;
   overflow: hidden;
   transition: all 0.4s ease;
-  box-shadow: 0 0 8px rgba(68,255,136,0.1), inset 0 0 8px rgba(68,255,136,0.03);
+  box-shadow: 0 0 8px rgba(63,141,120,0.1), inset 0 0 8px rgba(63,141,120,0.03);
 }
 .winner-card::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 3px;
-  background: linear-gradient(90deg, transparent, #44ff88, #00f0ff, #44ff88, transparent);
-  box-shadow: 0 0 10px rgba(68,255,136,0.5), 0 0 20px rgba(0,240,255,0.3);
+  background: linear-gradient(90deg, transparent, #3f8d78, #d4af37, #3f8d78, transparent);
+  box-shadow: 0 0 10px rgba(63,141,120,0.5), 0 0 20px rgba(212,175,55,0.3);
 }
 .winner-card:hover {
-  border-color: #44ff88;
+  border-color: #3f8d78;
   transform: translateY(-4px);
-  box-shadow: 0 0 15px rgba(68,255,136,0.4), 0 0 30px rgba(68,255,136,0.2);
+  box-shadow: 0 0 15px rgba(63,141,120,0.4), 0 0 30px rgba(63,141,120,0.2);
 }
 .winner-card.prize-1st,
 .winner-card.prize-2nd,
@@ -546,13 +559,13 @@ body {
   font-weight: 500;
   letter-spacing: 6px;
   margin-bottom: 12px;
-  background: linear-gradient(90deg, #44ff88 0%, #88ffbb 20%, #ccffe6 40%, #88ffbb 60%, #44ff88 80%);
+  background: linear-gradient(90deg, #3f8d78 0%, #88ffbb 20%, #ccffe6 40%, #88ffbb 60%, #3f8d78 80%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: shimmerGold 2.5s linear infinite;
-  filter: drop-shadow(0 0 8px rgba(68,255,136,0.6));
+  filter: drop-shadow(0 0 8px rgba(63,141,120,0.6));
 }
 .prize-1st .winner-number,
 .prize-2nd .winner-number,
@@ -569,7 +582,7 @@ body {
   font-weight: 600;
   margin-bottom: 8px;
   color: var(--green);
-  text-shadow: 0 0 5px rgba(68,255,136,0.5);
+  text-shadow: 0 0 5px rgba(63,141,120,0.5);
 }
 .prize-1st .winner-prize,
 .prize-2nd .winner-prize,
@@ -583,7 +596,7 @@ body {
 }
 .winner-meta strong {
   color: var(--neon-cyan);
-  text-shadow: 0 0 4px rgba(0,240,255,0.4);
+  text-shadow: 0 0 4px rgba(212,175,55,0.4);
 }
 
 /* --- Card Grid --- */
@@ -642,14 +655,14 @@ body {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid rgba(0,240,255,0.2);
-  background: linear-gradient(90deg, #00f0ff, #66ffff, #e0ffff, #66ffff, #00f0ff);
+  border-bottom: 1px solid rgba(212,175,55,0.2);
+  background: linear-gradient(90deg, #d4af37, #ecd489, #f6ecd4, #ecd489, #d4af37);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: shimmerCyan 4s linear infinite;
-  filter: drop-shadow(0 0 4px rgba(0,240,255,0.4));
+  filter: drop-shadow(0 0 4px rgba(212,175,55,0.4));
 }
 .results-table td {
   padding: 12px 16px;
@@ -759,14 +772,14 @@ body {
   text-shadow: var(--neon-glow-red);
 }
 .number-pill.cold {
-  background: rgba(0,240,255,0.08);
+  background: rgba(212,175,55,0.08);
   color: var(--neon-cyan);
-  border-color: rgba(0,240,255,0.3);
-  text-shadow: 0 0 5px rgba(0,240,255,0.5);
-  box-shadow: 0 0 5px rgba(0,240,255,0.1);
+  border-color: rgba(212,175,55,0.3);
+  text-shadow: 0 0 5px rgba(212,175,55,0.5);
+  box-shadow: 0 0 5px rgba(212,175,55,0.1);
 }
 .number-pill.cold:hover {
-  box-shadow: 0 0 10px rgba(0,240,255,0.3), 0 0 20px rgba(0,240,255,0.15);
+  box-shadow: 0 0 10px rgba(212,175,55,0.3), 0 0 20px rgba(212,175,55,0.15);
   text-shadow: var(--neon-glow-cyan);
 }
 
@@ -1068,9 +1081,9 @@ body {
 .fortune-level { font-size: 0.75rem; }
 .level-great { background: rgba(255, 68, 68, 0.15); color: var(--red); border: 1px solid var(--red); }
 .level-good { background: rgba(212, 175, 55, 0.15); color: var(--gold); border: 1px solid var(--gold-dark); }
-.level-fair { background: rgba(68, 255, 136, 0.12); color: var(--green); border: 1px solid rgba(68, 255, 136, 0.4); }
+.level-fair { background: rgba(63, 141, 120, 0.12); color: var(--green); border: 1px solid rgba(63, 141, 120, 0.4); }
 .level-neutral { background: rgba(255, 255, 255, 0.08); color: var(--white-muted); border: 1px solid var(--black-border); }
-.level-caution { background: rgba(68, 136, 255, 0.12); color: var(--blue); border: 1px solid rgba(68, 136, 255, 0.4); }
+.level-caution { background: rgba(179, 168, 143, 0.12); color: var(--blue); border: 1px solid rgba(179, 168, 143, 0.4); }
 
 .fortune-verse {
   font-family: var(--font-display);
@@ -2042,7 +2055,7 @@ body.board-mode { padding-bottom: 0; }
 .dream-omen { font-size: 0.68rem; }
 .omen-good { background: rgba(212, 175, 55, 0.15); color: var(--gold); border: 1px solid var(--gold-dark); }
 .omen-neutral { background: rgba(255, 255, 255, 0.07); color: var(--white-muted); border: 1px solid var(--black-border); }
-.omen-caution { background: rgba(68, 136, 255, 0.12); color: var(--blue); border: 1px solid rgba(68, 136, 255, 0.4); }
+.omen-caution { background: rgba(179, 168, 143, 0.12); color: var(--blue); border: 1px solid rgba(179, 168, 143, 0.4); }
 
 .dream-detail {
   max-width: 560px;
@@ -2418,3 +2431,302 @@ body.temple-arrival .door:nth-child(6) { animation-delay: 2.45s; }
 
 /* Parallax transforms shouldn't fight the reveal animation */
 #heroContent { will-change: transform; }
+
+/* ═══════════════════════════════════════════════════════════
+   IMPERIAL LACQUER REDESIGN LAYER 朱金
+   Overrides below win the cascade. Vermilion + gold leaf + ink.
+   ═══════════════════════════════════════════════════════════ */
+
+body {
+  background: var(--lacquer);
+  color: var(--bone);
+}
+
+/* ── Header: quiet lacquer bar ── */
+.header {
+  background: rgba(20, 9, 6, 0.88);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--hairline-dim);
+  box-shadow: none;
+}
+
+.logo { color: var(--bone); text-shadow: none; }
+.logo span { color: var(--gold); }
+
+.countdown-chip {
+  background: transparent;
+  border: 1px solid var(--hairline);
+  border-radius: 3px;
+  box-shadow: none;
+}
+.countdown-chip-label { color: var(--bone-dim); }
+.countdown-chip-time { color: var(--gold-light); text-shadow: none; }
+
+.nav a { color: var(--bone-dim); }
+.nav a:hover, .nav a.active { color: var(--gold-light); }
+
+/* ── Hero: vermilion field, gold-leaf cranes ── */
+.hero {
+  background: var(--vermilion);
+  min-height: 92vh;
+}
+
+.hero-video { display: none; }
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    url('../cards/hero-cranes.jpg') center / cover no-repeat;
+}
+
+.hero-overlay {
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 38%, transparent 30%, rgba(80, 12, 8, 0.5) 100%),
+    linear-gradient(180deg, rgba(27, 11, 8, 0.35) 0%, transparent 22%, transparent 66%, var(--lacquer) 100%);
+}
+
+.hero-label {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: var(--gold-pale);
+  font-size: 0.72rem;
+  letter-spacing: 7px;
+  text-transform: uppercase;
+  padding: 0;
+}
+
+.hero-label::before { content: '— '; color: var(--gold-light); }
+.hero-label::after { content: ' —'; color: var(--gold-light); }
+
+.hero h1 {
+  color: var(--gold-pale);
+  text-shadow: 0 2px 6px rgba(60, 8, 5, 0.6), 0 8px 40px rgba(60, 8, 5, 0.55);
+}
+
+.hero h1 .gold {
+  background: linear-gradient(178deg, #f3df9d 8%, #d4af37 46%, #a5842e 88%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 3px rgba(60, 8, 5, 0.65));
+}
+
+.hero p { color: var(--gold-pale); opacity: 0.9; text-shadow: 0 1px 8px rgba(60, 8, 5, 0.7); }
+.temple-presence { color: var(--gold-light); }
+
+/* ── Doors: one lacquer card language ── */
+.courtyard { gap: 16px; }
+
+.door, .door.door-ask, .door.door-incense {
+  background: linear-gradient(180deg, rgba(27, 11, 8, 0.93), rgba(20, 8, 5, 0.96));
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  box-shadow: 0 14px 40px rgba(20, 5, 3, 0.55), inset 0 1px 0 rgba(212, 175, 55, 0.14);
+  position: relative;
+}
+
+.door::before, .door::after {
+  content: '◆';
+  position: absolute;
+  top: 9px;
+  font-size: 7px;
+  color: var(--gold-dark);
+}
+.door::before { left: 12px; }
+.door::after { right: 12px; }
+
+.door:hover {
+  background: linear-gradient(180deg, rgba(47, 21, 16, 0.95), rgba(30, 12, 8, 0.97));
+  border-color: rgba(212, 175, 55, 0.55);
+  box-shadow: 0 18px 50px rgba(20, 5, 3, 0.65), 0 0 30px rgba(212, 175, 55, 0.12);
+  transform: translateY(-3px);
+}
+
+.door-char {
+  color: var(--gold);
+  background: none;
+  border: none;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.door-ask .door-char { color: var(--gold-light); }
+.door-name { color: var(--bone); }
+.door-desc { color: var(--bone-dim); }
+.door-tease { color: var(--gold-dark); }
+
+/* ── Section frame: consistent hall header ── */
+.section { border-top: none; }
+
+.section-title { color: var(--gold-pale); text-shadow: none; }
+
+.section-title::after {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 1px;
+  margin: 18px auto 0;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.section-subtitle { color: var(--bone-dim); }
+
+/* Hall banner sections: silk instead of photo scenery */
+#kauchim, #dreams, #checker, #predictions, #analysis {
+  background-image:
+    linear-gradient(180deg, rgba(27, 11, 8, 0.82) 0%, rgba(27, 11, 8, 0.94) 45%, var(--lacquer) 82%),
+    url('../cards/silk.jpg');
+  background-size: cover;
+}
+
+/* ── Buttons: gold leaf primary, hairline secondary ── */
+.temple-btn {
+  background: linear-gradient(180deg, #e8cd7c, var(--gold) 55%, #b08d2c);
+  color: #2a1c04;
+  border: none;
+  border-radius: 3px;
+  letter-spacing: 1px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 245, 210, 0.5);
+  text-shadow: none;
+}
+
+.temple-btn:hover {
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.45), 0 0 26px rgba(212, 175, 55, 0.28);
+  transform: translateY(-1px);
+}
+
+.btn-wa {
+  background: transparent;
+  border: 1px solid var(--hairline);
+  color: var(--gold-light);
+  box-shadow: none;
+}
+.btn-wa:hover { border-color: var(--gold); box-shadow: 0 0 20px rgba(212, 175, 55, 0.18); }
+
+/* ── Chips ── */
+.dream-chip {
+  background: var(--lacquer-2);
+  border: 1px solid var(--hairline-dim);
+  border-radius: 3px;
+  color: var(--bone);
+}
+.dream-chip:hover, .dream-chip.active {
+  border-color: var(--gold);
+  background: var(--lacquer-3);
+  color: var(--gold-light);
+  box-shadow: none;
+}
+
+/* ── Couplets sit on the vermilion beautifully — lift them ── */
+.couplet { opacity: 0.96; }
+
+/* ── Mobile tabbar ── */
+.tabbar {
+  background: rgba(20, 9, 6, 0.94);
+  border-top: 1px solid var(--hairline-dim);
+}
+.tabbar a { color: var(--bone-dim); }
+.tabbar a.active { color: var(--gold-light); }
+
+/* ── The shrine: the God of Fortune alive in the hall of clouds ── */
+.shrine {
+  position: relative;
+  max-width: 860px;
+  margin: 0 auto 40px;
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6), 0 0 60px rgba(212, 175, 55, 0.1);
+}
+
+.shrine video { display: block; width: 100%; }
+
+.shrine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 80px rgba(27, 11, 8, 0.55);
+}
+
+.shrine-caption {
+  text-align: center;
+  font-size: 0.78rem;
+  letter-spacing: 3px;
+  color: var(--gold-dark);
+  text-transform: uppercase;
+  margin: 14px 0 0;
+}
+
+/* ── Scroll reveals ── */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(26px);
+    transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reveal.in-view { opacity: 1; transform: none; }
+  .reveal-stagger > * {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reveal-stagger.in-view > * { opacity: 1; transform: none; }
+  .reveal-stagger.in-view > *:nth-child(1) { transition-delay: 0.05s; }
+  .reveal-stagger.in-view > *:nth-child(2) { transition-delay: 0.13s; }
+  .reveal-stagger.in-view > *:nth-child(3) { transition-delay: 0.21s; }
+  .reveal-stagger.in-view > *:nth-child(4) { transition-delay: 0.29s; }
+  .reveal-stagger.in-view > *:nth-child(5) { transition-delay: 0.37s; }
+  .reveal-stagger.in-view > *:nth-child(6) { transition-delay: 0.45s; }
+}
+
+/* ── Sitewide gold dust (live background) ── */
+.golddust {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+main { position: relative; z-index: 1; }
+
+/* Gold dust drifts through every hall — the embers canvas goes sitewide */
+.embers {
+  position: fixed !important;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+/* Hero text lives in the calm red field left of the cranes */
+@media (min-width: 900px) {
+  .hero-content { text-align: left; max-width: 1160px; }
+  .hero-content > .hero-label, .hero-content > h1, .hero-content > p, .hero-content > .temple-presence {
+    max-width: 520px;
+  }
+  .hero-label::before { content: ''; }
+  .hero .courtyard { margin-top: 46px; }
+}
+
+/* Uniform door grid: six equal lacquer cards */
+.courtyard { grid-template-columns: repeat(3, 1fr); }
+.door-ask { grid-row: auto; }
+.door-incense { grid-column: auto; }
+.door-ask .door-char { font-size: 2.6rem; }
+.door-incense .door-char { font-size: 2.6rem; }
+.door-ask .door-name { font-size: 1rem; }
+
+/* Stacking: crane art under the veil, veil under content */
+.hero::before { z-index: 0; }
+.hero-overlay { z-index: 1; }
+
+/* Softer veil — let the vermilion breathe at the top */
+.hero-overlay {
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 38%, transparent 40%, rgba(60, 10, 6, 0.38) 100%),
+    linear-gradient(180deg, rgba(27, 11, 8, 0.14) 0%, transparent 18%, transparent 70%, var(--lacquer) 100%);
+}

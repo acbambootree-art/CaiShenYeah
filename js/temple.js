@@ -1109,6 +1109,7 @@ const Temple = (() => {
     };
 
     if (jiao3d) {
+      if (navigator.vibrate) navigator.vibrate([25, 60, 20]);
       // Real 3D tumble: the clatter fires on the actual first floor impact
       jiao3d.throwBlocks(faces, () => { if (window.Sound) Sound.blocks(); })
         .then(() => setTimeout(finish, 250));
@@ -1169,6 +1170,7 @@ const Temple = (() => {
       shaker().classList.remove('shaking');
       setStick(1, false);
       if (window.Sound) Sound.tok(); // it comes free of the rim
+      if (navigator.vibrate) navigator.vibrate(35); // and you feel it
       document.getElementById('kauchimNote').textContent = 'It has come free.';
       setTimeout(() => {
         advancing = false;

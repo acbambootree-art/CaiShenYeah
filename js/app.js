@@ -16,9 +16,9 @@
   const GOLD = '#d4af37';
   const GOLD_LIGHT = '#f0d060';
   const GOLD_DARK = '#a88a2a';
-  const RED = '#ff4444';
-  const BLUE = '#4488ff';
-  const GREEN = '#44ff88';
+  const RED = '#cd5744';
+  const BLUE = '#c7b78f';
+  const GREEN = '#5da88c';
 
   // ── Init ──
   // Courtyard + halls: only the cheap, always-visible work runs at load.
@@ -33,6 +33,8 @@
     initGate();
     initSoundUI();
     initEmbers();
+    initReveals();
+    initGyro();
     hideLoading();
   });
 
@@ -149,8 +151,8 @@
     embersControl = maybeRun;
 
     function maybeRun() {
-      const home = document.querySelector('.view-home').classList.contains('active');
-      home && !document.hidden ? start() : stop();
+      // gold dust drifts through every hall now, not just the courtyard
+      document.hidden ? stop() : start();
     }
     maybeRun();
   }
@@ -217,6 +219,35 @@
   function initRouter() {
     window.addEventListener('hashchange', () => showHall(currentHall()));
     showHall(currentHall());
+  }
+
+  // ── Scroll reveals: hall content rises as you reach it ──
+  function initReveals() {
+    if (noMotion() || !('IntersectionObserver' in window)) return;
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target); }
+      }
+    }, { threshold: 0.1, rootMargin: '0px 0px -8% 0px' });
+    document.querySelectorAll('.view:not(.view-home) .section > .container').forEach(c => {
+      for (const el of c.children) {
+        el.classList.add('reveal');
+        io.observe(el);
+      }
+    });
+  }
+
+  // ── Gyro parallax: the courtyard leans with the phone ──
+  function initGyro() {
+    if (noMotion() || !window.DeviceOrientationEvent) return;
+    const content = document.getElementById('heroContent');
+    if (!content) return;
+    window.addEventListener('deviceorientation', (e) => {
+      if (e.beta == null || e.gamma == null) return;
+      const dx = Math.max(-1, Math.min(1, e.gamma / 30));
+      const dy = Math.max(-1, Math.min(1, (e.beta - 45) / 30));
+      content.style.transform = `translate3d(${dx * -10}px, ${dy * -6}px, 0)`;
+    }, { passive: true });
   }
 
   // ── Courtyard mood: the temple knows the hour and shows its life ──
@@ -651,11 +682,11 @@
         datasets: [{
           data: oe.map(o => o.count),
           backgroundColor: [
-            'rgba(68,136,255,0.8)',
-            'rgba(68,136,255,0.5)',
+            'rgba(93,168,140,0.85)',
+            'rgba(93,168,140,0.5)',
             'rgba(212,175,55,0.7)',
-            'rgba(255,68,68,0.5)',
-            'rgba(255,68,68,0.8)'
+            'rgba(205,87,68,0.5)',
+            'rgba(205,87,68,0.85)'
           ],
           borderColor: '#1a1a1a',
           borderWidth: 3
