@@ -81,64 +81,91 @@ const Temple = (() => {
   }
 
   // ── Blessing card (canvas share) ──
+  // Each card is painted over one of the lore backgrounds in /cards,
+  // chosen at random, so no two shares look alike.
+  const CARD_BGS = 8;
+
   function shareCard(title, subtitle, number, note) {
     const W = 1080, H = 1350;
     const c = document.createElement('canvas');
     c.width = W; c.height = H;
     const ctx = c.getContext('2d');
 
+    const paintForeground = () => {
+      const glow = ctx.createRadialGradient(W / 2, H / 2, 80, W / 2, H / 2, 700);
+      glow.addColorStop(0, 'rgba(212,175,55,0.14)');
+      glow.addColorStop(1, 'rgba(212,175,55,0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = '#a88a2a';
+      ctx.lineWidth = 6;
+      ctx.strokeRect(40, 40, W - 80, H - 80);
+      ctx.strokeStyle = 'rgba(212,175,55,0.35)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(58, 58, W - 116, H - 116);
+
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#d4af37';
+      ctx.font = '52px Georgia, serif';
+      ctx.fillText('🏮 CaiShenYeah 财神爷', W / 2, 190);
+      ctx.fillStyle = '#c8c8c8';
+      ctx.font = '32px Georgia, serif';
+      ctx.fillText('The Digital Temple of Fortune', W / 2, 245);
+
+      ctx.fillStyle = '#f0d060';
+      ctx.font = 'bold 110px Georgia, serif';
+      ctx.fillText(title, W / 2, 480);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '40px Georgia, serif';
+      ctx.fillText(subtitle, W / 2, 560);
+
+      ctx.fillStyle = '#d4af37';
+      ctx.font = 'bold 185px "Courier New", monospace';
+      ctx.fillText(number.split('').join(' '), W / 2, 830);
+
+      ctx.fillStyle = '#c8c8c8';
+      ctx.font = '34px Georgia, serif';
+      ctx.fillText(note, W / 2, 930);
+      ctx.fillText(new Date().toLocaleDateString('en-SG', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Singapore' }), W / 2, 1150);
+      ctx.fillStyle = '#8a8a8a';
+      ctx.font = '28px Georgia, serif';
+      ctx.fillText('Every number has the same 1-in-10,000 chance · Play responsibly', W / 2, 1230);
+
+      c.toBlob(async (blob) => {
+        const file = new File([blob], 'caishenyeah-blessing.png', { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try { await navigator.share({ files: [file], title: 'CaiShenYeah Blessing' }); return; } catch (e) { /* cancelled */ }
+        }
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'caishenyeah-blessing.png';
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      });
+    };
+
+    // Base coat, so a failed background still yields the classic dark card
     ctx.fillStyle = '#0a0a0a';
     ctx.fillRect(0, 0, W, H);
-    const glow = ctx.createRadialGradient(W / 2, H / 2, 80, W / 2, H / 2, 700);
-    glow.addColorStop(0, 'rgba(212,175,55,0.16)');
-    glow.addColorStop(1, 'rgba(212,175,55,0)');
-    ctx.fillStyle = glow;
-    ctx.fillRect(0, 0, W, H);
-    ctx.strokeStyle = '#a88a2a';
-    ctx.lineWidth = 6;
-    ctx.strokeRect(40, 40, W - 80, H - 80);
-    ctx.strokeStyle = 'rgba(212,175,55,0.35)';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(58, 58, W - 116, H - 116);
 
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#d4af37';
-    ctx.font = '52px Georgia, serif';
-    ctx.fillText('🏮 CaiShenYeah 财神爷', W / 2, 190);
-    ctx.fillStyle = '#a0a0a0';
-    ctx.font = '32px Georgia, serif';
-    ctx.fillText('The Digital Temple of Fortune', W / 2, 245);
-
-    ctx.fillStyle = '#f0d060';
-    ctx.font = 'bold 110px Georgia, serif';
-    ctx.fillText(title, W / 2, 480);
-    ctx.fillStyle = '#f5f5f5';
-    ctx.font = '40px Georgia, serif';
-    ctx.fillText(subtitle, W / 2, 560);
-
-    ctx.fillStyle = '#d4af37';
-    ctx.font = 'bold 230px "Courier New", monospace';
-    ctx.fillText(number.split('').join(' '), W / 2, 830);
-
-    ctx.fillStyle = '#a0a0a0';
-    ctx.font = '34px Georgia, serif';
-    ctx.fillText(note, W / 2, 930);
-    ctx.fillText(new Date().toLocaleDateString('en-SG', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Singapore' }), W / 2, 1150);
-    ctx.fillStyle = '#666';
-    ctx.font = '28px Georgia, serif';
-    ctx.fillText('Every number has the same 1-in-10,000 chance · Play responsibly', W / 2, 1230);
-
-    c.toBlob(async (blob) => {
-      const file = new File([blob], 'caishenyeah-blessing.png', { type: 'image/png' });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        try { await navigator.share({ files: [file], title: 'CaiShenYeah Blessing' }); return; } catch (e) { /* cancelled */ }
-      }
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'caishenyeah-blessing.png';
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-    });
+    const img = new Image();
+    const pick = 1 + Math.floor(Math.random() * CARD_BGS);
+    img.onload = () => {
+      const s = Math.max(W / img.width, H / img.height);
+      const dw = img.width * s, dh = img.height * s;
+      ctx.drawImage(img, (W - dw) / 2, (H - dh) / 2, dw, dh);
+      // Veil for legibility: gentle overall dim, deeper behind the text column
+      ctx.fillStyle = 'rgba(8,8,8,0.38)';
+      ctx.fillRect(0, 0, W, H);
+      const veil = ctx.createRadialGradient(W / 2, H * 0.52, 120, W / 2, H * 0.52, 720);
+      veil.addColorStop(0, 'rgba(8,8,8,0.5)');
+      veil.addColorStop(1, 'rgba(8,8,8,0)');
+      ctx.fillStyle = veil;
+      ctx.fillRect(0, 0, W, H);
+      paintForeground();
+    };
+    img.onerror = paintForeground;
+    img.src = `cards/bg-${pick}.jpg`;
   }
 
   // ── Kau Chim fortunes ──
