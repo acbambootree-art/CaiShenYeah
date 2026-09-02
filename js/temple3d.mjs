@@ -346,8 +346,11 @@ export function gateShaft() {
   } catch (e) { /* the arrival is fine without the beam */ }
 }
 
-// ── Volumetric courtyard smoke ──
-// Layered soft sprite plumes that rise, curl and billow like real incense.
+// ── Incense smoke ──
+// Thin threads that rise from a point and break into turbulent curls, the
+// way a joss stick smokes — not broad billowing steam. Particles from one
+// source share a wave phase so they cohere into a ribbon near the base and
+// scatter as they climb.
 export function courtyardSmoke(container) {
   try {
     const W = container.clientWidth || window.innerWidth;
@@ -357,7 +360,7 @@ export function courtyardSmoke(container) {
     renderer.setPixelRatio(Math.min(DPR(), 1.5));
     renderer.setSize(W, H);
     const el = renderer.domElement;
-    el.style.cssText = 'position:absolute;inset:0;z-index:1;pointer-events:none;';
+    el.style.cssText = 'position:absolute;inset:0;z-index:2;pointer-events:none;';
     container.appendChild(el);
 
     const scene = new THREE.Scene();
@@ -366,72 +369,78 @@ export function courtyardSmoke(container) {
     const worldH = 2 * 12 * Math.tan(THREE.MathUtils.degToRad(25));
     const worldW = worldH * (W / H);
 
-    // A soft, cloudy smoke puff texture with real internal structure
+    // A single soft, faintly warm smoke wisp
     const tc = document.createElement('canvas');
-    tc.width = tc.height = 256;
+    tc.width = tc.height = 128;
     const g = tc.getContext('2d');
-    for (let i = 0; i < 14; i++) {
-      const bx = 60 + Math.random() * 136, by = 60 + Math.random() * 136, r = 34 + Math.random() * 54;
-      const grad = g.createRadialGradient(bx, by, 0, bx, by, r);
-      grad.addColorStop(0, 'rgba(228,222,208,0.30)');
-      grad.addColorStop(0.5, 'rgba(220,214,198,0.12)');
-      grad.addColorStop(1, 'rgba(220,214,198,0)');
-      g.fillStyle = grad;
-      g.beginPath(); g.arc(bx, by, r, 0, Math.PI * 2); g.fill();
-    }
+    const grad = g.createRadialGradient(64, 64, 0, 64, 64, 60);
+    grad.addColorStop(0, 'rgba(200,198,190,0.55)');
+    grad.addColorStop(0.45, 'rgba(190,188,182,0.22)');
+    grad.addColorStop(1, 'rgba(190,188,182,0)');
+    g.fillStyle = grad;
+    g.beginPath(); g.arc(64, 64, 60, 0, Math.PI * 2); g.fill();
     const tex = new THREE.CanvasTexture(tc);
 
-    const N = 30;
-    const plumes = [];
+    // Two or three incense threads rising from fixed sources
+    const SOURCES = W < 700 ? 2 : 3;
+    const sources = Array.from({ length: SOURCES }, (_, i) => ({
+      x: (SOURCES === 1 ? 0 : (-0.34 + (i / (SOURCES - 1)) * 0.68)) * worldW,
+      phase: Math.random() * Math.PI * 2,
+      freq: 1.6 + Math.random() * 0.8,
+      drift: (Math.random() - 0.5) * 0.04 * worldW
+    }));
+
+    const PER = 26;                 // particles per thread
+    const N = SOURCES * PER;
+    const parts = [];
     const spawn = (p, fresh) => {
-      // three rising columns, like joss sticks in an urn
-      const col = Math.floor(Math.random() * 3);
-      p.baseX = (-0.42 + col * 0.42) * worldW + (Math.random() - 0.5) * 0.12 * worldW;
-      p.x = p.baseX;
-      p.y = fresh ? (-worldH / 2 + Math.random() * worldH) : -worldH / 2 - 1;
-      p.vy = 1.3 + Math.random() * 1.4;              // perceptible rise
-      p.curlAmp = 0.5 + Math.random() * 1.1;          // sideways billow
-      p.curlFreq = 0.5 + Math.random() * 0.8;
-      p.phase = Math.random() * Math.PI * 2;
-      p.rotSpeed = (Math.random() - 0.5) * 0.6;
-      p.life = 0;
-      p.scale = 2.4 + Math.random() * 2.6;
-      p.z = (Math.random() - 0.5) * 4;
-      p.sprite.position.set(p.x, p.y, p.z);
+      const life0 = fresh ? Math.random() : 0;
+      p.life = life0 * p.span;
+      p.sprite.material.opacity = 0;
     };
     for (let i = 0; i < N; i++) {
+      const src = sources[i % SOURCES];
       const mat = new THREE.SpriteMaterial({
         map: tex, transparent: true, opacity: 0,
         depthWrite: false, blending: THREE.NormalBlending
       });
-      mat.rotation = Math.random() * Math.PI * 2;
       const sprite = new THREE.Sprite(mat);
-      const p = { sprite };
-      spawn(p, true);
-      sprite.scale.setScalar(p.scale);
+      const p = {
+        sprite, src,
+        span: 5.5 + Math.random() * 2.5,     // seconds from ember to gone
+        rise: 0.85 + Math.random() * 0.4,    // slow, so the curl reads
+        wobble: Math.random() * Math.PI * 2,
+        seed: Math.random()
+      };
+      p.life = Math.random() * p.span;       // stagger the stream
       scene.add(sprite);
-      plumes.push(p);
+      parts.push(p);
     }
 
     const clock = new THREE.Clock();
-    let running = false, raf = null;
+    let running = false, raf = null, tSmoke = 0;
     function step() {
       if (!running) return;
       const dt = Math.min(clock.getDelta(), 0.05);
-      for (const p of plumes) {
+      tSmoke += dt;
+      for (const p of parts) {
         p.life += dt;
-        p.y += p.vy * dt;
-        // curl: sideways sway that widens as it rises, plus slow growth
-        p.x = p.baseX + Math.sin(p.life * p.curlFreq + p.phase) * p.curlAmp * (0.4 + p.life * 0.16);
-        p.scale += dt * 0.5;
-        p.sprite.material.rotation += p.rotSpeed * dt;
-        const risen = (p.y + worldH / 2) / worldH;   // 0 at bottom, 1 at top
-        const fadeIn = Math.min(1, p.life / 1.6);
-        const fadeOut = Math.max(0, 1 - risen * 1.15);
-        p.sprite.material.opacity = fadeIn * fadeOut * 0.5;
-        p.sprite.position.set(p.x, p.y, p.z);
-        p.sprite.scale.setScalar(p.scale);
-        if (p.y > worldH / 2 + 2) spawn(p, false);
+        if (p.life > p.span) p.life -= p.span;
+        const a = p.life / p.span;                    // 0 ember -> 1 dispersed
+        const y = -worldH * 0.5 + a * worldH * 1.05;
+        // amplitude of the curl grows with height: a thin thread that unravels
+        const amp = (0.04 + a * a * 0.9) * worldW * 0.5;
+        const wave = Math.sin(y * p.src.freq - tSmoke * 0.9 + p.src.phase + p.wobble * a);
+        const turb = Math.sin(tSmoke * 1.7 + p.seed * 20) * amp * 0.25 * a;
+        const x = p.src.x + p.src.drift * a + wave * amp + turb;
+        // small and tight at the ember, larger and softer as it rises
+        const w = (0.28 + a * 1.8) * (0.7 + p.seed * 0.5);
+        p.sprite.position.set(x, y, (p.seed - 0.5) * 3);
+        p.sprite.scale.set(w, w * (1.5 - a * 0.6), 1);   // elongated low, rounder high
+        p.sprite.material.rotation = wave * 0.5;
+        const fadeIn = Math.min(1, a / 0.12);
+        const fadeOut = Math.max(0, 1 - Math.max(0, a - 0.55) / 0.45);
+        p.sprite.material.opacity = fadeIn * fadeOut * 0.4;
       }
       renderer.render(scene, camera);
       raf = requestAnimationFrame(step);
