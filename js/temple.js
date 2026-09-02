@@ -80,6 +80,13 @@ const Temple = (() => {
     return { strikes, byPrize, latestPrize: prizeOf(results[0], num) };
   }
 
+  // WhatsApp carries text + link (an image cannot ride a wa.me link);
+  // the image itself still reaches WhatsApp via the native share sheet.
+  function shareWhatsApp(lines) {
+    const text = lines.filter(Boolean).join('\n') + '\n\nhttps://cai-shen-yeah.vercel.app';
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');
+  }
+
   // ── Blessing card (canvas share) ──
   // Each card is painted over one of the lore backgrounds in /cards,
   // chosen at random, so no two shares look alike.
@@ -1030,11 +1037,23 @@ const Temple = (() => {
           <div class="fortune-number">${blessed}</div>
           <div class="fortune-number-history">${info.text}</div>
         </div>
-        <button class="temple-btn temple-btn-small" id="fortuneShare">📤 Share Blessing Card</button>
+        <div class="share-row">
+          <button class="temple-btn temple-btn-small" id="fortuneShare">📤 Share Blessing Card</button>
+          <button class="temple-btn temple-btn-small btn-wa" id="fortuneWA">Share on WhatsApp</button>
+        </div>
         <p class="temple-honesty">The temple speaks plainly: every 4D number carries the same 1-in-10,000 chance. This number is a blessing to carry, not a prediction.</p>
       </div>`;
     document.getElementById('fortuneShare').addEventListener('click', () =>
       shareCard(f.title, `第 ${f.n} 签 · ${level.label}`, blessed, info.text));
+    document.getElementById('fortuneWA').addEventListener('click', () =>
+      shareWhatsApp([
+        '🏮 CaiShenYeah 财神爷 · The Digital Temple of Fortune',
+        `第 ${f.n} 签 ${f.title} · ${level.label}`,
+        `"${f.verse}"`,
+        `My blessed number today: ${blessed}`,
+        info.text,
+        'Every number has the same 1-in-10,000 chance 🙏'
+      ]));
     renderCollection();
     if (f.level === 'great') {
       ensure3D().then(mod => { if (mod) mod.goldRain(); });
@@ -1337,9 +1356,20 @@ const Temple = (() => {
         <div class="card-title">${title}</div>
         ${reading}
         ${numbersBlock(nums)}
-        <button class="temple-btn temple-btn-small" id="dreamShare">📤 Share Blessing Card</button>
+        <div class="share-row">
+          <button class="temple-btn temple-btn-small" id="dreamShare">📤 Share Blessing Card</button>
+          <button class="temple-btn temple-btn-small btn-wa" id="dreamWA">Share on WhatsApp</button>
+        </div>
         ${honestyLine()}
       </div>`;
+    document.getElementById('dreamWA').addEventListener('click', () =>
+      shareWhatsApp([
+        '🌙 CaiShenYeah 解梦 Dream Numbers',
+        `Dreamt of ${symbol.en}${symbol.zh ? ' ' + symbol.zh : ''}`,
+        symbol.reading ? `"${symbol.reading}"` : '',
+        `Temple Book ${nums[0].number} · Mirror ${nums[1].number} · Today's Sign ${nums[2].number}`,
+        'Every number has the same 1-in-10,000 chance 🙏'
+      ]));
     wireShare(`${symbol.emoji || '🌙'} ${symbol.zh || symbol.en}`, `Dream: ${symbol.en}`, nums);
   }
 
@@ -1374,9 +1404,20 @@ const Temple = (() => {
             <p class="dream-sign-insight">宜 ${m.insight}</p>
           </div>`).join('')}
         ${numbersBlock(nums)}
-        <button class="temple-btn temple-btn-small" id="dreamShare">📤 Share Blessing Card</button>
+        <div class="share-row">
+          <button class="temple-btn temple-btn-small" id="dreamShare">📤 Share Blessing Card</button>
+          <button class="temple-btn temple-btn-small btn-wa" id="dreamWA">Share on WhatsApp</button>
+        </div>
         ${honestyLine()}
       </div>`;
+    document.getElementById('dreamWA').addEventListener('click', () =>
+      shareWhatsApp([
+        '🌙 CaiShenYeah 解梦 Dream Numbers',
+        `My dream: "${text}"`,
+        `The temple book read ${matches.length} signs: ${matches.map(m => m.zh + ' ' + m.en).join(', ')}`,
+        `Temple Book ${nums[0].number} · Mirror ${nums[1].number} · Today's Sign ${nums[2].number}`,
+        'Every number has the same 1-in-10,000 chance 🙏'
+      ]));
     wireShare(`🌙 ${matches.map(m => m.zh).join(' ')}`, `Dream of ${matches.map(m => m.en.toLowerCase()).join(', ')}`.slice(0, 60), nums);
   }
 
