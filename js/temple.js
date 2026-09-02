@@ -1213,7 +1213,7 @@ const Temple = (() => {
       if (holding || advancing) return;
       holding = true;
       holdStart = Date.now();
-      riseTarget = 4000 + Math.random() * 4000; // the deity decides: 4-8s
+      riseTarget = 3000 + Math.random() * 1000; // the deity decides: 4-8s
       pendingStick = FORTUNES[Math.floor(Math.random() * FORTUNES.length)];
       jiaoTries = 0;
       riseEl.classList.remove('sinking');

@@ -2576,9 +2576,10 @@ body {
 /* Hall banner sections: silk instead of photo scenery */
 #kauchim, #dreams, #checker, #predictions, #analysis {
   background-image:
-    linear-gradient(180deg, rgba(27, 11, 8, 0.82) 0%, rgba(27, 11, 8, 0.94) 45%, var(--lacquer) 82%),
-    url('../cards/silk.jpg');
+    linear-gradient(180deg, rgba(90, 14, 9, 0.30) 0%, rgba(64, 10, 7, 0.42) 55%, var(--lacquer) 96%),
+    url('../cards/silk-bright.jpg');
   background-size: cover;
+  background-position: center top;
 }
 
 /* ── Buttons: gold leaf primary, hairline secondary ── */

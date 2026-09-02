@@ -100,6 +100,30 @@ const Sound = (() => {
     src.start(t, Math.random() * 0.5, decay + 0.05);
   }
 
+  // Continuous filtered-noise bed: many thin sticks sliding against each
+  // other and the cylinder wall. The wander on the filter keeps it woody
+  // and alive rather than a static hiss.
+  function slide(when, dur, gain) {
+    const t = ctx.currentTime + when;
+    const src = ctx.createBufferSource();
+    src.buffer = noiseBuf;
+    src.loop = true;
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.setValueAtTime(1100, t);
+    bp.frequency.linearRampToValueAtTime(1650, t + dur * 0.4);
+    bp.frequency.linearRampToValueAtTime(950, t + dur);
+    bp.Q.value = 0.9;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(gain, t + 0.12);
+    g.gain.setValueAtTime(gain, t + dur - 0.25);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(bp); bp.connect(g); g.connect(master);
+    src.start(t, Math.random() * 0.5);
+    src.stop(t + dur + 0.05);
+  }
+
   // ── Ritual SFX ──
   function gong() {
     if (!enabled() || !ensureCtx()) return;
@@ -153,11 +177,30 @@ const Sound = (() => {
   function rattle() {
     if (!enabled() || !ensureCtx()) return;
     duckMusic(1.6);
-    const N = 30;
+    // the shuffle: sticks sliding in the cylinder
+    slide(0, 1.25, 0.09);
+    // dense papery ticks — thin bamboo jostling, no pitched dice-knock
+    const N = 85;
     for (let i = 0; i < N; i++) {
       const p = i / N;
-      // Sticks bunch up through the middle of the shake, as a worked cylinder does
-      clack(p * 1.25 + Math.random() * 0.04, 0.6 + 0.4 * Math.sin(Math.PI * p));
+      const env = 0.35 + 0.65 * Math.sin(Math.PI * p);
+      noiseHit({
+        gain: 0.055 * env * (0.5 + Math.random()),
+        decay: 0.008 + Math.random() * 0.016,
+        freq: 1500 + Math.random() * 2100,
+        q: 2.4,
+        when: p * 1.18 + Math.random() * 0.05
+      });
+    }
+    // the hollow cylinder body, knocked softly by the bundle
+    for (let i = 0; i < 6; i++) {
+      noiseHit({
+        gain: 0.09 + Math.random() * 0.05,
+        decay: 0.045 + Math.random() * 0.02,
+        freq: 290 + Math.random() * 130,
+        q: 1.6,
+        when: 0.1 + Math.random() * 1.0
+      });
     }
   }
 

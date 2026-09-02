@@ -12,11 +12,16 @@ import * as THREE from 'three';
 const DPR = () => Math.min(window.devicePixelRatio || 1, 2);
 
 // A moon block: crescent footprint, domed back, flatter face
-function blockGeometry() {
+function crescentShape() {
   const s = new THREE.Shape();
   s.moveTo(-1.0, 0);
   s.bezierCurveTo(-0.9, 0.9, 0.9, 0.9, 1.0, 0);
   s.bezierCurveTo(0.55, 0.3, -0.55, 0.3, -1.0, 0);
+  return s;
+}
+
+function blockGeometry() {
+  const s = crescentShape();
   const geo = new THREE.ExtrudeGeometry(s, {
     depth: 0.3, bevelEnabled: true, bevelThickness: 0.18,
     bevelSize: 0.12, bevelSegments: 5, curveSegments: 28
@@ -54,8 +59,8 @@ export function initJiao(container) {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(38, W / H, 0.1, 50);
-    camera.position.set(0, 3.4, 4.8);
-    camera.lookAt(0, 0.15, 0);
+    camera.position.set(0, 3.1, 5.2);
+    camera.lookAt(0, 0.25, 0);
 
     scene.add(new THREE.AmbientLight(0xffe8c0, 0.75));
     const key = new THREE.DirectionalLight(0xfff2d0, 1.6);
@@ -79,10 +84,23 @@ export function initJiao(container) {
     scene.add(floor);
 
     const geo = blockGeometry();
-    const blocks = [-0.95, 0.95].map(x => {
+    const goldMat = new THREE.MeshStandardMaterial({
+      color: 0xd4af37, metalness: 0.7, roughness: 0.35, side: THREE.DoubleSide,
+      emissive: 0x9a7a20, emissiveIntensity: 0.45
+    });
+    const blocks = [-1.15, 1.15].map(x => {
       const m = new THREE.Mesh(geo, lacquer());
       m.castShadow = true;
       m.position.set(x, 0.34, 0);
+      // the whole flat face is gold leaf: a flat-up landing shows an
+      // unmistakable gold crescent; dome-up hides it completely
+      const faceGeo = new THREE.ShapeGeometry(crescentShape());
+      faceGeo.center();
+      faceGeo.scale(0.88, 0.88, 1);
+      faceGeo.rotateX(-Math.PI / 2);
+      const marker = new THREE.Mesh(faceGeo, goldMat);
+      marker.position.set(0, -0.195, 0);
+      m.add(marker);
       scene.add(m);
       return m;
     });
@@ -106,14 +124,16 @@ export function initJiao(container) {
         const DURATION = 1.7;
         const bodies = blocks.map((mesh, i) => ({
           mesh,
-          x: i === 0 ? -0.95 : 0.95,
+          side: i === 0 ? -1 : 1,
+          x: i === 0 ? -1.15 : 1.15,
           y: 2.6 + Math.random() * 0.5,
           vy: 0.8 + Math.random() * 0.6,
           vx: (Math.random() - 0.5) * 0.8,
           spin: new THREE.Vector3(6 + Math.random() * 7, (Math.random() - 0.5) * 5, 5 + Math.random() * 6),
           bounces: 0,
           settled: false,
-          target: faceQ(i === 0 ? faces.a : faces.b, (Math.random() - 0.5) * 0.9),
+          target: faceQ(i === 0 ? faces.a : faces.b, (Math.random() - 0.5) * 0.35),
+          restY: (i === 0 ? faces.a : faces.b) === 'flat' ? 0.62 : 0.19,
           q: new THREE.Quaternion().random()
         }));
         let impactFired = false;
@@ -130,6 +150,10 @@ export function initJiao(container) {
             b.vy -= 13 * dt;
             b.y += b.vy * dt;
             b.x += b.vx * dt;
+            // a thrown block stays on its own side — no overlapping
+            b.x = b.side < 0
+              ? Math.max(-1.9, Math.min(-1.05, b.x))
+              : Math.min(1.9, Math.max(1.05, b.x));
             const rot = new THREE.Quaternion().setFromEuler(
               new THREE.Euler(b.spin.x * dt, b.spin.y * dt, b.spin.z * dt));
             b.q.premultiply(rot);
@@ -140,6 +164,7 @@ export function initJiao(container) {
               if (b.bounces >= 3 || Math.abs(b.vy) < 1.2) {
                 b.settled = true;
                 b.q.copy(b.target);
+                b.y = b.restY;
               } else {
                 b.vy = -b.vy * 0.42;
                 b.vx *= 0.6;
@@ -154,7 +179,7 @@ export function initJiao(container) {
           renderer.render(scene, camera);
           if (allSettled || elapsed > DURATION + 1.5) {
             for (const b of bodies) {
-              b.mesh.position.set(b.x, REST_Y, 0);
+              b.mesh.position.set(b.x, b.restY, 0);
               b.mesh.quaternion.copy(b.target);
             }
             renderer.render(scene, camera);
