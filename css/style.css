@@ -2305,3 +2305,7 @@ body.board-mode { padding-bottom: 0; }
   margin-right: 8px;
   vertical-align: 1px;
 }
+
+/* 3D moon block stage */
+.jiao-stage { max-width: 560px; margin: 0 auto; }
+.jiao-stage canvas { display: block; margin: 0 auto; }

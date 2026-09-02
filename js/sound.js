@@ -294,3 +294,7 @@ const Sound = (() => {
 
   return { arm, toggle, enabled, gong, bowl, tok, rattle, blocks };
 })();
+
+// Top-level const does not attach to window: expose explicitly so guards
+// like `if (window.Sound)` in other scripts actually pass.
+window.Sound = Sound;

@@ -927,6 +927,32 @@ const Temple = (() => {
   let pendingStick = null; // fortune drawn, awaiting the blocks
   let jiaoTries = 0;
 
+  // ── Lazy 3D (three.js loads only when a 3D moment starts) ──
+  let t3d = null, t3dTried = false;
+  const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  async function ensure3D() {
+    if (t3dTried) return t3d;
+    t3dTried = true;
+    if (reducedMotion()) return null;
+    try { t3d = await import('./temple3d.mjs'); } catch (e) { t3d = null; window.__err3d = 'import: ' + e.message; }
+    return t3d;
+  }
+
+  let jiao3d = null, jiao3dTried = false;
+  async function ensureJiao3D() {
+    if (jiao3dTried) return jiao3d;
+    jiao3dTried = true;
+    const mod = await ensure3D();
+    if (!mod) return null;
+    try {
+      jiao3d = mod.initJiao(document.getElementById('jiaoStage'));
+      if (jiao3d) document.querySelector('.jiao-pair').style.display = 'none';
+    } catch (e) { jiao3d = null; window.__err3d = 'init: ' + e.message; }
+    if (!jiao3d && !window.__err3d) window.__err3d = 'initJiao returned null';
+    return jiao3d;
+  }
+
   const showStep = (id) => {
     ['ritualFocus', 'ritualShake', 'ritualJiao'].forEach(s =>
       document.getElementById(s).hidden = s !== id);
@@ -983,6 +1009,10 @@ const Temple = (() => {
     document.getElementById('fortuneShare').addEventListener('click', () =>
       shareCard(f.title, `第 ${f.n} 签 · ${level.label}`, blessed, info.text));
     renderCollection();
+    if (f.level === 'great') {
+      ensure3D().then(mod => { if (mod) mod.goldRain(); });
+      if (window.Sound) setTimeout(() => Sound.gong(), 400);
+    }
   }
 
   // ── Moon blocks (掷筊) ──
@@ -996,8 +1026,6 @@ const Temple = (() => {
     const btn = document.getElementById('jiaoThrow');
     const note = document.getElementById('jiaoNote');
     btn.disabled = true;
-    // The toss animation touches the floor at ~0.63s: the clatter lands with it
-    if (window.Sound) setTimeout(() => Sound.blocks(), 600);
     jiaoTries++;
 
     const r = Math.random();
@@ -1006,17 +1034,12 @@ const Temple = (() => {
     let outcome = r < 0.5 ? 'sheng' : r < 0.75 ? 'laugh' : 'yin';
     if (jiaoTries >= 3) outcome = 'sheng';
 
-    const A = document.getElementById('jiaoA'), B = document.getElementById('jiaoB');
-    if (outcome === 'sheng') {
-      const flip = Math.random() < 0.5;
-      setJiao(A, flip ? 'flat' : 'round');
-      setJiao(B, flip ? 'round' : 'flat');
-    } else {
-      setJiao(A, outcome === 'laugh' ? 'flat' : 'round');
-      setJiao(B, outcome === 'laugh' ? 'flat' : 'round');
-    }
+    const flip = Math.random() < 0.5;
+    const faces = outcome === 'sheng'
+      ? { a: flip ? 'flat' : 'round', b: flip ? 'round' : 'flat' }
+      : { a: outcome === 'laugh' ? 'flat' : 'round', b: outcome === 'laugh' ? 'flat' : 'round' };
 
-    setTimeout(() => {
+    const finish = () => {
       btn.disabled = false;
       if (outcome === 'sheng') {
         note.textContent = '圣筊 — one flat, one curved. The deity confirms this stick.';
@@ -1037,7 +1060,21 @@ const Temple = (() => {
           document.getElementById('kauchimNote').textContent = 'The blocks said no — hold and shake for a different stick.';
         }, 1400);
       }
-    }, 950);
+    };
+
+    if (jiao3d) {
+      // Real 3D tumble: the clatter fires on the actual first floor impact
+      jiao3d.throwBlocks(faces, () => { if (window.Sound) Sound.blocks(); })
+        .then(() => setTimeout(finish, 250));
+      return;
+    }
+
+    // SVG fallback
+    if (window.Sound) setTimeout(() => Sound.blocks(), 600);
+    const A = document.getElementById('jiaoA'), B = document.getElementById('jiaoB');
+    setJiao(A, faces.a);
+    setJiao(B, faces.b);
+    setTimeout(finish, 950);
   }
 
   // ── The rite ──
@@ -1096,6 +1133,7 @@ const Temple = (() => {
         document.getElementById('jiaoA').classList.remove('flat', 'round', 'tossing');
         document.getElementById('jiaoB').classList.remove('flat', 'round', 'tossing');
         showStep('ritualJiao');
+        ensureJiao3D();
         setTimeout(() => riseEl.classList.remove('sinking'), 800);
       }, 1100);
     };
