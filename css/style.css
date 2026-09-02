@@ -2277,3 +2277,31 @@ body.board-mode { padding-bottom: 0; }
 .dream-sign-name { font-family: var(--font-display); font-size: 1.02rem; color: var(--white); }
 .dream-sign-reading { color: var(--gold-pale); font-style: italic; font-size: 0.92rem; line-height: 1.55; margin-bottom: 6px; }
 .dream-sign-insight { color: var(--white-muted); font-size: 0.84rem; margin-bottom: 8px; }
+
+/* The stick's allusion 典故 */
+.fortune-en {
+  color: var(--white-muted);
+  font-size: 0.86rem;
+  letter-spacing: 0.5px;
+  margin: 2px 0 10px;
+}
+
+.fortune-story {
+  max-width: 460px;
+  margin: 16px auto 4px;
+  color: var(--white-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+  text-align: left;
+}
+
+.fortune-story-label {
+  color: var(--gold);
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  border: 1px solid var(--gold-dark);
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-right: 8px;
+  vertical-align: 1px;
+}
