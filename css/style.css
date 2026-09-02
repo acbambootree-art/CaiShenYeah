@@ -2407,40 +2407,6 @@ body.temple-arrival .door:nth-child(6) { animation-delay: 2.45s; }
 .tint-dusk { background: linear-gradient(180deg, rgba(255, 120, 60, 0.20), rgba(120, 40, 90, 0.16)); }
 .tint-night { background: linear-gradient(180deg, rgba(30, 40, 110, 0.30), rgba(10, 15, 50, 0.22)); }
 
-/* Incense smoke drifting across the courtyard */
-.courtyard-smoke {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.courtyard-smoke span {
-  position: absolute;
-  bottom: -60px;
-  width: 130px;
-  height: 300px;
-  background: radial-gradient(ellipse 40% 50% at 50% 50%, rgba(220, 215, 200, 0.10), transparent 70%);
-  filter: blur(14px);
-  animation: smoke-drift 16s ease-in-out infinite;
-}
-
-.courtyard-smoke span:nth-child(1) { left: 12%; animation-delay: 0s; }
-.courtyard-smoke span:nth-child(2) { left: 48%; animation-delay: 5s; animation-duration: 20s; }
-.courtyard-smoke span:nth-child(3) { left: 78%; animation-delay: 10s; animation-duration: 18s; }
-
-@keyframes smoke-drift {
-  0% { transform: translateY(0) translateX(0) rotate(0deg) scale(1); opacity: 0; }
-  15% { opacity: 1; }
-  70% { opacity: 0.55; }
-  100% { transform: translateY(-105vh) translateX(60px) rotate(18deg) scale(1.7); opacity: 0; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .courtyard-smoke span { animation: none; opacity: 0; }
-}
-
 /* Signs of life under the tagline */
 .temple-presence {
   color: var(--gold);
@@ -2452,6 +2418,3 @@ body.temple-arrival .door:nth-child(6) { animation-delay: 2.45s; }
 
 /* Parallax transforms shouldn't fight the reveal animation */
 #heroContent { will-change: transform; }
-
-/* When 3D smoke is running, the flat CSS wisps stand down */
-body.smoke3d .courtyard-smoke { display: none; }

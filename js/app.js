@@ -33,7 +33,6 @@
     initGate();
     initSoundUI();
     initEmbers();
-    initSmoke3D();
     hideLoading();
   });
 
@@ -55,8 +54,15 @@
     const art = new Image();
     art.onload = () => gate.classList.add('gate-art');
     art.src = 'gate.jpg';
-    // Warm the 3D module while the visitor faces the doors
-    setTimeout(load3D, 700);
+    // Incense smoke drifts up the gate while the doors stand closed
+    let gateSmoke = null;
+    if (!noMotion()) {
+      load3D().then(m => {
+        if (!m || !gate.isConnected) return;
+        gateSmoke = m.courtyardSmoke(gate);
+        if (gateSmoke) gateSmoke.start();
+      });
+    }
     document.getElementById('gateEnter').addEventListener('click', () => {
       Sound.arm();
       Sound.gong();
@@ -65,7 +71,7 @@
       // with a shaft of light through the widening seam
       document.body.classList.add('temple-arrival');
       if (!noMotion()) load3D().then(m => { if (m) m.gateShaft(); });
-      setTimeout(() => gate.remove(), 2000);
+      setTimeout(() => { if (gateSmoke) gateSmoke.dispose(); gate.remove(); }, 2000);
     }, { once: true });
   }
 
@@ -151,32 +157,6 @@
 
   let embersControl = null;
 
-  // ── Volumetric courtyard smoke (3D), CSS wisps as fallback ──
-  let smoke3d = null, smokeTried = false, smokeControl = null;
-
-  function initSmoke3D() {
-    if (noMotion()) return;
-    smokeControl = () => {
-      const home = document.querySelector('.view-home').classList.contains('active');
-      // Mount once the courtyard is the active view; running follows visibility
-      if (home && !smoke3d && !smokeTried) {
-        smokeTried = true;
-        load3D().then(m => {
-          const hero = document.querySelector('.hero');
-          smoke3d = m && hero ? m.courtyardSmoke(hero) : null;
-          if (smoke3d) {
-            document.body.classList.add('smoke3d');
-            smokeControl();
-          }
-        });
-        return;
-      }
-      if (smoke3d) { (home && !document.hidden) ? smoke3d.start() : smoke3d.stop(); }
-    };
-    document.addEventListener('visibilitychange', () => smokeControl());
-    smokeControl();
-  }
-
   // ── Hall router ──
   // 'keeper' and 'board' are routable but unlisted: moderation at #/keeper,
   // and #/board is the display that stands beside the real altar
@@ -232,7 +212,6 @@
     if (lastHall !== null && hall !== lastHall && hall !== 'home') Sound.gong();
     lastHall = hall;
     if (embersControl) embersControl();
-    if (smokeControl) smokeControl();
   }
 
   function initRouter() {
