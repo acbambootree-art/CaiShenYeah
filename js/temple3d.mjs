@@ -347,7 +347,7 @@ export function gateShaft() {
 }
 
 // ── Volumetric courtyard smoke ──
-// Soft sprite plumes rising through the hero, replacing the flat CSS wisps.
+// Layered soft sprite plumes that rise, curl and billow like real incense.
 export function courtyardSmoke(container) {
   try {
     const W = container.clientWidth || window.innerWidth;
@@ -366,34 +366,44 @@ export function courtyardSmoke(container) {
     const worldH = 2 * 12 * Math.tan(THREE.MathUtils.degToRad(25));
     const worldW = worldH * (W / H);
 
-    // Soft smoke blob texture, painted once
+    // A soft, cloudy smoke puff texture with real internal structure
     const tc = document.createElement('canvas');
-    tc.width = tc.height = 128;
+    tc.width = tc.height = 256;
     const g = tc.getContext('2d');
-    for (let i = 0; i < 7; i++) {
-      const bx = 40 + Math.random() * 48, by = 40 + Math.random() * 48, r = 22 + Math.random() * 26;
+    for (let i = 0; i < 14; i++) {
+      const bx = 60 + Math.random() * 136, by = 60 + Math.random() * 136, r = 34 + Math.random() * 54;
       const grad = g.createRadialGradient(bx, by, 0, bx, by, r);
-      grad.addColorStop(0, 'rgba(215,208,192,0.16)');
-      grad.addColorStop(1, 'rgba(215,208,192,0)');
+      grad.addColorStop(0, 'rgba(228,222,208,0.30)');
+      grad.addColorStop(0.5, 'rgba(220,214,198,0.12)');
+      grad.addColorStop(1, 'rgba(220,214,198,0)');
       g.fillStyle = grad;
-      g.fillRect(0, 0, 128, 128);
+      g.beginPath(); g.arc(bx, by, r, 0, Math.PI * 2); g.fill();
     }
     const tex = new THREE.CanvasTexture(tc);
 
-    const N = 34;
+    const N = 30;
     const plumes = [];
     const spawn = (p, fresh) => {
-      p.x = (Math.random() < 0.5 ? -1 : 1) * (0.18 + Math.random() * 0.32) * worldW;
+      // three rising columns, like joss sticks in an urn
+      const col = Math.floor(Math.random() * 3);
+      p.baseX = (-0.42 + col * 0.42) * worldW + (Math.random() - 0.5) * 0.12 * worldW;
+      p.x = p.baseX;
       p.y = fresh ? (-worldH / 2 + Math.random() * worldH) : -worldH / 2 - 1;
-      p.vy = 0.25 + Math.random() * 0.45;
-      p.vx = (Math.random() - 0.5) * 0.12;
-      p.rot = (Math.random() - 0.5) * 0.25;
+      p.vy = 1.3 + Math.random() * 1.4;              // perceptible rise
+      p.curlAmp = 0.5 + Math.random() * 1.1;          // sideways billow
+      p.curlFreq = 0.5 + Math.random() * 0.8;
+      p.phase = Math.random() * Math.PI * 2;
+      p.rotSpeed = (Math.random() - 0.5) * 0.6;
       p.life = 0;
-      p.scale = 1.6 + Math.random() * 2.2;
-      p.sprite.position.set(p.x, p.y, (Math.random() - 0.5) * 3);
+      p.scale = 2.4 + Math.random() * 2.6;
+      p.z = (Math.random() - 0.5) * 4;
+      p.sprite.position.set(p.x, p.y, p.z);
     };
     for (let i = 0; i < N; i++) {
-      const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0, depthWrite: false });
+      const mat = new THREE.SpriteMaterial({
+        map: tex, transparent: true, opacity: 0,
+        depthWrite: false, blending: THREE.NormalBlending
+      });
       mat.rotation = Math.random() * Math.PI * 2;
       const sprite = new THREE.Sprite(mat);
       const p = { sprite };
@@ -409,14 +419,17 @@ export function courtyardSmoke(container) {
       if (!running) return;
       const dt = Math.min(clock.getDelta(), 0.05);
       for (const p of plumes) {
-        p.y += p.vy * dt;
-        p.x += p.vx * dt;
         p.life += dt;
-        p.scale += dt * 0.35;
-        p.sprite.material.rotation += p.rot * dt;
-        p.sprite.material.opacity = Math.min(1, p.life / 4) * 0.75 *
-          Math.max(0, 1 - (p.y + worldH / 2) / (worldH * 1.15));
-        p.sprite.position.set(p.x, p.y, p.sprite.position.z);
+        p.y += p.vy * dt;
+        // curl: sideways sway that widens as it rises, plus slow growth
+        p.x = p.baseX + Math.sin(p.life * p.curlFreq + p.phase) * p.curlAmp * (0.4 + p.life * 0.16);
+        p.scale += dt * 0.5;
+        p.sprite.material.rotation += p.rotSpeed * dt;
+        const risen = (p.y + worldH / 2) / worldH;   // 0 at bottom, 1 at top
+        const fadeIn = Math.min(1, p.life / 1.6);
+        const fadeOut = Math.max(0, 1 - risen * 1.15);
+        p.sprite.material.opacity = fadeIn * fadeOut * 0.5;
+        p.sprite.position.set(p.x, p.y, p.z);
         p.sprite.scale.setScalar(p.scale);
         if (p.y > worldH / 2 + 2) spawn(p, false);
       }

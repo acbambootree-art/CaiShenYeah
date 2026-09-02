@@ -269,8 +269,8 @@
     // A couplet for the day, hung either side of the courtyard
     const dayNum = Math.floor(Date.now() / 86400000);
     const pair = COUPLETS[dayNum % COUPLETS.length];
-    document.getElementById('coupletLeft').textContent = pair[0];
-    document.getElementById('coupletRight').textContent = pair[1];
+    document.getElementById('coupletLeft').innerHTML = `<span class="couplet-text">${pair[0]}</span>`;
+    document.getElementById('coupletRight').innerHTML = `<span class="couplet-text">${pair[1]}</span>`;
 
     // Signs of life: what already hangs and burns in the temple today
     Promise.allSettled([
