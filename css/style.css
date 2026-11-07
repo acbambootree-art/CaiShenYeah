@@ -2345,7 +2345,6 @@ body.board-mode { padding-bottom: 0; }
 body.temple-arrival .hero-label { animation: arrive 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.9s backwards; }
 body.temple-arrival .hero h1 { animation: arrive 0.9s cubic-bezier(0.22, 1, 0.36, 1) 1.15s backwards; }
 body.temple-arrival .hero-content > p { animation: arrive 0.9s cubic-bezier(0.22, 1, 0.36, 1) 1.4s backwards; }
-body.temple-arrival .couplet { animation: couplet-drop 1s cubic-bezier(0.22, 1, 0.36, 1) 1.5s backwards; }
 body.temple-arrival .door { animation: door-light 0.8s cubic-bezier(0.22, 1, 0.36, 1) backwards; }
 body.temple-arrival .door:nth-child(1) { animation-delay: 1.7s; }
 body.temple-arrival .door:nth-child(2) { animation-delay: 1.85s; }
@@ -2365,46 +2364,6 @@ body.temple-arrival .door:nth-child(6) { animation-delay: 2.45s; }
   100% { opacity: 1; transform: translateY(0); box-shadow: none; }
 }
 
-@keyframes couplet-drop {
-  from { opacity: 0; transform: translateY(-40px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* 对联 Couplet banners — real red-silk scroll art, gold-leaf characters */
-.couplet {
-  position: absolute;
-  top: 84px;
-  z-index: 2;
-  width: clamp(78px, 11vw, 132px);
-  aspect-ratio: 488 / 1354;
-  background: url('../cards/couplet.webp') center / 100% 100% no-repeat;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  filter: drop-shadow(0 14px 26px rgba(0, 0, 0, 0.6));
-  pointer-events: none;
-}
-
-.couplet-text {
-  writing-mode: vertical-rl;
-  transform: translateY(-9%); /* sit inside the red panel, above the tassel */
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(1.15rem, 2.3vw, 1.9rem);
-  letter-spacing: 10px;
-  color: #f3dc86;
-  /* carved gold-leaf: bright face, dark bevel below, soft glow */
-  text-shadow:
-    0 1px 0 #a07a1e,
-    0 2px 1px #6d4f12,
-    0 3px 5px rgba(0, 0, 0, 0.55),
-    0 0 14px rgba(240, 210, 110, 0.35);
-}
-
-.couplet-left { left: clamp(6px, 3.5vw, 64px); transform: rotate(-0.6deg); }
-.couplet-right { right: clamp(6px, 3.5vw, 64px); transform: rotate(0.6deg); }
-
-@media (max-width: 900px) { .couplet { display: none; } }
 
 /* Time-of-day tint over the courtyard */
 .hero-tint {
@@ -2620,9 +2579,6 @@ body {
   box-shadow: none;
 }
 
-/* ── Couplets sit on the vermilion beautifully — lift them ── */
-.couplet { opacity: 0.96; }
-
 /* ── Mobile tabbar ── */
 .tabbar {
   background: rgba(20, 9, 6, 0.94);
@@ -2771,14 +2727,12 @@ main { position: relative; z-index: 1; }
 .hero h1 .gold { filter: none; }
 
 @media (min-width: 900px) {
-  /* Keep the words clear of the left couplet scroll */
+  /* Words share the door grid's left edge */
+  .hero-content { max-width: 1028px; }
   .hero-content > .hero-label, .hero-content > h1,
-  .hero-content > p, .hero-content > .temple-presence {
-    max-width: 640px;
-    margin-left: max(0px, calc(clamp(6px, 3.5vw, 64px) + clamp(78px, 11vw, 132px) + 36px - (100vw - 1160px) / 2 - 24px));
-  }
+  .hero-content > p, .hero-content > .temple-presence { max-width: 640px; }
   .hero h1 { font-size: clamp(2.4rem, 4.2vw, 3.5rem); line-height: 1.12; }
-  .hero p { margin-bottom: 0; }
+  .hero p { margin: 0; }
   /* A calm, darker field behind the words; cranes stay bright on the right */
   .hero-overlay {
     background:

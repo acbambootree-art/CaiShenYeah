@@ -251,16 +251,6 @@
   }
 
   // ── Courtyard mood: the temple knows the hour and shows its life ──
-  const COUPLETS = [
-    ['财源广进', '福气盈门'],
-    ['心想事成', '万事如意'],
-    ['招财进宝', '出入平安'],
-    ['花开富贵', '竹报平安'],
-    ['龙马精神', '鸿运当头'],
-    ['风调雨顺', '吉星高照'],
-    ['金玉满堂', '喜气临门']
-  ];
-
   function initCourtyardMood() {
     const sgHour = parseInt(new Intl.DateTimeFormat('en-GB', {
       timeZone: 'Asia/Singapore', hour: '2-digit', hour12: false
@@ -275,12 +265,6 @@
       dusk: '暮鼓 The lanterns are being lit 🏮',
       night: '夜 The temple keeps its lamps burning 🏮'
     }[phase];
-
-    // A couplet for the day, hung either side of the courtyard
-    const dayNum = Math.floor(Date.now() / 86400000);
-    const pair = COUPLETS[dayNum % COUPLETS.length];
-    document.getElementById('coupletLeft').innerHTML = `<span class="couplet-text">${pair[0]}</span>`;
-    document.getElementById('coupletRight').innerHTML = `<span class="couplet-text">${pair[1]}</span>`;
 
     // Signs of life: what already hangs and burns in the temple today
     Promise.allSettled([
