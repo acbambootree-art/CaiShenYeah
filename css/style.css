@@ -2731,3 +2731,77 @@ main { position: relative; z-index: 1; }
     radial-gradient(ellipse 90% 70% at 50% 38%, transparent 40%, rgba(60, 10, 6, 0.38) 100%),
     linear-gradient(180deg, rgba(27, 11, 8, 0.14) 0%, transparent 18%, transparent 70%, var(--lacquer) 100%);
 }
+
+/* ═══════════════════════════════════════════════════════════
+   LAYOUT TIDY 2026-11 — one alignment per surface
+   ═══════════════════════════════════════════════════════════ */
+
+/* Hall headers: centred title, ornament and subtitle (the ornament was
+   already centred; the text was not) */
+.section-title, .section-subtitle { text-align: center; }
+.section-subtitle { max-width: 680px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+
+/* Door grid: 1 column on phones, 2 on tablets, 3 on desktop. The
+   unscoped 3-column rule above pushed the phone hero off-screen. */
+.courtyard { grid-template-columns: 1fr; }
+@media (min-width: 600px) { .courtyard { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 900px) { .courtyard { grid-template-columns: repeat(3, 1fr); } }
+
+/* Every door the same shape: glyph left, words right */
+.door, .door.door-ask, .door.door-incense {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 18px;
+  padding: 20px 22px;
+}
+.door-char, .door-ask .door-char, .door-incense .door-char {
+  font-size: 2.4rem;
+  width: 1.2em;
+  text-align: center;
+}
+.door-name, .door-ask .door-name { font-size: 1.02rem; }
+
+/* Hero headline: no text-shadow over clipped-gradient text (Chrome paints
+   it on top, which is what made the title look muddy) */
+.hero h1 {
+  text-shadow: none;
+  filter: drop-shadow(0 2px 2px rgba(50, 6, 4, 0.7)) drop-shadow(0 10px 30px rgba(50, 6, 4, 0.5));
+}
+.hero h1 .gold { filter: none; }
+
+@media (min-width: 900px) {
+  /* Keep the words clear of the left couplet scroll */
+  .hero-content > .hero-label, .hero-content > h1,
+  .hero-content > p, .hero-content > .temple-presence {
+    max-width: 640px;
+    margin-left: max(0px, calc(clamp(6px, 3.5vw, 64px) + clamp(78px, 11vw, 132px) + 36px - (100vw - 1160px) / 2 - 24px));
+  }
+  .hero h1 { font-size: clamp(2.4rem, 4.2vw, 3.5rem); line-height: 1.12; }
+  .hero p { margin-bottom: 0; }
+  /* A calm, darker field behind the words; cranes stay bright on the right */
+  .hero-overlay {
+    background:
+      linear-gradient(90deg, rgba(60, 9, 6, 0.55) 0%, rgba(60, 9, 6, 0.25) 38%, transparent 60%),
+      linear-gradient(180deg, rgba(27, 11, 8, 0.14) 0%, transparent 18%, transparent 70%, var(--lacquer) 100%);
+  }
+}
+
+@media (max-width: 899px) {
+  .hero-overlay {
+    background: linear-gradient(180deg, rgba(40, 7, 5, 0.35) 0%, rgba(40, 7, 5, 0.55) 45%, var(--lacquer) 100%);
+  }
+}
+
+/* Hero label: the old theme's clipped-gradient text was left with no
+   gradient (transparent text + a blur box = a smudge). Plain gold text. */
+.hero-label {
+  -webkit-text-fill-color: currentColor;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  filter: none;
+  animation: none;
+  margin-bottom: 18px;
+}
+body.temple-arrival .hero-label { animation: arrive 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.9s backwards; }
+@media (min-width: 900px) { .hero-label::after { content: ''; } }
