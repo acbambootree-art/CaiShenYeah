@@ -1,0 +1,307 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Toy Temple</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #111; display: grid; place-items: center; }
+  #out { height: 100vh; aspect-ratio: 9 / 16; display: block; }
+</style>
+<script type="importmap">{ "imports": { "three": "/js/vendor/three.module.min.js" } }</script>
+</head>
+<body>
+<canvas id="out" width="1080" height="1920"></canvas>
+<script type="module">
+import * as THREE from 'three';
+import { makeCharacter, mat, mesh, rbox, canvasTex } from './toy.js';
+
+const W = 1080, H = 1920, FPS = 30, DUR = 5;
+
+// ---------- helpers ----------
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const smooth = x => x * x * (3 - 2 * x);
+const seg = (t, a, b) => smooth(clamp((t - a) / (b - a)));
+const lerp = (a, b, k) => a + (b - a) * k;
+
+const GOLD = mat(0xd4a73a, { metalness: 0.3, roughness: 0.35, emissive: 0x3a2500 });
+
+// ---------- textures ----------
+const carpet = canvasTex(256, (g, s) => {
+  g.fillStyle = '#6e1212'; g.fillRect(0, 0, s, s);
+  const star = (x, y, r, col) => {
+    g.fillStyle = col;
+    for (const rot of [0, Math.PI / 4]) {
+      g.save(); g.translate(x, y); g.rotate(rot); g.fillRect(-r, -r, 2 * r, 2 * r); g.restore();
+    }
+  };
+  star(s / 2, s / 2, 34, '#c9973a'); star(s / 2, s / 2, 22, '#4a0b0b'); star(s / 2, s / 2, 9, '#d8b25a');
+  for (const [x, y] of [[0, 0], [s, 0], [0, s], [s, s]]) { star(x, y, 18, '#2a1a3a'); star(x, y, 8, '#c9973a'); }
+}, 7);
+const fuTex = canvasTex(256, (g, s) => {
+  g.fillStyle = '#b3271e'; g.save(); g.translate(s / 2, s / 2); g.rotate(Math.PI / 4);
+  g.fillRect(-s * 0.34, -s * 0.34, s * 0.68, s * 0.68); g.restore();
+  g.fillStyle = '#e8c15a'; g.font = 'bold 150px "PingFang SC", "Heiti SC", serif';
+  g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('福', s / 2, s / 2 + 6);
+});
+const slipTex = canvasTex(128, (g, s) => {
+  g.fillStyle = '#f4efe2'; g.fillRect(0, 0, s, s);
+  g.fillStyle = '#c0392b'; g.fillRect(0, 0, s, 18);
+  g.fillStyle = '#555';
+  for (let i = 0; i < 5; i++) g.fillRect(14, 32 + i * 18, 60 + (i * 23) % 40, 6);
+});
+const smokeTex = canvasTex(64, (g, s) => {
+  const gr = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+  gr.addColorStop(0, 'rgba(255,240,225,0.55)'); gr.addColorStop(1, 'rgba(255,240,225,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, s, s);
+});
+
+// ---------- scene ----------
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(W, H, false);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.15;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1a0907);
+scene.fog = new THREE.Fog(0x1a0907, 7, 13);
+const camera = new THREE.PerspectiveCamera(52, W / H, 0.1, 50);
+
+scene.add(new THREE.HemisphereLight(0xffd9b0, 0x3a1008, 0.9));
+const key = new THREE.DirectionalLight(0xffe2bf, 2.0);
+key.position.set(1.8, 4.2, 3.4); key.target.position.set(0, 0.6, -0.6);
+key.castShadow = true; key.shadow.mapSize.set(2048, 2048);
+Object.assign(key.shadow.camera, { left: -3, right: 3, top: 3, bottom: -3, near: 0.5, far: 12 });
+key.shadow.bias = -0.0005; key.shadow.radius = 4;
+scene.add(key, key.target);
+
+// room
+const floor = mesh(new THREE.PlaneGeometry(9, 9), mat(0xffffff, { map: carpet, roughness: 0.95 }), false);
+floor.rotation.x = -Math.PI / 2; scene.add(floor);
+const WALL = mat(0x5a1410, { roughness: 0.6 }), WOOD = mat(0x2e1a10, { roughness: 0.7 });
+const back = mesh(new THREE.PlaneGeometry(9, 4), WALL, false); back.position.set(0, 2, -2.7); scene.add(back);
+for (const s of [-1, 1]) {
+  const side = mesh(new THREE.PlaneGeometry(9, 4), WOOD, false);
+  side.position.set(s * 2.3, 2, 0); side.rotation.y = -s * Math.PI / 2; scene.add(side);
+  for (let i = 0; i < 4; i++) { // wall panels
+    const p = mesh(rbox(0.9, 1.4, 0.06, 0.02), mat(0x3d2214)); p.position.set(s * 2.27, 1.3, -2.1 + i * 1.15);
+    p.rotation.y = Math.PI / 2; scene.add(p);
+  }
+}
+const dado = mesh(new THREE.BoxGeometry(9, 0.9, 0.05), WOOD); dado.position.set(0, 0.45, -2.66); scene.add(dado);
+const trim = mesh(new THREE.BoxGeometry(9, 0.05, 0.06), GOLD); trim.position.set(0, 0.92, -2.65); scene.add(trim);
+for (let i = 0; i < 4; i++) { // ceiling beams
+  const b = mesh(new THREE.BoxGeometry(5, 0.22, 0.28), WOOD); b.position.set(0, 3.0, -2.4 + i * 1.3); scene.add(b);
+}
+const fu = mesh(new THREE.PlaneGeometry(0.75, 0.75), mat(0xffffff, { map: fuTex, transparent: true, roughness: 0.5 }), false);
+fu.position.set(0, 2.45, -2.68); scene.add(fu);
+
+// altar + Cai Shen
+const altar = new THREE.Group(); altar.position.set(0, 0, -2.25); scene.add(altar);
+const altarTop = mesh(rbox(2.4, 0.12, 0.6, 0.03), mat(0x8e1a12, { roughness: 0.35 })); altarTop.position.y = 1.0; altar.add(altarTop);
+const altarBody = mesh(rbox(2.3, 0.9, 0.5, 0.03), mat(0x6e130d, { roughness: 0.4 })); altarBody.position.y = 0.5; altar.add(altarBody);
+const altarTrim = mesh(new THREE.BoxGeometry(2.32, 0.05, 0.52), GOLD); altarTrim.position.y = 0.88; altar.add(altarTrim);
+const god = new THREE.Group(); god.position.set(0, 1.06, -0.05); altar.add(god);
+{
+  const robe = mesh(rbox(0.5, 0.55, 0.32, 0.1), GOLD); robe.position.y = 0.28; god.add(robe);
+  const gHead = mesh(new THREE.SphereGeometry(0.17, 32, 24), mat(0xe8b878, { roughness: 0.5 })); gHead.position.y = 0.72; god.add(gHead);
+  const hat = mesh(new THREE.CylinderGeometry(0.13, 0.16, 0.16, 24), mat(0x1a1a1a, { roughness: 0.5 })); hat.position.y = 0.9; god.add(hat);
+  for (const s of [-1, 1]) {
+    const wing = mesh(rbox(0.22, 0.05, 0.03, 0.012), mat(0x1a1a1a)); wing.position.set(s * 0.23, 0.88, 0); god.add(wing);
+  }
+  const beard = mesh(new THREE.ConeGeometry(0.07, 0.2, 16), mat(0x111111)); beard.position.set(0, 0.56, 0.14); beard.rotation.x = Math.PI; god.add(beard);
+  const ingot = mesh(new THREE.SphereGeometry(0.09, 20, 12), GOLD); ingot.scale.set(1.4, 0.6, 0.9); ingot.position.set(0, 0.32, 0.22); god.add(ingot);
+}
+const flames = [];
+for (const s of [-1, 1]) {
+  const candle = mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.38, 20), mat(0xc0201a, { roughness: 0.4 }));
+  candle.position.set(s * 0.75, 1.25, 0.05); altar.add(candle);
+  const flame = mesh(new THREE.SphereGeometry(0.035, 16, 12), new THREE.MeshBasicMaterial({ color: 0xffc35a }), false);
+  flame.scale.set(1, 1.9, 1); flame.position.set(s * 0.75, 1.5, 0.05); altar.add(flame); flames.push(flame);
+  const fl = new THREE.PointLight(0xff9a3c, 1.4, 3, 1.6); fl.position.set(s * 0.75, 1.55, 0.25); altar.add(fl);
+}
+const urn = mesh(new THREE.CylinderGeometry(0.14, 0.11, 0.16, 24), GOLD); urn.position.set(0, 1.14, 0.2); altar.add(urn);
+const tipPos = [];
+for (let i = -1; i <= 1; i++) {
+  const stick = mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.36, 6), mat(0xa0322a), false);
+  stick.position.set(i * 0.04, 1.38, 0.2); stick.rotation.z = i * 0.08; altar.add(stick);
+  const tip = mesh(new THREE.SphereGeometry(0.009, 8, 6), new THREE.MeshBasicMaterial({ color: 0xff5a20 }), false);
+  tip.position.set(i * 0.04 - i * 0.014, 1.56, 0.2); altar.add(tip);
+  tipPos.push(tip.position.clone().add(altar.position));
+}
+const smoke = [];
+for (let i = 0; i < 18; i++) {
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: smokeTex, transparent: true, depthWrite: false }));
+  scene.add(sp); smoke.push(sp);
+}
+
+// lanterns
+for (const [x, y, z] of [[-1.3, 2.35, -1.5], [1.3, 2.35, -1.5]]) {
+  const g = new THREE.Group(); g.position.set(x, y, z); scene.add(g);
+  const body = mesh(new THREE.SphereGeometry(0.24, 32, 20), mat(0xd42a1c, { emissive: 0xa0180c, emissiveIntensity: 0.9, roughness: 0.5 }), false);
+  body.scale.y = 0.82; g.add(body);
+  for (const s of [-1, 1]) { const cap = mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.05, 20), GOLD, false); cap.position.y = s * 0.2; g.add(cap); }
+  const cord = mesh(new THREE.CylinderGeometry(0.008, 0.008, 3 - y, 6), mat(0x222222), false); cord.position.y = (3 - y) / 2 + 0.2; g.add(cord);
+  const tassel = mesh(new THREE.ConeGeometry(0.04, 0.18, 12), mat(0xc0201a), false); tassel.position.y = -0.33; tassel.rotation.x = Math.PI; g.add(tassel);
+  const l = new THREE.PointLight(0xff6a3a, 1.2, 3.5, 1.8); g.add(l);
+}
+
+// table
+const table = new THREE.Group(); table.position.set(0, 0, 0.25); scene.add(table);
+const LAQ = mat(0x9a1d14, { roughness: 0.3 });
+const top = mesh(rbox(1.75, 0.07, 0.75, 0.025), LAQ); top.position.y = 0.66; table.add(top);
+for (const [x, z] of [[-0.8, -0.3], [0.8, -0.3], [-0.8, 0.3], [0.8, 0.3]]) {
+  const lg = mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.64, 12), WOOD); lg.position.set(x, 0.32, z); table.add(lg);
+}
+const items = new THREE.Group(); items.position.y = 0.7; table.add(items);
+const SLIP = mat(0xffffff, { map: slipTex, roughness: 0.9 });
+[[-0.35, 0.05, 0.3], [-0.22, 0.12, -0.2], [0.05, 0.02, 0.5]].forEach(([x, z, r]) => {
+  const s = mesh(new THREE.BoxGeometry(0.16, 0.004, 0.22), SLIP, false); s.position.set(x, 0, z); s.rotation.y = r; items.add(s);
+});
+const cupMat = mat(0xf2ecdf, { roughness: 0.35 });
+[[-0.62, 0.08], [0.6, 0.12]].forEach(([x, z]) => {
+  const c = mesh(new THREE.CylinderGeometry(0.055, 0.045, 0.08, 20), cupMat); c.position.set(x, 0.04, z); items.add(c);
+});
+const pot = mesh(new THREE.SphereGeometry(0.1, 24, 16), mat(0x5b2a1a, { roughness: 0.35 })); pot.scale.y = 0.8; pot.position.set(0.28, 0.08, -0.12); items.add(pot);
+const angpow = mesh(rbox(0.1, 0.012, 0.18, 0.004), mat(0xc81e1e, { roughness: 0.5 }), false); angpow.position.set(0.0, 0.01, 0.22); angpow.rotation.y = -0.3; items.add(angpow);
+
+// characters
+const auntie = makeCharacter({ outfit: 'auntie', hairStyle: 'perm', smile: true, skin: 0xf2c39d });
+auntie.sit(); auntie.root.position.set(-0.48, 0.47, -0.3); scene.add(auntie.root);
+const uncle = makeCharacter({ outfit: 'uncle', belly: 0.06, skin: 0xd9a27a, hair: 0x6b6660 });
+uncle.sit(); uncle.root.position.set(0.48, 0.47, -0.3); scene.add(uncle.root);
+const boy = makeCharacter({ outfit: 'executive', hairStyle: 'side', glasses: true, skin: 0xeab48c });
+boy.root.position.set(0.82, 0.86, -1.0); boy.root.rotation.y = -0.25; scene.add(boy.root);
+
+// props held in hands
+const heldSlip = mesh(new THREE.BoxGeometry(0.16, 0.004, 0.22), SLIP, false);
+heldSlip.position.set(0, -0.32, 0.04); uncle.armL.elbow.add(heldSlip);
+const kopi = mesh(new THREE.CylinderGeometry(0.06, 0.05, 0.14, 20), mat(0xffffff, { roughness: 0.4 }));
+kopi.position.set(0, -0.3, 0.09); kopi.rotation.x = Math.PI / 2; boy.armL.elbow.add(kopi);
+
+// ---------- animation ----------
+const IMPACT = 1.45;
+const blinkAt = (t, ph) => ((t + ph) % 2.6 < 0.11 ? 0.12 : 1);
+const bump = t => (t > IMPACT ? Math.exp(-(t - IMPACT) * 11) * Math.sin((t - IMPACT) * 38) : 0);
+
+function pose(t) {
+  // seated: forearms resting on the table
+  for (const c of [auntie, uncle]) for (const [a, s] of [[c.armL, 1], [c.armR, -1]]) {
+    a.shoulder.rotation.set(-0.55, 0, s * 0.12); a.elbow.rotation.set(-1.0, 0, 0);
+  }
+  // standing boy: left arm down, right holds kopi
+  boy.armR.shoulder.rotation.set(0.05, 0, -0.08); boy.armR.elbow.rotation.set(-0.15, 0, 0);
+
+  // uncle raises the slip and slaps it down
+  const lift = seg(t, 0.75, 1.25), drop = clamp((t - 1.3) / (IMPACT - 1.3)) ** 2;
+  const up = lift * (1 - drop);
+  uncle.armL.shoulder.rotation.x = lerp(-0.55, -2.5, up);
+  uncle.armL.shoulder.rotation.z = lerp(0.12, 0.25, up);
+  uncle.armL.elbow.rotation.x = lerp(-1.0, -0.5, up);
+  heldSlip.visible = t < IMPACT;
+  uncle.head.rotation.x = 0.18 * seg(t, 1.2, 1.4) * (1 - seg(t, 3.6, 4.0)) - 0.12 * up;
+  uncle.head.rotation.y = -0.15 * up;
+  uncle.root.rotation.y = -0.08 * up;
+  uncle.browLift(0.2 * up, 0.25 * seg(t, 1.4, 1.6));
+  uncle.blink(blinkAt(t, 0.9));
+
+  // auntie turns to look at him, eyebrows up, then back to camera
+  const look = seg(t, 1.55, 1.85) * (1 - seg(t, 3.3, 3.65));
+  auntie.head.rotation.y = 0.6 * look;
+  auntie.head.rotation.z = -0.08 * look;
+  auntie.browLift(look, 0);
+  auntie.blink(blinkAt(t, 0.3));
+
+  // boy sips kopi
+  const sip = seg(t, 2.4, 2.85) * (1 - seg(t, 3.7, 4.1));
+  boy.armL.shoulder.rotation.set(lerp(-0.35, -1.15, sip), 0, lerp(0.08, -0.25, sip));
+  boy.armL.elbow.rotation.set(lerp(-1.3, -2.2, sip), 0, 0);
+  boy.head.rotation.x = -0.18 * sip;
+  boy.blink(sip > 0.6 ? 0.12 : blinkAt(t, 1.7));
+  boy.browLift(0, 0);
+
+  // table items jump on impact
+  const b = bump(t);
+  items.position.y = 0.7 + Math.abs(b) * 0.03;
+  items.rotation.z = b * 0.01;
+
+  // candle flicker + smoke
+  flames.forEach((f, i) => (f.scale.y = 1.9 + Math.sin(t * 23 + i * 2) * 0.15 + Math.sin(t * 37 + i) * 0.1));
+  smoke.forEach((sp, i) => {
+    const tip = tipPos[i % 3], p = ((t * 0.22 + i / smoke.length) % 1);
+    sp.position.set(tip.x + Math.sin(p * 6 + i) * 0.06 * p * 3, tip.y + p * 1.2, tip.z);
+    const sz = 0.08 + p * 0.45; sp.scale.set(sz, sz, 1);
+    sp.material.opacity = Math.sin(p * Math.PI) * 0.5;
+  });
+
+  // camera: slow push-in, small shake on impact
+  const z = lerp(4.1, 3.75, smooth(t / DUR));
+  camera.position.set(b * 0.015, 1.38 + b * 0.012, z);
+  camera.lookAt(0, 1.05, -0.7);
+}
+
+// ---------- caption (drawn on the 2D output canvas) ----------
+const out = document.getElementById('out'), ctx = out.getContext('2d');
+const LINES = [
+  { at: 0.25, words: ['EVERY', 'DRAW', 'NIGHT,'] },
+  { at: IMPACT, words: ['UNCLE', 'SAYS', 'THIS', 'ONE'] },
+  { at: 2.5, words: ['CONFIRM', '*HUAT.'] },
+];
+function caption(t) {
+  const size = 78, lh = 96, y0 = H * 0.70;
+  ctx.font = `900 ${size}px "Arial Black", "Helvetica Neue", sans-serif`;
+  ctx.textBaseline = 'middle';
+  LINES.forEach((line, li) => {
+    const k = clamp((t - line.at) / 0.18);
+    if (k <= 0) return;
+    const words = line.words.map(w => ({ hl: w[0] === '*', txt: w.replace('*', '') }));
+    const gap = size * 0.3, widths = words.map(w => ctx.measureText(w.txt).width);
+    let x = (W - (widths.reduce((a, b) => a + b, 0) + gap * (words.length - 1))) / 2;
+    const y = y0 + li * lh + (1 - smooth(k)) * 20;
+    ctx.globalAlpha = smooth(k);
+    words.forEach((w, i) => {
+      if (w.hl) {
+        ctx.fillStyle = '#d4af37';
+        ctx.fillRect(x - 12, y - size * 0.58, widths[i] + 24, size * 1.12);
+        ctx.fillStyle = '#1b0b08'; ctx.shadowBlur = 0;
+      } else {
+        ctx.fillStyle = '#fff'; ctx.shadowColor = 'rgba(0,0,0,0.7)'; ctx.shadowBlur = 14; ctx.shadowOffsetY = 4;
+      }
+      ctx.fillText(w.txt, x, y);
+      ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+      x += widths[i] + gap;
+    });
+    ctx.globalAlpha = 1;
+  });
+}
+
+function renderAt(t) {
+  pose(t);
+  renderer.render(scene, camera);
+  ctx.drawImage(renderer.domElement, 0, 0, W, H);
+  caption(t);
+}
+window.renderAt = renderAt;
+
+// Render every frame and POST it to serve.py; ffmpeg stitches afterwards.
+window.renderAll = async () => {
+  const n = FPS * DUR;
+  for (let i = 0; i < n; i++) {
+    renderAt(i / FPS);
+    const blob = await new Promise(r => out.toBlob(r, 'image/jpeg', 0.95));
+    await fetch('/frame/' + i, { method: 'POST', body: blob });
+    window.renderProgress = i + 1;
+  }
+  return n;
+};
+
+const fixed = new URLSearchParams(location.search).get('t');
+if (fixed !== null) renderAt(parseFloat(fixed));
+else {
+  const t0 = performance.now();
+  const loop = () => { renderAt(((performance.now() - t0) / 1000) % DUR); requestAnimationFrame(loop); };
+  loop();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Wardrobe Lineup</title>
+<style>html,body{margin:0;background:#111;display:grid;place-items:center;height:100%} canvas{width:100vw;height:auto}</style>
+<script type="importmap">{ "imports": { "three": "/js/vendor/three.module.min.js" } }</script>
+</head>
+<body>
+<script type="module">
+import * as THREE from 'three';
+import { makeCharacter, mat, OUTFITS } from './toy.js';
+
+const W = 2400, H = 1000;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H, false); renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0xe9e2d6);
+scene.add(new THREE.HemisphereLight(0xfff4e6, 0x8a7a66, 1.4));
+const key = new THREE.DirectionalLight(0xffffff, 2.2); key.position.set(2, 5, 6); key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048); Object.assign(key.shadow.camera, { left: -7, right: 7, top: 4, bottom: -2 });
+scene.add(key);
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(30, 10), mat(0xd8cfc0)); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+
+const cast = {
+  executive: { hairStyle: 'side', glasses: true, skin: 0xeab48c },
+  uncle: { belly: 0.06, skin: 0xd9a27a, hair: 0x6b6660 },
+  auntie: { hairStyle: 'perm', smile: true, skin: 0xf2c39d },
+  hawker: { skin: 0xd09a72 },
+  nurse: { hairStyle: 'side', smile: true, skin: 0xf2c39d },
+  rider: { skin: 0xc98f66 },
+  guard: { skin: 0xd9a27a },
+  casual: { hairStyle: 'side', skin: 0xeab48c },
+};
+const names = Object.keys(OUTFITS);
+names.forEach((name, i) => {
+  const c = makeCharacter({ ...cast[name], outfit: name });
+  c.root.position.set((i - (names.length - 1) / 2) * 1.0, 0.86, 0);
+  c.armL.shoulder.rotation.z = 0.12; c.armR.shoulder.rotation.z = -0.12;
+  scene.add(c.root);
+});
+
+const camera = new THREE.PerspectiveCamera(30, W / H, 0.1, 50);
+camera.position.set(0, 1.3, 9.2); camera.lookAt(0, 0.95, 0);
+renderer.render(scene, camera);
+window.snap = async (n = 990) => {
+  const b = await new Promise(r => renderer.domElement.toBlob(r, 'image/jpeg', 0.9));
+  await fetch('/frame/' + n, { method: 'POST', body: b });
+  return 'saved';
+};
+</script>
+</body>
+</html>
